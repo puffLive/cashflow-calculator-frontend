@@ -493,23 +493,23 @@
 
 ---
 
-## FEATURE 13: Transaction History & Undo — UI
+## FEATURE 13: Transaction History & Undo — UI ✅
 
 ### 13.1 Transaction History Screen
-- [ ] **13.1.1** Create `TransactionHistoryScreen` displaying the current player's transactions
-- [ ] **13.1.2** Fetch via `getTransactions` with `playerId` filter
-- [ ] **13.1.3** Each entry: timestamp, type icon/badge, description, amount (green for gains, red for losses), audit status badge (Approved ✓, Pending ⏳, Rejected ✗)
-- [ ] **13.1.4** Tap entry to expand: full before/after detail, auditor name, auditor note (if rejected)
-- [ ] **13.1.5** Scrollable list with load-more pagination
-- [ ] **13.1.6** Filter/sort controls: filter by type (buy, sell, loan, payday, market event), sort by newest/oldest
+- [x] **13.1.1** Create `TransactionHistoryScreen` displaying the current player's transactions
+- [x] **13.1.2** Fetch via `getTransactions` with `playerId` filter
+- [x] **13.1.3** Each entry: timestamp, type icon/badge, description, amount (green for gains, red for losses), audit status badge (Approved ✓, Pending ⏳, Rejected ✗)
+- [x] **13.1.4** Tap entry to expand: full before/after detail, auditor name, auditor note (if rejected)
+- [x] **13.1.5** Scrollable list with load-more pagination
+- [x] **13.1.6** Filter/sort controls: filter by type (buy, sell, loan, payday, market event), sort by newest/oldest
 
 ### 13.2 Undo Functionality
-- [ ] **13.2.1** "Undo Last Transaction" button at the top of the history screen
-- [ ] **13.2.2** Disabled if: no eligible transactions, or a pending undo is already in flight
-- [ ] **13.2.3** On tap: show confirmation dialog — "Undo [transaction description]? This will reverse all financial changes and require auditor approval."
-- [ ] **13.2.4** Show the reversal impact (what will be restored/removed)
-- [ ] **13.2.5** On confirm: call `undoTransaction` API, show "Undo request sent to auditor" pending state
-- [ ] **13.2.6** On auditor approval of undo: update dashboard with restored values, show success toast
+- [x] **13.2.1** "Undo Last Transaction" button at the top of the history screen
+- [x] **13.2.2** Disabled if: no eligible transactions, or a pending undo is already in flight
+- [x] **13.2.3** On tap: show confirmation dialog — "Undo [transaction description]? This will reverse all financial changes and require auditor approval."
+- [x] **13.2.4** Show the reversal impact (what will be restored/removed)
+- [x] **13.2.5** On confirm: call `undoTransaction` API, show "Undo request sent to auditor" pending state
+- [x] **13.2.6** On auditor approval of undo: update dashboard with restored values, show success toast
 
 ---
 

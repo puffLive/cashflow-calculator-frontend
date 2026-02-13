@@ -17,6 +17,7 @@ import PendingAuditsScreen from '@/screens/PendingAuditsScreen'
 import AuditReviewScreen from '@/screens/AuditReviewScreen'
 import HandoffAuditScreen from '@/screens/HandoffAuditScreen'
 import PlayersOverviewScreen from '@/screens/PlayersOverviewScreen'
+import TransactionHistoryScreen from '@/screens/TransactionHistoryScreen'
 
 // Import global components
 import SessionExpiryWarning from '@/components/SessionExpiryWarning'
@@ -57,6 +58,7 @@ function App() {
         <Route path={ROUTES.GAME_SETUP} element={<PlayerSetupScreen />} />
         <Route path={ROUTES.GAME_DASHBOARD} element={<DashboardScreen />} />
         <Route path="/game/:roomCode/players" element={<PlayersOverviewScreen />} />
+        <Route path="/game/:roomCode/history" element={<TransactionHistoryScreen />} />
 
         {/* Transaction routes */}
         <Route path="/game/:roomCode/transaction/buy" element={<BuyTransactionScreen />} />
