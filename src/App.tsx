@@ -13,6 +13,9 @@ import SellTransactionScreen from '@/screens/SellTransactionScreen'
 import TakeLoanScreen from '@/screens/TakeLoanScreen'
 import PayOffLoanScreen from '@/screens/PayOffLoanScreen'
 import MarketEventScreen from '@/screens/MarketEventScreen'
+import PendingAuditsScreen from '@/screens/PendingAuditsScreen'
+import AuditReviewScreen from '@/screens/AuditReviewScreen'
+import HandoffAuditScreen from '@/screens/HandoffAuditScreen'
 
 // Placeholder components for features not yet implemented
 
@@ -45,6 +48,11 @@ function App() {
         <Route path="/game/:roomCode/transaction/loan" element={<TakeLoanScreen />} />
         <Route path="/game/:roomCode/transaction/payoff" element={<PayOffLoanScreen />} />
         <Route path="/game/:roomCode/transaction/event" element={<MarketEventScreen />} />
+
+        {/* Audit routes */}
+        <Route path="/game/:roomCode/audits" element={<PendingAuditsScreen />} />
+        <Route path="/game/:roomCode/audit/:transactionId" element={<AuditReviewScreen />} />
+        <Route path="/game/:roomCode/audit/handoff" element={<HandoffAuditScreen />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

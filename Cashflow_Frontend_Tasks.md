@@ -407,36 +407,36 @@
 
 ---
 
-## FEATURE 10: Auditor Review — UI
+## FEATURE 10: Auditor Review — UI ✅
 
 ### 10.1 Remote Audit Mode (Auditor's Own Device)
-- [ ] **10.1.1** Create `AuditNotificationBadge` component — shows count on the Players nav tab and as a floating indicator
-- [ ] **10.1.2** Listen for `transaction:pending` Socket.io events where the current user is the auditor
-- [ ] **10.1.3** On event: add to `auditSlice.pendingReviews`, increment badge count, show push-style toast: "[Player] submitted a [type] transaction for review"
-- [ ] **10.1.4** Create `PendingAuditsScreen` accessible from the Players tab or the notification badge
-- [ ] **10.1.5** List of pending reviews: player name, transaction type, timestamp, "Review" button
-- [ ] **10.1.6** Create `AuditReviewScreen` showing full transaction detail:
+- [x] **10.1.1** Create `AuditNotificationBadge` component — shows count on the Players nav tab and as a floating indicator
+- [x] **10.1.2** Listen for `transaction:pending` Socket.io events where the current user is the auditor
+- [x] **10.1.3** On event: add to `auditSlice.pendingReviews`, increment badge count, show push-style toast: "[Player] submitted a [type] transaction for review"
+- [x] **10.1.4** Create `PendingAuditsScreen` accessible from the Players tab or the notification badge
+- [x] **10.1.5** List of pending reviews: player name, transaction type, timestamp, "Review" button
+- [x] **10.1.6** Create `AuditReviewScreen` showing full transaction detail:
   - Player name and profession
   - Transaction type and description
   - Before → After table for ALL affected financial categories
   - Asset/liability details
-- [ ] **10.1.7** "Approve" button (green, large) and "Reject" button (red, large)
-- [ ] **10.1.8** On "Reject": expand a text input for rejection note (required)
-- [ ] **10.1.9** On Approve/Reject: call `auditTransaction` API, show confirmation, remove from pending list
-- [ ] **10.1.10** Handle loading states during API call
+- [x] **10.1.7** "Approve" button (green, large) and "Reject" button (red, large)
+- [x] **10.1.8** On "Reject": expand a text input for rejection note (required)
+- [x] **10.1.9** On Approve/Reject: call `auditTransaction` API, show confirmation, remove from pending list
+- [x] **10.1.10** Handle loading states during API call
 
 ### 10.2 Handoff Audit Mode (Same Device)
-- [ ] **10.2.1** After a player submits a transaction and taps "Handoff to Auditor":
-- [ ] **10.2.2** Navigate to `HandoffAuditScreen` — clearly labeled "AUDITOR REVIEW" with distinct visual treatment (different background color/header)
-- [ ] **10.2.3** Same transaction detail layout as remote mode (before/after table, full impact summary)
-- [ ] **10.2.4** "Approve" and "Reject" buttons
-- [ ] **10.2.5** "Return to Player" button that navigates back to the player's dashboard
-- [ ] **10.2.6** No authentication required — trust-based UX
+- [x] **10.2.1** After a player submits a transaction and taps "Handoff to Auditor":
+- [x] **10.2.2** Navigate to `HandoffAuditScreen` — clearly labeled "AUDITOR REVIEW" with distinct visual treatment (different background color/header)
+- [x] **10.2.3** Same transaction detail layout as remote mode (before/after table, full impact summary)
+- [x] **10.2.4** "Approve" and "Reject" buttons
+- [x] **10.2.5** "Return to Player" button that navigates back to the player's dashboard
+- [x] **10.2.6** No authentication required — trust-based UX
 
 ### 10.3 Pending Transaction State (Player Side)
-- [ ] **10.3.1** When a transaction is submitted and awaiting audit, update the dashboard to show pending state
-- [ ] **10.3.2** Pending metric values shown with amber (#F9A825) color and a "Pending" badge
-- [ ] **10.3.3** "Waiting for Auditor" indicator with elapsed time counter
+- [x] **10.3.1** When a transaction is submitted and awaiting audit, update the dashboard to show pending state
+- [x] **10.3.2** Pending metric values shown with amber (#F9A825) color and a "Pending" badge
+- [x] **10.3.3** "Waiting for Auditor" indicator with elapsed time counter
 - [ ] **10.3.4** After 5 minutes: show "Re-notify Auditor" button (re-emits the pending notification)
 - [ ] **10.3.5** Block the FAB / "+ Transaction" button for the same transaction type while pending
 - [ ] **10.3.6** On `transaction:finalized`: animate pending values to confirmed values (green flash), show success toast
