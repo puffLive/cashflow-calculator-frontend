@@ -387,23 +387,23 @@
 
 ---
 
-## FEATURE 9: Market Events — UI
+## FEATURE 9: Market Events — UI ✅
 
 ### 9.1 Market Event Selection Screen
-- [ ] **9.1.1** Create `MarketEventScreen` with event type cards: Downsized, Charity, Doodad, Baby, Stock Split, Reverse Stock Split, Lend/Collect Money
+- [x] **9.1.1** Create `MarketEventScreen` with event type cards: Downsized, Charity, Doodad, Baby, Stock Split, Reverse Stock Split, Lend/Collect Money
 
 ### 9.2 Event-Specific Flows
-- [ ] **9.2.1** **Downsized:** Confirmation screen showing Total Expenses amount to be deducted. If Cash on Hand < Total Expenses, show warning: "You don't have enough cash. You'll need to take a loan." Include link to loan wizard.
-- [ ] **9.2.2** **Charity:** Auto-calculate 10% of Total Income. Display: "Donate $X,XXX (10% of $XX,XXX income)." Confirm button.
-- [ ] **9.2.3** **Doodad:** Amount input field. Show remaining Cash on Hand after deduction. Confirm button.
-- [ ] **9.2.4** **Baby:** Confirmation showing: "Congratulations! New child expense: +$XXX/month. New Total Expenses: $X,XXX. New PAYDAY: $X,XXX." Confirm button.
-- [ ] **9.2.5** **Stock Split:** Display list of owned stocks as selectable cards. Select one → show before/after: "Shares: X → X×2 | Cost/Share: $Y → $Y/2." Confirm button.
-- [ ] **9.2.6** **Reverse Stock Split:** Same as stock split but inverse: "Shares: X → X/2 (rounded down) | Cost/Share: $Y → $Y×2." Confirm button.
-- [ ] **9.2.7** **Lend / Collect Money:** Amount input. Toggle or sign selector for lend (negative) vs. collect (positive). Show Cash on Hand impact. Confirm button.
+- [x] **9.2.1** **Downsized:** Confirmation screen showing Total Expenses amount to be deducted. If Cash on Hand < Total Expenses, show warning: "You don't have enough cash. You'll need to take a loan." Include link to loan wizard.
+- [x] **9.2.2** **Charity:** Auto-calculate 10% of Total Income. Display: "Donate $X,XXX (10% of $XX,XXX income)." Confirm button.
+- [x] **9.2.3** **Doodad:** Amount input field. Show remaining Cash on Hand after deduction. Confirm button.
+- [x] **9.2.4** **Baby:** Confirmation showing: "Congratulations! New child expense: +$XXX/month. New Total Expenses: $X,XXX. New PAYDAY: $X,XXX." Confirm button.
+- [x] **9.2.5** **Stock Split:** Display list of owned stocks as selectable cards. Select one → show before/after: "Shares: X → X×2 | Cost/Share: $Y → $Y/2." Confirm button.
+- [x] **9.2.6** **Reverse Stock Split:** Same as stock split but inverse: "Shares: X → X/2 (rounded down) | Cost/Share: $Y → $Y×2." Confirm button.
+- [x] **9.2.7** **Lend / Collect Money:** Amount input. Toggle or sign selector for lend (negative) vs. collect (positive). Show Cash on Hand impact. Confirm button.
 
 ### 9.3 Submission
-- [ ] **9.3.1** All events follow the review → confirm → audit submission pattern
-- [ ] **9.3.2** Multi-category events trigger audit; simple cash adjustments may be auto-approved (based on backend logic)
+- [x] **9.3.1** All events follow the review → confirm → audit submission pattern
+- [x] **9.3.2** Multi-category events trigger audit; simple cash adjustments may be auto-approved (based on backend logic)
 
 ---
 
