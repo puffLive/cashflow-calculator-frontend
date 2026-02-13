@@ -466,30 +466,30 @@
 
 ---
 
-## FEATURE 12: Disconnection & Reconnection — UI
+## FEATURE 12: Disconnection & Reconnection — UI ✅
 
 ### 12.1 Disconnected Player Indicators
-- [ ] **12.1.1** On `player:disconnected` event: update the player's card on the Players Overview screen with a "Disconnected" badge and a countdown timer showing remaining reconnection time (e.g., "14:32 remaining")
-- [ ] **12.1.2** On `player:reconnected`: remove the badge, flash a green "Reconnected" indicator briefly
-- [ ] **12.1.3** On `player:removed`: replace the card content with "Removed (disconnected)" in gray, no financial data shown
+- [x] **12.1.1** On `player:disconnected` event: update the player's card on the Players Overview screen with a "Disconnected" badge and a countdown timer showing remaining reconnection time (e.g., "14:32 remaining")
+- [x] **12.1.2** On `player:reconnected`: remove the badge, flash a green "Reconnected" indicator briefly
+- [x] **12.1.3** On `player:removed`: replace the card content with "Removed (disconnected)" in gray, no financial data shown
 
 ### 12.2 Auditor Disconnection Handling
-- [ ] **12.2.1** If the current user's auditor disconnects: show an alert/banner: "Your auditor [Name] has disconnected. Pending reviews are paused."
-- [ ] **12.2.2** If the auditor is removed after 15 min: show a modal prompting the user to select a new auditor (reuse `AuditorPicker`)
-- [ ] **12.2.3** On new auditor selection: call `reassignAuditor` API
+- [x] **12.2.1** If the current user's auditor disconnects: show an alert/banner: "Your auditor [Name] has disconnected. Pending reviews are paused."
+- [x] **12.2.2** If the auditor is removed after 15 min: show a modal prompting the user to select a new auditor (reuse `AuditorPicker`)
+- [x] **12.2.3** On new auditor selection: call `reassignAuditor` API
 
 ### 12.3 Own Reconnection
-- [ ] **12.3.1** On app load: check if the user has a stored `roomCode` and `playerId` (in sessionStorage)
-- [ ] **12.3.2** If found: attempt to call `reconnectPlayer` API
-- [ ] **12.3.3** On success: restore full game state from API response, rejoin Socket.io room, show "Welcome back!" toast with a brief summary of missed events
-- [ ] **12.3.4** On failure (expired): show "Your session has expired. You were removed after 15 minutes of inactivity." with option to return to landing page
+- [x] **12.3.1** On app load: check if the user has a stored `roomCode` and `playerId` (in sessionStorage)
+- [x] **12.3.2** If found: attempt to call `reconnectPlayer` API
+- [x] **12.3.3** On success: restore full game state from API response, rejoin Socket.io room, show "Welcome back!" toast with a brief summary of missed events
+- [x] **12.3.4** On failure (expired): show "Your session has expired. You were removed after 15 minutes of inactivity." with option to return to landing page
 
 ### 12.4 Session Expiry UI
-- [ ] **12.4.1** On `session:expiry_warning` event: display a full-width warning banner at the top: "Session will expire in 3 minutes due to inactivity. Make any action to keep playing."
-- [ ] **12.4.2** Show a countdown timer in the banner
-- [ ] **12.4.3** Banner dismisses automatically when any action resets the timer (listen for `player:updated` or `transaction:finalized`)
-- [ ] **12.4.4** On `session:expired` event: display a full-screen modal: "Session Expired — This game session has ended due to inactivity." Button: "Return to Home"
-- [ ] **12.4.5** Navigate to landing page on modal dismiss
+- [x] **12.4.1** On `session:expiry_warning` event: display a full-width warning banner at the top: "Session will expire in 3 minutes due to inactivity. Make any action to keep playing."
+- [x] **12.4.2** Show a countdown timer in the banner
+- [x] **12.4.3** Banner dismisses automatically when any action resets the timer (listen for `player:updated` or `transaction:finalized`)
+- [x] **12.4.4** On `session:expired` event: display a full-screen modal: "Session Expired — This game session has ended due to inactivity." Button: "Return to Home"
+- [x] **12.4.5** Navigate to landing page on modal dismiss
 
 ---
 

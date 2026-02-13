@@ -18,6 +18,13 @@ import AuditReviewScreen from '@/screens/AuditReviewScreen'
 import HandoffAuditScreen from '@/screens/HandoffAuditScreen'
 import PlayersOverviewScreen from '@/screens/PlayersOverviewScreen'
 
+// Import global components
+import SessionExpiryWarning from '@/components/SessionExpiryWarning'
+import SessionExpiredModal from '@/components/SessionExpiredModal'
+import ReconnectionHandler from '@/components/ReconnectionHandler'
+import { useAppSelector } from '@/hooks/redux'
+import { selectModalOpen } from '@/store/slices/uiSlice'
+
 // Placeholder components for features not yet implemented
 
 const NotFound = () => (
@@ -30,8 +37,15 @@ const NotFound = () => (
 )
 
 function App() {
+  const modalOpen = useAppSelector(selectModalOpen)
+
   return (
     <Router>
+      {/* Global UI Components */}
+      <SessionExpiryWarning />
+      <SessionExpiredModal isOpen={modalOpen === 'session_expired'} />
+      <ReconnectionHandler />
+
       <Routes>
         {/* Landing and game creation */}
         <Route path={ROUTES.LANDING} element={<LandingScreen />} />
