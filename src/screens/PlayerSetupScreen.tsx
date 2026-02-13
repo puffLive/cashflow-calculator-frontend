@@ -43,9 +43,9 @@ const PlayerSetupScreen = () => {
       await setupPlayer({
         roomCode,
         playerId,
-        profession: randomProfession.id,
-        dream: '', // Will be set later in the game
-        auditorPlayerId: '' // Will be assigned when game starts
+        profession: randomProfession.title,
+        // dream is optional, omitting for now
+        // auditorPlayerId is optional, omitting for now
       }).unwrap()
 
       // Navigate back to lobby after successful setup
