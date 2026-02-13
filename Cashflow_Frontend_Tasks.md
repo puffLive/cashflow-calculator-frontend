@@ -338,30 +338,30 @@
 
 ---
 
-## FEATURE 7: Sell Transaction Wizard — UI
+## FEATURE 7: Sell Transaction Wizard — UI ✅
 
 ### 7.1 Sell Wizard Flow
-- [ ] **7.1.1** Create `SellTransactionScreen` as a step-by-step wizard
+- [x] **7.1.1** Create `SellTransactionScreen` as a step-by-step wizard
 
 ### 7.2 Step 1: Asset Selection
-- [ ] **7.2.1** Display list of currently owned assets (from `playerSlice`) as selectable cards
-- [ ] **7.2.2** Each card shows: asset type icon, name, quantity owned, cost basis, current passive income
-- [ ] **7.2.3** If no assets owned, show empty state: "You don't have any assets to sell"
-- [ ] **7.2.4** Single-select; "Next" enabled on selection
+- [x] **7.2.1** Display list of currently owned assets (from `playerSlice`) as selectable cards
+- [x] **7.2.2** Each card shows: asset type icon, name, quantity owned, cost basis, current passive income
+- [x] **7.2.3** If no assets owned, show empty state: "You don't have any assets to sell"
+- [x] **7.2.4** Single-select; "Next" enabled on selection
 
 ### 7.3 Step 2: Sale Details
-- [ ] **7.3.1** Input: sale/offer price per unit (number)
-- [ ] **7.3.2** Input: quantity to sell (number, max = owned quantity; pre-fill with full quantity for non-divisible assets like real estate)
-- [ ] **7.3.3** Show real-time capital gain/loss: "(Sale Price − Cost Basis) × Quantity = $X,XXX gain/loss"
-- [ ] **7.3.4** Show total sale proceeds
+- [x] **7.3.1** Input: sale/offer price per unit (number)
+- [x] **7.3.2** Input: quantity to sell (number, max = owned quantity; pre-fill with full quantity for non-divisible assets like real estate)
+- [x] **7.3.3** Show real-time capital gain/loss: "(Sale Price − Cost Basis) × Quantity = $X,XXX gain/loss"
+- [x] **7.3.4** Show total sale proceeds
 
 ### 7.4 Step 3: Review Impact
-- [ ] **7.4.1** Full financial impact summary: Cash on Hand increase, asset removal/reduction, passive income removal, liability removal (if applicable), expense reduction (if applicable)
-- [ ] **7.4.2** Capital gain/loss prominently displayed
+- [x] **7.4.1** Full financial impact summary: Cash on Hand increase, asset removal/reduction, passive income removal, liability removal (if applicable), expense reduction (if applicable)
+- [x] **7.4.2** Capital gain/loss prominently displayed
 
 ### 7.5 Step 4: Confirm & Submit
-- [ ] **7.5.1** Confirmation prompt + Submit for Audit / Handoff to Auditor buttons
-- [ ] **7.5.2** Handle submission and pending state
+- [x] **7.5.1** Confirmation prompt + Submit for Audit / Handoff to Auditor buttons
+- [x] **7.5.2** Handle submission and pending state
 
 ---
 

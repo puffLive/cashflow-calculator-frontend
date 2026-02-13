@@ -9,6 +9,7 @@ import GameLobbyScreen from '@/screens/GameLobbyScreen'
 import PlayerSetupScreen from '@/screens/PlayerSetupScreen'
 import DashboardScreen from '@/screens/DashboardScreen'
 import BuyTransactionScreen from '@/screens/BuyTransactionScreen'
+import SellTransactionScreen from '@/screens/SellTransactionScreen'
 
 // Placeholder components for features not yet implemented
 
@@ -37,6 +38,7 @@ function App() {
 
         {/* Transaction routes */}
         <Route path="/game/:roomCode/transaction/buy" element={<BuyTransactionScreen />} />
+        <Route path="/game/:roomCode/transaction/sell" element={<SellTransactionScreen />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
