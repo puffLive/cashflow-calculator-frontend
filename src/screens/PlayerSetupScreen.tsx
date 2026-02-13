@@ -1,18 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, CheckCircle } from 'lucide-react'
+import { ArrowLeft, CheckCircle, RefreshCw } from 'lucide-react'
 import { useSetupPlayerMutation } from '@/services/gameApi'
 import { PROFESSIONS } from '@/constants/professions'
-import ProfessionCard from '@/components/ProfessionCard'
 import FinancialSheetPreview from '@/components/FinancialSheetPreview'
 import type { Profession } from '@/types/profession'
 
 const PlayerSetupScreen = () => {
   const navigate = useNavigate()
   const { roomCode } = useParams<{ roomCode: string }>()
-  const [selectedProfession, setSelectedProfession] = useState<Profession | null>(null)
-  const [numberOfChildren, setNumberOfChildren] = useState(0)
-  const [showPreview, setShowPreview] = useState(false)
+  const [randomProfession, setRandomProfession] = useState<Profession | null>(null)
 
   const [setupPlayer, { isLoading, error }] = useSetupPlayerMutation()
 
@@ -26,31 +23,33 @@ const PlayerSetupScreen = () => {
     }
   }, [playerId, playerName, roomCode, navigate])
 
-  const handleProfessionSelect = (profession: Profession) => {
-    setSelectedProfession(profession)
-    setShowPreview(false)
-  }
-
-  const handlePreview = () => {
-    if (selectedProfession) {
-      setShowPreview(true)
+  // Randomly assign a profession on mount
+  useEffect(() => {
+    if (PROFESSIONS.length > 0 && !randomProfession) {
+      const randomIndex = Math.floor(Math.random() * PROFESSIONS.length)
+      setRandomProfession(PROFESSIONS[randomIndex])
     }
+  }, [randomProfession])
+
+  const handleRandomize = () => {
+    const randomIndex = Math.floor(Math.random() * PROFESSIONS.length)
+    setRandomProfession(PROFESSIONS[randomIndex])
   }
 
   const handleConfirm = async () => {
-    if (!selectedProfession || !playerId || !roomCode) return
+    if (!randomProfession || !playerId || !roomCode) return
 
     try {
       await setupPlayer({
         roomCode,
         playerId,
-        profession: selectedProfession.id,
+        profession: randomProfession.id,
         dream: '', // Will be set later in the game
         auditorPlayerId: '' // Will be assigned when game starts
       }).unwrap()
 
-      // Navigate to dashboard after successful setup
-      navigate(`/game/${roomCode}/dashboard`)
+      // Navigate back to lobby after successful setup
+      navigate(`/game/${roomCode}/lobby`)
     } catch (err) {
       console.error('Failed to setup player:', err)
     }
@@ -60,10 +59,16 @@ const PlayerSetupScreen = () => {
     navigate(`/game/${roomCode}/lobby`)
   }
 
-  // Filter professions by difficulty for better organization
-  const easyProfessions = PROFESSIONS.filter(p => p.difficulty === 'easy')
-  const mediumProfessions = PROFESSIONS.filter(p => p.difficulty === 'medium')
-  const hardProfessions = PROFESSIONS.filter(p => p.difficulty === 'hard')
+  if (!randomProfession) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-gray-600">Assigning profession...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-20">
@@ -79,7 +84,7 @@ const PlayerSetupScreen = () => {
               <span>Back to Lobby</span>
             </button>
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-800">Choose Your Profession</h1>
+              <h1 className="text-2xl font-bold text-gray-800">Your Profession</h1>
               <p className="text-sm text-gray-600">{playerName}</p>
             </div>
             <div className="w-24" /> {/* Spacer for alignment */}
@@ -87,166 +92,100 @@ const PlayerSetupScreen = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {!showPreview ? (
-          <>
-            {/* Children Selection */}
-            <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Number of Children (Optional)
-              </label>
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => setNumberOfChildren(Math.max(0, numberOfChildren - 1))}
-                  className="w-10 h-10 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-bold"
-                  disabled={numberOfChildren === 0}
-                >
-                  -
-                </button>
-                <span className="text-2xl font-bold text-gray-800 w-12 text-center">
-                  {numberOfChildren}
-                </span>
-                <button
-                  onClick={() => setNumberOfChildren(Math.min(6, numberOfChildren + 1))}
-                  className="w-10 h-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-bold"
-                  disabled={numberOfChildren === 6}
-                >
-                  +
-                </button>
-                <span className="text-sm text-gray-600">
-                  (Each child adds ${selectedProfession?.perChildExpense.toLocaleString() || 0}/month expenses)
-                </span>
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        {/* Profession Assignment Card */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="text-center mb-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-2">
+              You have been assigned:
+            </h2>
+            <div className="inline-block">
+              <div className={`px-4 py-2 rounded-full text-sm font-medium mb-2 ${
+                randomProfession.difficulty === 'easy' ? 'bg-green-100 text-green-700' :
+                randomProfession.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                'bg-red-100 text-red-700'
+              }`}>
+                {randomProfession.difficulty.charAt(0).toUpperCase() + randomProfession.difficulty.slice(1)} Difficulty
               </div>
             </div>
+            <h3 className="text-3xl font-bold text-blue-600 mb-4">
+              {randomProfession.title}
+            </h3>
+            <p className="text-gray-600 mb-4">{randomProfession.description}</p>
 
-            {/* Easy Professions */}
-            <div className="mb-8">
-              <div className="flex items-center space-x-2 mb-4">
-                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                  Easy
-                </span>
-                <h2 className="text-xl font-semibold text-gray-800">Beginner Friendly</h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {easyProfessions.map(profession => (
-                  <ProfessionCard
-                    key={profession.id}
-                    profession={profession}
-                    isSelected={selectedProfession?.id === profession.id}
-                    onSelect={() => handleProfessionSelect(profession)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Medium Professions */}
-            <div className="mb-8">
-              <div className="flex items-center space-x-2 mb-4">
-                <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
-                  Medium
-                </span>
-                <h2 className="text-xl font-semibold text-gray-800">Moderate Challenge</h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {mediumProfessions.map(profession => (
-                  <ProfessionCard
-                    key={profession.id}
-                    profession={profession}
-                    isSelected={selectedProfession?.id === profession.id}
-                    onSelect={() => handleProfessionSelect(profession)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Hard Professions */}
-            <div className="mb-8">
-              <div className="flex items-center space-x-2 mb-4">
-                <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
-                  Hard
-                </span>
-                <h2 className="text-xl font-semibold text-gray-800">Expert Level</h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {hardProfessions.map(profession => (
-                  <ProfessionCard
-                    key={profession.id}
-                    profession={profession}
-                    isSelected={selectedProfession?.id === profession.id}
-                    onSelect={() => handleProfessionSelect(profession)}
-                  />
-                ))}
-              </div>
-            </div>
-          </>
-        ) : (
-          /* Financial Preview */
-          <div className="max-w-2xl mx-auto">
-            {selectedProfession && <FinancialSheetPreview profession={selectedProfession} />}
-
-            {numberOfChildren > 0 && (
-              <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  <span className="font-semibold">With {numberOfChildren} {numberOfChildren === 1 ? 'child' : 'children'}:</span>
-                  {' '}Additional ${(selectedProfession!.perChildExpense * numberOfChildren).toLocaleString()}/month in expenses
-                </p>
-              </div>
-            )}
+            <button
+              onClick={handleRandomize}
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              <span>Try Another Profession</span>
+            </button>
           </div>
-        )}
-      </div>
 
-      {/* Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          {error && (
-            <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-700">
-                Failed to set up profession. Please try again.
+          {/* Financial Summary */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-blue-50 rounded-lg p-4 text-center">
+              <p className="text-sm text-blue-600 font-medium mb-1">Monthly Salary</p>
+              <p className="text-2xl font-bold text-blue-700">
+                ${randomProfession.salary.toLocaleString()}
               </p>
             </div>
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="text-left">
-              {selectedProfession && (
-                <>
-                  <p className="text-sm text-gray-600">Selected Profession</p>
-                  <p className="font-semibold text-gray-800">{selectedProfession.title}</p>
-                </>
-              )}
+            <div className="bg-red-50 rounded-lg p-4 text-center">
+              <p className="text-sm text-red-600 font-medium mb-1">Monthly Expenses</p>
+              <p className="text-2xl font-bold text-red-700">
+                ${(randomProfession.taxes + randomProfession.mortgage + randomProfession.schoolLoan + randomProfession.carLoan + randomProfession.creditCard + randomProfession.otherExpenses + randomProfession.bankLoan).toLocaleString()}
+              </p>
             </div>
-
-            <div className="flex items-center space-x-3">
-              {!showPreview ? (
-                <button
-                  onClick={handlePreview}
-                  disabled={!selectedProfession}
-                  className="px-6 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                >
-                  Preview Financial Sheet
-                </button>
-              ) : (
-                <>
-                  <button
-                    onClick={() => setShowPreview(false)}
-                    className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition-colors"
-                  >
-                    Choose Different
-                  </button>
-                  <button
-                    onClick={handleConfirm}
-                    disabled={isLoading}
-                    className="px-6 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
-                  >
-                    <CheckCircle className="w-5 h-5" />
-                    <span>{isLoading ? 'Setting up...' : 'Confirm & Continue'}</span>
-                  </button>
-                </>
-              )}
+            <div className="bg-green-50 rounded-lg p-4 text-center">
+              <p className="text-sm text-green-600 font-medium mb-1">Monthly Cashflow</p>
+              <p className="text-2xl font-bold text-green-700">
+                ${(randomProfession.salary - (randomProfession.taxes + randomProfession.mortgage + randomProfession.schoolLoan + randomProfession.carLoan + randomProfession.creditCard + randomProfession.otherExpenses + randomProfession.bankLoan)).toLocaleString()}
+              </p>
             </div>
           </div>
+
+          {/* Note about children */}
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <p className="text-sm text-yellow-800">
+              <strong>Note:</strong> You start with 0 children. Children can be added during the game when you draw a "Baby" card.
+              Each child adds ${randomProfession.perChildExpense.toLocaleString()}/month in expenses.
+            </p>
+          </div>
         </div>
+
+        {/* Financial Sheet Preview */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <h3 className="text-lg font-bold text-gray-800 mb-4">Your Starting Financial Sheet</h3>
+          <FinancialSheetPreview
+            profession={randomProfession}
+          />
+        </div>
+
+        {/* Confirm Button */}
+        <div className="flex justify-center space-x-4">
+          <button
+            onClick={handleBack}
+            className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+          >
+            Back
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={isLoading}
+            className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
+          >
+            <CheckCircle className="w-5 h-5" />
+            <span>{isLoading ? 'Setting up...' : 'Confirm & Continue'}</span>
+          </button>
+        </div>
+
+        {error && (
+          <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-800 text-center">
+              Failed to setup player. Please try again.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
