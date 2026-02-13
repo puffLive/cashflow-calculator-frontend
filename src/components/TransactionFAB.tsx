@@ -40,6 +40,7 @@ const TransactionFAB = ({ disabled = false, disabledTooltip }: TransactionFABPro
               <button
                 key={action.id}
                 onClick={() => handleActionClick(action.path)}
+                aria-label={`${action.label} transaction`}
                 className={`
                   ${action.color} text-white rounded-full p-3 shadow-lg
                   flex items-center space-x-2 pr-4
@@ -61,6 +62,8 @@ const TransactionFAB = ({ disabled = false, disabledTooltip }: TransactionFABPro
         <button
           onClick={handleMainButtonClick}
           disabled={disabled}
+          aria-label={isExpanded ? 'Close transaction menu' : 'Open transaction menu'}
+          aria-expanded={isExpanded}
           className={`
             w-14 h-14 rounded-full shadow-lg flex items-center justify-center
             transition-all duration-300 transform

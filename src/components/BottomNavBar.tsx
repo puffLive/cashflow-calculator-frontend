@@ -39,6 +39,8 @@ const BottomNavBar = ({ pendingAuditCount = 0 }: BottomNavBarProps) => {
             <button
               key={tab.id}
               onClick={() => navigate(tab.path)}
+              aria-label={`${tab.label}${tab.badge && tab.badge > 0 ? ` (${tab.badge} pending)` : ''}`}
+              aria-current={active ? 'page' : undefined}
               className={`
                 flex flex-col items-center justify-center py-2 px-1 rounded-lg relative
                 transition-colors duration-200

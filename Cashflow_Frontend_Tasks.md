@@ -519,7 +519,7 @@
 - [ ] **14.1.1** Audit all screens at 360px width (small Android) and 428px width (iPhone 15 Pro Max)
 - [ ] **14.1.2** Verify all touch targets are ≥ 44px × 44px (buttons, cards, list items, form inputs)
 - [ ] **14.1.3** Verify all forms are usable in both portrait and landscape orientation
-- [ ] **14.1.4** Configure number input fields with `inputMode="numeric"` and `pattern="[0-9]*"` for mobile numeric keyboards
+- [x] **14.1.4** Configure number input fields with `inputMode="numeric"` and `pattern="[0-9]*"` for mobile numeric keyboards
 - [ ] **14.1.5** Test scroll behavior: ensure no content is hidden behind the bottom nav bar
 - [ ] **14.1.6** Verify modals and overlays work correctly on mobile (no viewport issues)
 
@@ -531,11 +531,11 @@
 
 ### 14.3 Accessibility (WCAG 2.1 AA)
 - [ ] **14.3.1** Verify color contrast meets 4.5:1 ratio for all text on colored backgrounds (use Tailwind's contrast checker or axe)
-- [ ] **14.3.2** Add `aria-label` attributes to all icon-only buttons (FAB, nav tabs, close buttons)
-- [ ] **14.3.3** Add `aria-live="polite"` to dashboard metric cards (announce value changes to screen readers)
+- [x] **14.3.2** Add `aria-label` attributes to all icon-only buttons (FAB, nav tabs, close buttons)
+- [x] **14.3.3** Add `aria-live="polite"` to dashboard metric cards (announce value changes to screen readers)
 - [ ] **14.3.4** Ensure all forms have properly associated `<label>` elements
 - [ ] **14.3.5** Add keyboard navigation: Tab through all interactive elements, Enter/Space to activate
-- [ ] **14.3.6** Add visible focus indicators (focus-visible ring) on all interactive elements
+- [x] **14.3.6** Add visible focus indicators (focus-visible ring) on all interactive elements
 - [ ] **14.3.7** Test with screen reader (VoiceOver on iOS/macOS) for core flows: setup wizard, collect PAYDAY, buy transaction, audit review
 - [ ] **14.3.8** Verify all status changes (pending, approved, rejected, Fast Track) are announced by screen readers
 

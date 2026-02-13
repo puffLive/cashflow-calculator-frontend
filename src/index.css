@@ -1,5 +1,15 @@
 @import 'tailwindcss';
 
+/* Focus indicators for accessibility */
+*:focus-visible {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}
+
+button:focus-visible,
+a:focus-visible {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}
+
 /* Custom component classes */
 .card {
   @apply bg-white rounded-lg shadow-md p-4 border border-gray-200;

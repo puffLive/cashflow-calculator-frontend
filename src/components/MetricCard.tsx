@@ -31,10 +31,18 @@ const MetricCard = ({ label, value, subtitle, variant = 'neutral', large = false
   }
 
   return (
-    <div className={`rounded-lg border-2 p-4 ${getColorClasses()}`}>
+    <div
+      className={`rounded-lg border-2 p-4 ${getColorClasses()}`}
+      role="region"
+      aria-label={label}
+    >
       <div className="flex flex-col">
         <span className="text-sm font-medium text-gray-600 mb-1">{label}</span>
-        <span className={`font-bold ${large ? 'text-3xl' : 'text-2xl'}`}>
+        <span
+          className={`font-bold ${large ? 'text-3xl' : 'text-2xl'}`}
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {formatCurrency(value)}
         </span>
         {subtitle && (
