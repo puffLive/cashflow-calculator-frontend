@@ -155,44 +155,44 @@
 
 ---
 
-## FEATURE 3: Game Creation & Joining — UI
+## FEATURE 3:  Game Creation & Joining — UI ✅
 
 ### 3.1 Landing Page
-- [ ] **3.1.1** Create `LandingScreen` component with app branding/title
-- [ ] **3.1.2** Two primary action buttons: "Create New Game" and "Join Existing Game"
-- [ ] **3.1.3** Style mobile-first: centered layout, large touch-friendly buttons (≥44px height)
-- [ ] **3.1.4** Add subtle background or illustration reflecting the Cashflow game theme
+- [x] **3.1.1** Create `LandingScreen` component with app branding/title
+- [x] **3.1.2** Two primary action buttons: "Create New Game" and "Join Existing Game"
+- [x] **3.1.3** Style mobile-first: centered layout, large touch-friendly buttons (≥44px height)
+- [x] **3.1.4** Add subtle background or illustration reflecting the Cashflow game theme
 
 ### 3.2 Create Game Flow
-- [ ] **3.2.1** Create `CreateGameScreen` component
-- [ ] **3.2.2** Input: player name (required, text field)
-- [ ] **3.2.3** Game version display: "Cashflow 101" (read-only for MVP — only one option)
-- [ ] **3.2.4** "Create Game" button calls `createGame` API + `joinGame` API (host auto-joins)
-- [ ] **3.2.5** On success: display room code prominently in large font with a "Copy Code" button and "Share" button (Web Share API on mobile)
-- [ ] **3.2.6** "Continue to Lobby" button navigates to the lobby screen
-- [ ] **3.2.7** Handle loading state (spinner) and error state (API failure message)
+- [x] **3.2.1** Create `CreateGameScreen` component
+- [x] **3.2.2** Input: player name (required, text field)
+- [x] **3.2.3** Game version display: "Cashflow 101" (read-only for MVP — only one option)
+- [x] **3.2.4** "Create Game" button calls `createGame` API + `joinGame` API (host auto-joins)
+- [x] **3.2.5** On success: display room code prominently in large font with a "Copy Code" button and "Share" button (Web Share API on mobile)
+- [x] **3.2.6** "Continue to Lobby" button navigates to the lobby screen
+- [x] **3.2.7** Handle loading state (spinner) and error state (API failure message)
 
 ### 3.3 Join Game Flow
-- [ ] **3.3.1** Create `JoinGameScreen` component
-- [ ] **3.3.2** Input: room code (6-character field, auto-uppercase, monospace font for readability)
-- [ ] **3.3.3** Input: player name (required)
-- [ ] **3.3.4** "Join Game" button calls `joinGame` API
-- [ ] **3.3.5** Display contextual error messages: "Room not found", "Game already started", "Session full (6/6 players)", "Room code expired"
-- [ ] **3.3.6** On success: navigate to the lobby screen
-- [ ] **3.3.7** Handle loading and error states
+- [x] **3.3.1** Create `JoinGameScreen` component
+- [x] **3.3.2** Input: room code (6-character field, auto-uppercase, monospace font for readability)
+- [x] **3.3.3** Input: player name (required)
+- [x] **3.3.4** "Join Game" button calls `joinGame` API
+- [x] **3.3.5** Display contextual error messages: "Room not found", "Game already started", "Session full (6/6 players)", "Room code expired"
+- [x] **3.3.6** On success: navigate to the lobby screen
+- [x] **3.3.7** Handle loading and error states
 
 ### 3.4 Game Lobby Screen
-- [ ] **3.4.1** Create `GameLobbyScreen` component
-- [ ] **3.4.2** Display room code prominently at the top with copy/share buttons
-- [ ] **3.4.3** Player count indicator: "3/6 Players"
-- [ ] **3.4.4** Player list: each row shows name, profession (or "Setting up..."), status badge (Configuring / Ready)
-- [ ] **3.4.5** If current user has NOT completed setup → show "Set Up Your Player" button
-- [ ] **3.4.6** If current user HAS completed setup → show "Ready" badge, wait for others
-- [ ] **3.4.7** "Start Game" button: visible only to host, enabled only when ALL players are ready, calls `startGame` API
-- [ ] **3.4.8** Subscribe to `player:joined` Socket.io event to add new players to the list in real time
-- [ ] **3.4.9** Subscribe to `player:updated` event to update setup status in real time
-- [ ] **3.4.10** Subscribe to `game:started` event to navigate all players to the dashboard
-- [ ] **3.4.11** Fetch session data on mount via RTK Query (`getGameSession`)
+- [x] **3.4.1** Create `GameLobbyScreen` component
+- [x] **3.4.2** Display room code prominently at the top with copy/share buttons
+- [x] **3.4.3** Player count indicator: "3/6 Players"
+- [x] **3.4.4** Player list: each row shows name, profession (or "Setting up..."), status badge (Configuring / Ready)
+- [x] **3.4.5** If current user has NOT completed setup → show "Set Up Your Player" button
+- [x] **3.4.6** If current user HAS completed setup → show "Ready" badge, wait for others
+- [x] **3.4.7** "Start Game" button: visible only to host, enabled only when ALL players are ready, calls `startGame` API
+- [x] **3.4.8** Subscribe to `player:joined` Socket.io event to add new players to the list in real time
+- [x] **3.4.9** Subscribe to `player:updated` event to update setup status in real time
+- [x] **3.4.10** Subscribe to `game:started` event to navigate all players to the dashboard
+- [x] **3.4.11** Fetch session data on mount via RTK Query (`getGameSession`)
 
 ---
 
