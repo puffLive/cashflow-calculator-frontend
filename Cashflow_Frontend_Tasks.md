@@ -365,25 +365,25 @@
 
 ---
 
-## FEATURE 8: Loan Module — UI
+## FEATURE 8: Loan Module — UI ✅
 
 ### 8.1 Take Loan Wizard
-- [ ] **8.1.1** Create `TakeLoanScreen` component
-- [ ] **8.1.2** Input: stepper or slider for number of $1,000 increments (1, 2, 3... up to configurable max)
-- [ ] **8.1.3** Real-time display: "Loan Amount: $X,000 | Monthly Payment: $X00 | New PAYDAY: $X,XXX"
-- [ ] **8.1.4** Show impact preview card: Cash on Hand (before → after), Expenses (before → after), PAYDAY Amount (before → after), new Liability entry
-- [ ] **8.1.5** Confirm & submit for audit
+- [x] **8.1.1** Create `TakeLoanScreen` component
+- [x] **8.1.2** Input: stepper or slider for number of $1,000 increments (1, 2, 3... up to configurable max)
+- [x] **8.1.3** Real-time display: "Loan Amount: $X,000 | Monthly Payment: $X00 | New PAYDAY: $X,XXX"
+- [x] **8.1.4** Show impact preview card: Cash on Hand (before → after), Expenses (before → after), PAYDAY Amount (before → after), new Liability entry
+- [x] **8.1.5** Confirm & submit for audit
 
 ### 8.2 Pay Off Loan Wizard
-- [ ] **8.2.1** Create `PayOffLoanScreen` component
-- [ ] **8.2.2** Step 1: Display all current liabilities as selectable cards (name, type, current balance, monthly payment)
-- [ ] **8.2.3** If no liabilities, show empty state
-- [ ] **8.2.4** Step 2: Input payoff amount
+- [x] **8.2.1** Create `PayOffLoanScreen` component
+- [x] **8.2.2** Step 1: Display all current liabilities as selectable cards (name, type, current balance, monthly payment)
+- [x] **8.2.3** If no liabilities, show empty state
+- [x] **8.2.4** Step 2: Input payoff amount
   - For bank loans: stepper in $1,000 increments (max = current balance)
   - For other loans: free-form amount input (max = current balance, max = Cash on Hand)
-- [ ] **8.2.5** Real-time validation: "Cash on Hand: $X | Payoff: $Y | Remaining Cash: $Z"
-- [ ] **8.2.6** Show impact preview: Cash (before → after), Expense reduction, Liability reduction, new PAYDAY Amount
-- [ ] **8.2.7** Confirm & submit for audit
+- [x] **8.2.5** Real-time validation: "Cash on Hand: $X | Payoff: $Y | Remaining Cash: $Z"
+- [x] **8.2.6** Show impact preview: Cash (before → after), Expense reduction, Liability reduction, new PAYDAY Amount
+- [x] **8.2.7** Confirm & submit for audit
 
 ---
 

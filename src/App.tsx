@@ -10,6 +10,8 @@ import PlayerSetupScreen from '@/screens/PlayerSetupScreen'
 import DashboardScreen from '@/screens/DashboardScreen'
 import BuyTransactionScreen from '@/screens/BuyTransactionScreen'
 import SellTransactionScreen from '@/screens/SellTransactionScreen'
+import TakeLoanScreen from '@/screens/TakeLoanScreen'
+import PayOffLoanScreen from '@/screens/PayOffLoanScreen'
 
 // Placeholder components for features not yet implemented
 
@@ -39,6 +41,8 @@ function App() {
         {/* Transaction routes */}
         <Route path="/game/:roomCode/transaction/buy" element={<BuyTransactionScreen />} />
         <Route path="/game/:roomCode/transaction/sell" element={<SellTransactionScreen />} />
+        <Route path="/game/:roomCode/transaction/loan" element={<TakeLoanScreen />} />
+        <Route path="/game/:roomCode/transaction/payoff" element={<PayOffLoanScreen />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
