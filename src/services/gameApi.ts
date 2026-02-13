@@ -14,7 +14,10 @@ interface JoinGameRequest {
 
 interface JoinGameResponse {
   playerId: string
-  gameSession: GameSession
+  gameSessionId: string
+  roomCode: string
+  playerNumber: number
+  avatarColor: string
 }
 
 interface SetupPlayerRequest {

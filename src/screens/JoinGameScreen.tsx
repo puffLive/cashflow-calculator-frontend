@@ -65,17 +65,7 @@ const JoinGameScreen = () => {
         playerName: playerName.trim()
       }).unwrap()
 
-      // Update Redux state
-      dispatch(setGameSession({
-        roomCode: roomCode.toUpperCase(),
-        status: result.gameSession.status,
-        hostPlayerId: result.gameSession.hostPlayerId,
-        currentPlayerId: result.playerId,
-        playerCount: result.gameSession.playerCount,
-        maxPlayers: result.gameSession.maxPlayers,
-        gameVersion: 'cashflow101'
-      }))
-
+      // Store player data
       dispatch(setPlayerData({
         id: result.playerId,
         name: playerName.trim(),
@@ -87,7 +77,15 @@ const JoinGameScreen = () => {
       sessionStorage.setItem('playerId', result.playerId)
       sessionStorage.setItem('playerName', playerName.trim())
 
-      // Navigate to lobby
+      // Update Redux with minimal data (game session will be fetched in lobby)
+      dispatch(setGameSession({
+        roomCode: roomCode.toUpperCase(),
+        status: 'waiting',
+        currentPlayerId: result.playerId,
+        gameVersion: 'cashflow_101'
+      }))
+
+      // Navigate to lobby (lobby will fetch full game session data)
       navigate(buildRoute(ROUTES.GAME_LOBBY, { roomCode: roomCode.toUpperCase() }))
 
       dispatch(addNotification({
