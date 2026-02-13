@@ -7,17 +7,9 @@ import CreateGameScreen from '@/screens/CreateGameScreen'
 import JoinGameScreen from '@/screens/JoinGameScreen'
 import GameLobbyScreen from '@/screens/GameLobbyScreen'
 import PlayerSetupScreen from '@/screens/PlayerSetupScreen'
+import DashboardScreen from '@/screens/DashboardScreen'
 
 // Placeholder components for features not yet implemented
-
-const DashboardScreen = () => (
-  <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-    <div className="text-center">
-      <h1 className="text-2xl font-bold text-gray-800 mb-4">Game Dashboard</h1>
-      <p className="text-gray-600">Coming soon...</p>
-    </div>
-  </div>
-)
 
 const NotFound = () => (
   <div className="min-h-screen bg-gray-100 flex items-center justify-center">

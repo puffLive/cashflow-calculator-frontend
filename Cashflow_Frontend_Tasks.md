@@ -238,56 +238,56 @@
 
 ---
 
-## FEATURE 5: Main Dashboard — UI
+## FEATURE 5: Main Dashboard — UI ✅
 
 ### 5.1 Dashboard Screen
-- [ ] **5.1.1** Create `DashboardScreen` as the primary game view
-- [ ] **5.1.2** Fetch player data on mount via `getPlayer` RTK Query endpoint
-- [ ] **5.1.3** Layout: metric cards grid at the top, Collect PAYDAY button below, quick-action FAB
+- [x] **5.1.1** Create `DashboardScreen` as the primary game view
+- [x] **5.1.2** Fetch player data on mount via `getPlayer` RTK Query endpoint
+- [x] **5.1.3** Layout: metric cards grid at the top, Collect PAYDAY button below, quick-action FAB
 
 ### 5.2 Financial Metric Cards
-- [ ] **5.2.1** Create `MetricCard` reusable component: label, value (large font), optional subtitle
-- [ ] **5.2.2** Display 6 metric cards:
+- [x] **5.2.1** Create `MetricCard` reusable component: label, value (large font), optional subtitle
+- [x] **5.2.2** Display 6 metric cards:
   - Cash on Hand (blue, largest prominence)
   - Cashflow (green if positive, red if negative)
   - Total Income (green)
   - Total Expenses (red)
   - PAYDAY Amount (green, high prominence)
   - Passive Income (green)
-- [ ] **5.2.3** Apply color coding: green (#2E7D32) for income/positive, red (#C62828) for expenses/negative, blue (#2D6A9F) for neutral
-- [ ] **5.2.4** Responsive grid: 2 columns on mobile (360px), 3 columns on tablet (768px), single row on desktop
-- [ ] **5.2.5** Numbers formatted with dollar signs and commas (e.g., "$12,500")
+- [x] **5.2.3** Apply color coding: green (#2E7D32) for income/positive, red (#C62828) for expenses/negative, blue (#2D6A9F) for neutral
+- [x] **5.2.4** Responsive grid: 2 columns on mobile (360px), 3 columns on tablet (768px), single row on desktop
+- [x] **5.2.5** Numbers formatted with dollar signs and commas (e.g., "$12,500")
 
 ### 5.3 Collect PAYDAY Button
-- [ ] **5.3.1** Create `CollectPaydayButton` component — large, green (#2E7D32), full-width on mobile
-- [ ] **5.3.2** Display PAYDAY amount on the button text: "Collect PAYDAY: $X,XXX"
-- [ ] **5.3.3** On tap: call `collectPayday` API, show brief loading state
-- [ ] **5.3.4** On success: animate the Cash on Hand metric card updating (e.g., number counting up)
-- [ ] **5.3.5** Show a success toast: "PAYDAY collected! +$X,XXX"
-- [ ] **5.3.6** Disable the button while a PAYDAY API call is in progress (prevent double-tap)
+- [x] **5.3.1** Create `CollectPaydayButton` component — large, green (#2E7D32), full-width on mobile
+- [x] **5.3.2** Display PAYDAY amount on the button text: "Collect PAYDAY: $X,XXX"
+- [x] **5.3.3** On tap: call `collectPayday` API, show brief loading state
+- [x] **5.3.4** On success: animate the Cash on Hand metric card updating (e.g., number counting up)
+- [x] **5.3.5** Show a success toast: "PAYDAY collected! +$X,XXX"
+- [x] **5.3.6** Disable the button while a PAYDAY API call is in progress (prevent double-tap)
 
 ### 5.4 Fast Track Indicator
-- [ ] **5.4.1** Create `FastTrackProgress` component showing a visual indicator: progress bar or ratio of Passive Income vs. Total Expenses
-- [ ] **5.4.2** Label: "Passive Income: $X / Expenses: $Y" with a progress bar filling as passive income approaches expenses
-- [ ] **5.4.3** When `isOnFastTrack` is true: trigger a celebratory modal/animation ("You escaped the Rat Race!")
-- [ ] **5.4.4** After celebration: transition dashboard to a "Fast Track" visual mode (different header color/banner, "FAST TRACK" badge)
-- [ ] **5.4.5** Listen for `fasttrack:achieved` Socket.io event for OTHER players → display toast notification: "[Player Name] escaped the Rat Race!"
+- [x] **5.4.1** Create `FastTrackProgress` component showing a visual indicator: progress bar or ratio of Passive Income vs. Total Expenses
+- [x] **5.4.2** Label: "Passive Income: $X / Expenses: $Y" with a progress bar filling as passive income approaches expenses
+- [x] **5.4.3** When `isOnFastTrack` is true: trigger a celebratory modal/animation ("You escaped the Rat Race!")
+- [x] **5.4.4** After celebration: transition dashboard to a "Fast Track" visual mode (different header color/banner, "FAST TRACK" badge)
+- [x] **5.4.5** Listen for `fasttrack:achieved` Socket.io event for OTHER players → display toast notification: "[Player Name] escaped the Rat Race!"
 
 ### 5.5 Navigation Bar
-- [ ] **5.5.1** Create `BottomNavBar` component (mobile) with 6 tabs: Dashboard, Players, Income, Expenses, Assets, Liabilities
-- [ ] **5.5.2** Each tab: icon (lucide-react) + label below
-- [ ] **5.5.3** Active tab highlighted with color + bold label
-- [ ] **5.5.4** Badge on "Players" tab showing pending audit count (from `selectPendingAuditCount`)
-- [ ] **5.5.5** Create `SidebarNav` component (desktop/tablet, lg breakpoint) with same tabs as vertical list
-- [ ] **5.5.6** Responsive: show `BottomNavBar` on mobile, `SidebarNav` on desktop
-- [ ] **5.5.7** All tab taps navigate to the corresponding route via React Router
+- [x] **5.5.1** Create `BottomNavBar` component (mobile) with 6 tabs: Dashboard, Players, Income, Expenses, Assets, Liabilities
+- [x] **5.5.2** Each tab: icon (lucide-react) + label below
+- [x] **5.5.3** Active tab highlighted with color + bold label
+- [x] **5.5.4** Badge on "Players" tab showing pending audit count (from `selectPendingAuditCount`)
+- [x] **5.5.5** Create `SidebarNav` component (desktop/tablet, lg breakpoint) with same tabs as vertical list
+- [x] **5.5.6** Responsive: show `BottomNavBar` on mobile, `SidebarNav` on desktop
+- [x] **5.5.7** All tab taps navigate to the corresponding route via React Router
 
 ### 5.6 Floating Action Button (FAB)
-- [ ] **5.6.1** Create `TransactionFAB` component — circular button fixed to bottom-right (above nav bar)
-- [ ] **5.6.2** "+" icon; on tap, expand into a quick-action menu: Buy, Sell, Loan, Market Event
-- [ ] **5.6.3** Each action navigates to the corresponding transaction wizard route
-- [ ] **5.6.4** Disable FAB if player has a pending transaction awaiting audit (show tooltip: "Waiting for auditor")
-- [ ] **5.6.5** Style with Tailwind: shadow, smooth expand animation
+- [x] **5.6.1** Create `TransactionFAB` component — circular button fixed to bottom-right (above nav bar)
+- [x] **5.6.2** "+" icon; on tap, expand into a quick-action menu: Buy, Sell, Loan, Market Event
+- [x] **5.6.3** Each action navigates to the corresponding transaction wizard route
+- [x] **5.6.4** Disable FAB if player has a pending transaction awaiting audit (show tooltip: "Waiting for auditor")
+- [x] **5.6.5** Style with Tailwind: shadow, smooth expand animation
 
 ### 5.7 Detail Screens
 - [ ] **5.7.1** Create `IncomeDetailScreen`: salary line item + list of all passive income sources (type, name, amount per month)
