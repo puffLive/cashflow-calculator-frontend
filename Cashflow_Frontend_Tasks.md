@@ -299,42 +299,42 @@
 
 ---
 
-## FEATURE 6: Buy Transaction Wizard — UI
+## FEATURE 6: Buy Transaction Wizard — UI ✅
 
 ### 6.1 Buy Wizard Flow
-- [ ] **6.1.1** Create `BuyTransactionScreen` as a step-by-step wizard
+- [x] **6.1.1** Create `BuyTransactionScreen` as a step-by-step wizard
 
 ### 6.2 Step 1: Asset Type Selection
-- [ ] **6.2.1** Display 6 asset type cards: Stocks, Mutual Funds, CDs, Real Estate, Gold/Precious Metals, Business
-- [ ] **6.2.2** Each card has an icon and brief description
-- [ ] **6.2.3** Single-select; "Next" enabled on selection
+- [x] **6.2.1** Display 6 asset type cards: Stocks, Mutual Funds, CDs, Real Estate, Gold/Precious Metals, Business
+- [x] **6.2.2** Each card has an icon and brief description
+- [x] **6.2.3** Single-select; "Next" enabled on selection
 
 ### 6.3 Step 2: Transaction Details Input
-- [ ] **6.3.1** Dynamically render input form based on selected asset type:
+- [x] **6.3.1** Dynamically render input form based on selected asset type:
   - **Stocks / Mutual Funds:** Stock/Fund name (text), Price per share (number), Number of shares (number), Dividend per share (number, optional)
   - **CDs:** CD value (number), Interest rate (percentage)
   - **Real Estate:** Property name (text), Total cost (number), Down payment (number), Mortgage amount (number), Monthly cashflow (number)
   - **Gold:** Type/description (text), Cost per unit (number), Quantity (number)
   - **Business:** Name (text), Total cost (number), Down payment (number), Monthly cashflow (number)
-- [ ] **6.3.2** Show real-time cost calculation: "Total Cost: $X,XXX"
-- [ ] **6.3.3** Show real-time validation bar: "Cash on Hand: $X,XXX | Cost: $Y,YYY | Remaining: $Z,ZZZ" — turn red with warning if insufficient cash
-- [ ] **6.3.4** All number inputs use `inputMode="numeric"` for mobile keyboards
-- [ ] **6.3.5** All touch targets ≥ 44px
+- [x] **6.3.2** Show real-time cost calculation: "Total Cost: $X,XXX"
+- [x] **6.3.3** Show real-time validation bar: "Cash on Hand: $X,XXX | Cost: $Y,YYY | Remaining: $Z,ZZZ" — turn red with warning if insufficient cash
+- [x] **6.3.4** All number inputs use `inputMode="numeric"` for mobile keyboards
+- [x] **6.3.5** All touch targets ≥ 44px
 
 ### 6.4 Step 3: Review Impact
-- [ ] **6.4.1** Display full financial impact summary using the shared calculation engine (run client-side for preview):
+- [x] **6.4.1** Display full financial impact summary using the shared calculation engine (run client-side for preview):
   - Before → After for: Cash on Hand, Total Income, Total Expenses, PAYDAY Amount, Cashflow
   - New asset details
   - New liability details (if real estate/business)
-- [ ] **6.4.2** Color-code changes: green for improvements, red for costs
-- [ ] **6.4.3** "Edit" link to go back to Step 2
+- [x] **6.4.2** Color-code changes: green for improvements, red for costs
+- [x] **6.4.3** "Edit" link to go back to Step 2
 
 ### 6.5 Step 4: Confirm & Submit
-- [ ] **6.5.1** "Are you sure this is correct?" confirmation prompt
-- [ ] **6.5.2** Two buttons: "Submit for Audit" (primary) and "Handoff to Auditor" (secondary)
-- [ ] **6.5.3** On "Submit for Audit": call `submitTransaction` API, navigate to dashboard with pending transaction state
-- [ ] **6.5.4** On "Handoff to Auditor": call `submitTransaction` API, then navigate to the `HandoffAuditScreen`
-- [ ] **6.5.5** Handle loading state and API errors
+- [x] **6.5.1** "Are you sure this is correct?" confirmation prompt
+- [x] **6.5.2** Two buttons: "Submit for Audit" (primary) and "Handoff to Auditor" (secondary)
+- [x] **6.5.3** On "Submit for Audit": call `submitTransaction` API, navigate to dashboard with pending transaction state
+- [x] **6.5.4** On "Handoff to Auditor": call `submitTransaction` API, then navigate to the `HandoffAuditScreen`
+- [x] **6.5.5** Handle loading state and API errors
 
 ---
 

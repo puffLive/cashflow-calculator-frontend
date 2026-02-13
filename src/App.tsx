@@ -8,6 +8,7 @@ import JoinGameScreen from '@/screens/JoinGameScreen'
 import GameLobbyScreen from '@/screens/GameLobbyScreen'
 import PlayerSetupScreen from '@/screens/PlayerSetupScreen'
 import DashboardScreen from '@/screens/DashboardScreen'
+import BuyTransactionScreen from '@/screens/BuyTransactionScreen'
 
 // Placeholder components for features not yet implemented
 
@@ -33,6 +34,9 @@ function App() {
         <Route path={ROUTES.GAME_LOBBY} element={<GameLobbyScreen />} />
         <Route path={ROUTES.GAME_SETUP} element={<PlayerSetupScreen />} />
         <Route path={ROUTES.GAME_DASHBOARD} element={<DashboardScreen />} />
+
+        {/* Transaction routes */}
+        <Route path="/game/:roomCode/transaction/buy" element={<BuyTransactionScreen />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
