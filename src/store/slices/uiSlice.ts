@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, createSelector } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from '@/store'
 
@@ -85,10 +85,18 @@ export const {
 
 // Selectors
 export const selectActiveTab = (state: RootState) => state.ui.activeTab
-export const selectExpiryWarning = (state: RootState) => ({
-  visible: state.ui.expiryWarningVisible,
-  minutesRemaining: state.ui.expiryMinutesRemaining,
-})
+export const selectExpiryWarningVisible = (state: RootState) => state.ui.expiryWarningVisible
+export const selectExpiryMinutesRemaining = (state: RootState) => state.ui.expiryMinutesRemaining
+
+// Memoized selector to prevent unnecessary rerenders
+export const selectExpiryWarning = createSelector(
+  [selectExpiryWarningVisible, selectExpiryMinutesRemaining],
+  (visible, minutesRemaining) => ({
+    visible,
+    minutesRemaining,
+  })
+)
+
 export const selectNotifications = (state: RootState) => state.ui.notifications
 export const selectIsReconnecting = (state: RootState) => state.ui.isReconnecting
 export const selectIsLoading = (state: RootState) => state.ui.isLoading
