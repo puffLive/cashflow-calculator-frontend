@@ -196,45 +196,45 @@
 
 ---
 
-## FEATURE 4: Player Setup Wizard — UI
+## FEATURE 4: Player Setup Wizard — UI ✅
 
 ### 4.1 Setup Wizard Container
-- [ ] **4.1.1** Create `PlayerSetupScreen` as a multi-step wizard with progress indicator (Step 1 of 4, Step 2 of 4, etc.)
-- [ ] **4.1.2** Manage local wizard state (selected profession, dream, auditor) before final submission
-- [ ] **4.1.3** "Back" button on each step to return to previous step
-- [ ] **4.1.4** Persist wizard state locally so it survives accidental back-navigation
+- [x] **4.1.1** Create `PlayerSetupScreen` as a multi-step wizard with progress indicator (Step 1 of 4, Step 2 of 4, etc.)
+- [x] **4.1.2** Manage local wizard state (selected profession, dream, auditor) before final submission
+- [x] **4.1.3** "Back" button on each step to return to previous step
+- [x] **4.1.4** Persist wizard state locally so it survives accidental back-navigation
 
 ### 4.2 Step 1: Profession Selection
-- [ ] **4.2.1** Create `ProfessionPicker` component
-- [ ] **4.2.2** Display all 12 professions as selectable cards in a scrollable grid (2 columns on mobile)
-- [ ] **4.2.3** Each card shows: profession name, salary, starting savings, total monthly expenses
-- [ ] **4.2.4** On tap, card becomes selected (highlighted border/background)
-- [ ] **4.2.5** Expandable detail: tapping "View Details" on a selected card shows full financial breakdown — all income, expense line items, starting liabilities with balances
-- [ ] **4.2.6** "Next" button enabled only when a profession is selected
+- [x] **4.2.1** Create `ProfessionPicker` component
+- [x] **4.2.2** Display all 12 professions as selectable cards in a scrollable grid (2 columns on mobile)
+- [x] **4.2.3** Each card shows: profession name, salary, starting savings, total monthly expenses
+- [x] **4.2.4** On tap, card becomes selected (highlighted border/background)
+- [x] **4.2.5** Expandable detail: tapping "View Details" on a selected card shows full financial breakdown — all income, expense line items, starting liabilities with balances
+- [x] **4.2.6** "Next" button enabled only when a profession is selected
 
 ### 4.3 Step 2: Dream Selection
-- [ ] **4.3.1** Create `DreamPicker` component
-- [ ] **4.3.2** Display all dream options as selectable cards
-- [ ] **4.3.3** Each card shows: dream name and associated cost
-- [ ] **4.3.4** Single-select with visual highlight
-- [ ] **4.3.5** "Next" button enabled only when a dream is selected
+- [x] **4.3.1** Create `DreamPicker` component
+- [x] **4.3.2** Display all dream options as selectable cards
+- [x] **4.3.3** Each card shows: dream name and associated cost
+- [x] **4.3.4** Single-select with visual highlight
+- [x] **4.3.5** "Next" button enabled only when a dream is selected
 
 ### 4.4 Step 3: Auditor Assignment
-- [ ] **4.4.1** Create `AuditorPicker` component
-- [ ] **4.4.2** Display a list or dropdown of other players in the session (fetched from `getGameSession` or allPlayers Redux state)
-- [ ] **4.4.3** Disable selection of self
-- [ ] **4.4.4** If only one other player → auto-select them
-- [ ] **4.4.5** Show "Waiting for other players to join..." if no other players yet
-- [ ] **4.4.6** Update list in real time as new players join (via Socket.io `player:joined`)
-- [ ] **4.4.7** "Next" button enabled only when an auditor is selected
+- [x] **4.4.1** Create `AuditorPicker` component
+- [x] **4.4.2** Display a list or dropdown of other players in the session (fetched from `getGameSession` or allPlayers Redux state)
+- [x] **4.4.3** Disable selection of self
+- [x] **4.4.4** If only one other player → auto-select them
+- [x] **4.4.5** Show "Waiting for other players to join..." if no other players yet
+- [x] **4.4.6** Update list in real time as new players join (via Socket.io `player:joined`)
+- [x] **4.4.7** "Next" button enabled only when an auditor is selected
 
 ### 4.5 Step 4: Review & Confirm
-- [ ] **4.5.1** Create `SetupReviewScreen` showing summary: selected profession (with salary and expenses), selected dream (with cost), selected auditor
-- [ ] **4.5.2** Full starting financial snapshot: Cash on Hand, Total Income, Total Expenses, PAYDAY Amount, starting liabilities list
-- [ ] **4.5.3** "Confirm" button calls the `setupPlayer` API
-- [ ] **4.5.4** On success: update Redux state, navigate back to lobby in "Ready" status
-- [ ] **4.5.5** Handle loading and error states
-- [ ] **4.5.6** "Edit" links on each section to jump back to the corresponding step
+- [x] **4.5.1** Create `SetupReviewScreen` showing summary: selected profession (with salary and expenses), selected dream (with cost), selected auditor
+- [x] **4.5.2** Full starting financial snapshot: Cash on Hand, Total Income, Total Expenses, PAYDAY Amount, starting liabilities list
+- [x] **4.5.3** "Confirm" button calls the `setupPlayer` API
+- [x] **4.5.4** On success: update Redux state, navigate back to lobby in "Ready" status
+- [x] **4.5.5** Handle loading and error states
+- [x] **4.5.6** "Edit" links on each section to jump back to the corresponding step
 
 ---
 
