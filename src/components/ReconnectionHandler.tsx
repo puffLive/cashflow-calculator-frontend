@@ -24,8 +24,15 @@ const ReconnectionHandler = () => {
         return
       }
 
-      // Check if we're already on a game page (simple heuristic)
-      if (window.location.pathname.includes('/game/')) {
+      // Check if we're already on a game page - don't reconnect if already in a game
+      const currentPath = window.location.pathname
+      if (currentPath.includes('/game/')) {
+        // User is already on a game page, no need to reconnect
+        return
+      }
+
+      // Only reconnect if user is on the landing/join/create pages but has session data
+      if (!currentPath.includes('/') && !currentPath.includes('/join') && !currentPath.includes('/create')) {
         return
       }
 
