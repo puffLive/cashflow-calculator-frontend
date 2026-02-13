@@ -289,13 +289,13 @@
 - [x] **5.6.4** Disable FAB if player has a pending transaction awaiting audit (show tooltip: "Waiting for auditor")
 - [x] **5.6.5** Style with Tailwind: shadow, smooth expand animation
 
-### 5.7 Detail Screens
-- [ ] **5.7.1** Create `IncomeDetailScreen`: salary line item + list of all passive income sources (type, name, amount per month)
-- [ ] **5.7.2** Create `ExpenseDetailScreen`: list of all expense line items (taxes, mortgage, school loan, car loan, credit card, other expenses, child expenses, bank loan payment) with amounts; total at bottom
-- [ ] **5.7.3** Create `AssetDetailScreen`: card-based list of all owned assets; each card shows: type icon, name, quantity, cost basis, monthly passive income (if any); "Sell" button on each card (navigates to sell wizard pre-populated with that asset)
-- [ ] **5.7.4** Create `LiabilityDetailScreen`: list of all debts; each row shows: type icon, name, original amount, current balance, monthly payment; "Pay Off" button on each row (navigates to pay-off wizard pre-populated with that liability)
-- [ ] **5.7.5** All detail screens read from the `playerSlice` Redux state
-- [ ] **5.7.6** Pull-to-refresh or auto-refresh on Socket.io `player:updated` event
+### 5.7 Detail Screens ✅
+- [x] **5.7.1** Create `IncomeDetailScreen`: salary line item + list of all passive income sources (type, name, amount per month)
+- [x] **5.7.2** Create `ExpenseDetailScreen`: list of all expense line items (taxes, mortgage, school loan, car loan, credit card, other expenses, child expenses, bank loan payment) with amounts; total at bottom
+- [x] **5.7.3** Create `AssetDetailScreen`: card-based list of all owned assets; each card shows: type icon, name, quantity, cost basis, monthly passive income (if any); "Sell" button on each card (navigates to sell wizard pre-populated with that asset)
+- [x] **5.7.4** Create `LiabilityDetailScreen`: list of all debts; each row shows: type icon, name, original amount, current balance, monthly payment; "Pay Off" button on each row (navigates to pay-off wizard pre-populated with that liability)
+- [x] **5.7.5** All detail screens read from the `playerSlice` Redux state
+- [x] **5.7.6** Pull-to-refresh or auto-refresh on Socket.io `player:updated` event
 
 ---
 

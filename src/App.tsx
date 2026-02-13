@@ -18,6 +18,10 @@ import AuditReviewScreen from '@/screens/AuditReviewScreen'
 import HandoffAuditScreen from '@/screens/HandoffAuditScreen'
 import PlayersOverviewScreen from '@/screens/PlayersOverviewScreen'
 import TransactionHistoryScreen from '@/screens/TransactionHistoryScreen'
+import IncomeDetailScreen from '@/screens/IncomeDetailScreen'
+import ExpenseDetailScreen from '@/screens/ExpenseDetailScreen'
+import AssetDetailScreen from '@/screens/AssetDetailScreen'
+import LiabilityDetailScreen from '@/screens/LiabilityDetailScreen'
 
 // Import global components
 import SessionExpiryWarning from '@/components/SessionExpiryWarning'
@@ -59,6 +63,12 @@ function App() {
         <Route path={ROUTES.GAME_DASHBOARD} element={<DashboardScreen />} />
         <Route path="/game/:roomCode/players" element={<PlayersOverviewScreen />} />
         <Route path="/game/:roomCode/history" element={<TransactionHistoryScreen />} />
+
+        {/* Detail screens */}
+        <Route path="/game/:roomCode/income" element={<IncomeDetailScreen />} />
+        <Route path="/game/:roomCode/expenses" element={<ExpenseDetailScreen />} />
+        <Route path="/game/:roomCode/assets" element={<AssetDetailScreen />} />
+        <Route path="/game/:roomCode/liabilities" element={<LiabilityDetailScreen />} />
 
         {/* Transaction routes */}
         <Route path="/game/:roomCode/transaction/buy" element={<BuyTransactionScreen />} />
