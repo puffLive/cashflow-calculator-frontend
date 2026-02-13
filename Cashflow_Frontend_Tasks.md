@@ -444,25 +444,25 @@
 
 ---
 
-## FEATURE 11: Cross-Player Visibility — UI
+## FEATURE 11: Cross-Player Visibility — UI ✅
 
 ### 11.1 Players Overview Screen
-- [ ] **11.1.1** Create `PlayersOverviewScreen` component
-- [ ] **11.1.2** Fetch all players via `getAllPlayers` RTK Query endpoint on mount
-- [ ] **11.1.3** Display a card for each player in the session (including self, highlighted)
-- [ ] **11.1.4** Each card shows: player name, profession, Cash on Hand, Cashflow, PAYDAY Amount, asset count
-- [ ] **11.1.5** Connection status indicator: green dot (connected), amber dot with timer (disconnected), gray with "Removed" label (removed)
-- [ ] **11.1.6** Rat Race / Fast Track badge on each card
-- [ ] **11.1.7** Tap on a card → expand inline or navigate to detail view showing: full income breakdown, expense breakdown, asset list, liability list (all read-only)
-- [ ] **11.1.8** Subscribe to `player:updated`, `player:disconnected`, `player:reconnected`, `player:removed` to update cards in real time
+- [x] **11.1.1** Create `PlayersOverviewScreen` component
+- [x] **11.1.2** Fetch all players via `getAllPlayers` RTK Query endpoint on mount
+- [x] **11.1.3** Display a card for each player in the session (including self, highlighted)
+- [x] **11.1.4** Each card shows: player name, profession, Cash on Hand, Cashflow, PAYDAY Amount, asset count
+- [x] **11.1.5** Connection status indicator: green dot (connected), amber dot with timer (disconnected), gray with "Removed" label (removed)
+- [x] **11.1.6** Rat Race / Fast Track badge on each card
+- [x] **11.1.7** Tap on a card → expand inline or navigate to detail view showing: full income breakdown, expense breakdown, asset list, liability list (all read-only)
+- [x] **11.1.8** Subscribe to `player:updated`, `player:disconnected`, `player:reconnected`, `player:removed` to update cards in real time
 
 ### 11.2 Activity Feed
-- [ ] **11.2.1** Create `ActivityFeed` component displayed within the Players Overview screen (or as a sub-tab)
-- [ ] **11.2.2** Fetch recent transactions via `getTransactions` on mount
-- [ ] **11.2.3** Each feed entry: player name (colored), transaction type icon, description, amount (green/red), relative timestamp ("2 min ago")
-- [ ] **11.2.4** Tap on entry to expand full transaction details (before/after values)
-- [ ] **11.2.5** Subscribe to `transaction:finalized`, `payday:collected`, `fasttrack:achieved` Socket.io events to prepend new entries in real time
-- [ ] **11.2.6** Scrollable list with load-more pagination for older entries
+- [x] **11.2.1** Create `ActivityFeed` component displayed within the Players Overview screen (or as a sub-tab)
+- [x] **11.2.2** Fetch recent transactions via `getTransactions` on mount
+- [x] **11.2.3** Each feed entry: player name (colored), transaction type icon, description, amount (green/red), relative timestamp ("2 min ago")
+- [x] **11.2.4** Tap on entry to expand full transaction details (before/after values)
+- [x] **11.2.5** Subscribe to `transaction:finalized`, `payday:collected`, `fasttrack:achieved` Socket.io events to prepend new entries in real time
+- [x] **11.2.6** Scrollable list with load-more pagination for older entries
 
 ---
 

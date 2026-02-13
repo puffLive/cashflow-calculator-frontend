@@ -16,6 +16,7 @@ import MarketEventScreen from '@/screens/MarketEventScreen'
 import PendingAuditsScreen from '@/screens/PendingAuditsScreen'
 import AuditReviewScreen from '@/screens/AuditReviewScreen'
 import HandoffAuditScreen from '@/screens/HandoffAuditScreen'
+import PlayersOverviewScreen from '@/screens/PlayersOverviewScreen'
 
 // Placeholder components for features not yet implemented
 
@@ -41,6 +42,7 @@ function App() {
         <Route path={ROUTES.GAME_LOBBY} element={<GameLobbyScreen />} />
         <Route path={ROUTES.GAME_SETUP} element={<PlayerSetupScreen />} />
         <Route path={ROUTES.GAME_DASHBOARD} element={<DashboardScreen />} />
+        <Route path="/game/:roomCode/players" element={<PlayersOverviewScreen />} />
 
         {/* Transaction routes */}
         <Route path="/game/:roomCode/transaction/buy" element={<BuyTransactionScreen />} />
