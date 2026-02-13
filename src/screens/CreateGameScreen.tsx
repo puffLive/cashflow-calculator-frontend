@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Copy, Share2, Check } from 'lucide-react'
-import { useCreateGameMutation, useJoinGameMutation } from '@/services/gameApi'
+import { useCreateGameMutation } from '@/services/gameApi'
 import { useAppDispatch } from '@/hooks/redux'
 import { setGameSession } from '@/store/slices/gameSessionSlice'
 import { setPlayerData } from '@/store/slices/playerSlice'
@@ -16,7 +16,6 @@ const CreateGameScreen = () => {
   const [copied, setCopied] = useState(false)
 
   const [createGame, { isLoading: isCreating }] = useCreateGameMutation()
-  const [joinGame, { isLoading: isJoining }] = useJoinGameMutation()
 
   const handleCreateGame = async () => {
     if (!playerName.trim()) {
@@ -31,28 +30,26 @@ const CreateGameScreen = () => {
 
     try {
       // Create the game
-      const createResult = await createGame({ version: 'cashflow101' }).unwrap()
-      const newRoomCode = createResult.roomCode
-
-      // Join as the host
-      const joinResult = await joinGame({
-        roomCode: newRoomCode,
-        playerName: playerName.trim()
+      const createResult = await createGame({
+        gameVersion: 'cashflow_101',
+        hostName: playerName.trim()
       }).unwrap()
+      const newRoomCode = createResult.roomCode
+      const hostPlayerId = createResult.hostPlayerId
 
       // Update Redux state
       dispatch(setGameSession({
         roomCode: newRoomCode,
         status: 'waiting',
-        hostPlayerId: joinResult.playerId,
-        currentPlayerId: joinResult.playerId,
+        hostPlayerId: hostPlayerId,
+        currentPlayerId: hostPlayerId,
         playerCount: 1,
         maxPlayers: 6,
-        gameVersion: 'cashflow101'
+        gameVersion: 'cashflow_101'
       }))
 
       dispatch(setPlayerData({
-        id: joinResult.playerId,
+        id: hostPlayerId,
         name: playerName.trim(),
         isReady: false
       }))
@@ -61,7 +58,7 @@ const CreateGameScreen = () => {
 
       // Store in session storage for reconnection
       sessionStorage.setItem('roomCode', newRoomCode)
-      sessionStorage.setItem('playerId', joinResult.playerId)
+      sessionStorage.setItem('playerId', hostPlayerId)
       sessionStorage.setItem('playerName', playerName.trim())
 
     } catch (error) {
@@ -110,8 +107,6 @@ const CreateGameScreen = () => {
       navigate(buildRoute(ROUTES.GAME_LOBBY, { roomCode }))
     }
   }
-
-  const isLoading = isCreating || isJoining
 
   if (roomCode) {
     // Show room code screen
@@ -228,10 +223,10 @@ const CreateGameScreen = () => {
 
             <button
               type="submit"
-              disabled={isLoading || !playerName.trim()}
+              disabled={isCreating || !playerName.trim()}
               className="w-full btn-success py-3 text-lg font-semibold"
             >
-              {isLoading ? 'Creating Game...' : 'Create Game'}
+              {isCreating ? 'Creating Game...' : 'Create Game'}
             </button>
           </form>
 

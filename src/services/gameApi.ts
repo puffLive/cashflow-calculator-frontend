@@ -3,7 +3,8 @@ import type { GameSession, Player } from '@/types'
 
 interface CreateGameResponse {
   roomCode: string
-  gameSession: GameSession
+  hostPlayerId: string
+  gameSessionId: string
 }
 
 interface JoinGameRequest {
@@ -31,7 +32,7 @@ interface PlayerResponse {
 export const gameApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Game Session endpoints
-    createGame: builder.mutation<CreateGameResponse, { version?: string }>({
+    createGame: builder.mutation<CreateGameResponse, { gameVersion: string; hostName: string }>({
       query: (data) => ({
         url: '/games',
         method: 'POST',
