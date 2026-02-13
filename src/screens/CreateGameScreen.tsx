@@ -31,7 +31,7 @@ const CreateGameScreen = () => {
 
     try {
       // Create the game
-      const createResult = await createGame({ gameVersion: 'cashflow101' }).unwrap()
+      const createResult = await createGame({ version: 'cashflow101' }).unwrap()
       const newRoomCode = createResult.roomCode
 
       // Join as the host

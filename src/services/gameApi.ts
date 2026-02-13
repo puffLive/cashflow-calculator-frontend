@@ -31,7 +31,7 @@ interface PlayerResponse {
 export const gameApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Game Session endpoints
-    createGame: builder.mutation<CreateGameResponse, { gameVersion?: string }>({
+    createGame: builder.mutation<CreateGameResponse, { version?: string }>({
       query: (data) => ({
         url: '/games',
         method: 'POST',
