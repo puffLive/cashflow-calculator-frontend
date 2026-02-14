@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, CheckCircle } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Target } from 'lucide-react'
 import { useSetupPlayerMutation } from '@/services/gameApi'
 import { PROFESSIONS } from '@/constants/professions'
+import { DREAMS } from '@/constants/dreams'
 import FinancialSheetPreview from '@/components/FinancialSheetPreview'
 import type { Profession } from '@/types/profession'
+import type { Dream } from '@/constants/dreams'
 
 const PlayerSetupScreen = () => {
   const navigate = useNavigate()
   const { roomCode } = useParams<{ roomCode: string }>()
   const [randomProfession, setRandomProfession] = useState<Profession | null>(null)
+  const [selectedDream, setSelectedDream] = useState<Dream | null>(null)
 
   const [setupPlayer, { isLoading, error }] = useSetupPlayerMutation()
 
@@ -32,7 +35,7 @@ const PlayerSetupScreen = () => {
   }, [randomProfession])
 
   const handleConfirm = async () => {
-    if (!randomProfession || !playerId || !roomCode) return
+    if (!randomProfession || !selectedDream || !playerId || !roomCode) return
 
     try {
       await setupPlayer({
@@ -40,8 +43,8 @@ const PlayerSetupScreen = () => {
         playerId,
         profession: randomProfession.title,
         dream: {
-          name: "Financial Freedom",
-          cost: 0
+          name: selectedDream.name,
+          cost: selectedDream.cost
         }
       }).unwrap()
 
@@ -133,6 +136,38 @@ const PlayerSetupScreen = () => {
           </div>
         </div>
 
+        {/* Dream Selection */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <Target className="w-6 h-6 text-purple-600" />
+            <h3 className="text-lg font-bold text-gray-800">Select Your Dream</h3>
+          </div>
+          <p className="text-sm text-gray-600 mb-4">
+            Choose a financial goal you want to achieve in the game
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {DREAMS.map((dream) => (
+              <button
+                key={dream.name}
+                onClick={() => setSelectedDream(dream)}
+                className={`p-4 rounded-lg border-2 text-left transition-all ${
+                  selectedDream?.name === dream.name
+                    ? 'border-purple-500 bg-purple-50'
+                    : 'border-gray-200 hover:border-purple-300 bg-white'
+                }`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="font-bold text-gray-800">{dream.name}</h4>
+                  <span className="text-sm font-bold text-purple-600">
+                    ${dream.cost.toLocaleString()}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-600">{dream.description}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Financial Sheet Preview */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <h3 className="text-lg font-bold text-gray-800 mb-4">Your Starting Financial Sheet</h3>
@@ -151,7 +186,7 @@ const PlayerSetupScreen = () => {
           </button>
           <button
             onClick={handleConfirm}
-            disabled={isLoading}
+            disabled={isLoading || !selectedDream}
             className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
           >
             <CheckCircle className="w-5 h-5" />
