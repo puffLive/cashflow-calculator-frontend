@@ -87,6 +87,35 @@ export const gameApi = apiSlice.injectEndpoints({
     getAllPlayers: builder.query<Player[], string>({
       query: (roomCode) => `/games/${roomCode}/players`,
       providesTags: ['AllPlayers'],
+      async onQueryStarted(_roomCode, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          // Import setAllPlayers dynamically to avoid circular dependency
+          const { setAllPlayers } = await import('@/store/slices/allPlayersSlice')
+
+          // Transform Player[] to PlayerSummary[]
+          const playerSummaries = data.map(player => ({
+            id: player.id,
+            name: player.name,
+            profession: player.profession,
+            cashOnHand: player.financialData?.cashOnHand || 0,
+            cashflow: player.financialData?.cashflow || 0,
+            paydayAmount: player.financialData?.paydayAmount || 0,
+            passiveIncome: player.financialData?.passiveIncome || 0,
+            totalExpenses: player.financialData?.totalExpenses || 0,
+            assetCount: player.financialData?.assets?.length || 0,
+            isOnFastTrack: player.financialData?.isOnFastTrack || false,
+            connectionStatus: player.connectionStatus,
+            isReady: player.isReady,
+            isHost: player.isHost,
+          }))
+
+          dispatch(setAllPlayers(playerSummaries))
+        } catch (err) {
+          // Handle error if needed
+          console.error('Failed to update players in Redux store:', err)
+        }
+      },
     }),
 
     collectPayday: builder.mutation<PlayerResponse, { roomCode: string; playerId: string }>({
