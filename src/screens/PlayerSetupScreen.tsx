@@ -37,21 +37,29 @@ const PlayerSetupScreen = () => {
   const handleConfirm = async () => {
     if (!randomProfession || !selectedDream || !playerId || !roomCode) return
 
+    const payload = {
+      roomCode,
+      playerId,
+      profession: randomProfession.id,
+      dream: {
+        name: selectedDream.name,
+        cost: selectedDream.cost
+      }
+    }
+
+    console.log('Setup payload:', payload)
+    console.log('Profession:', randomProfession)
+    console.log('Dream:', selectedDream)
+
     try {
-      await setupPlayer({
-        roomCode,
-        playerId,
-        profession: randomProfession.id,
-        dream: {
-          name: selectedDream.name,
-          cost: selectedDream.cost
-        }
-      }).unwrap()
+      await setupPlayer(payload).unwrap()
 
       // Navigate back to lobby after successful setup
       navigate(`/game/${roomCode}/lobby`)
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to setup player:', err)
+      console.error('Error data:', err?.data)
+      console.error('Error status:', err?.status)
     }
   }
 
