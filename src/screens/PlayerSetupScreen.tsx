@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, CheckCircle, RefreshCw } from 'lucide-react'
+import { ArrowLeft, CheckCircle } from 'lucide-react'
 import { useSetupPlayerMutation } from '@/services/gameApi'
 import { PROFESSIONS } from '@/constants/professions'
 import FinancialSheetPreview from '@/components/FinancialSheetPreview'
@@ -30,11 +30,6 @@ const PlayerSetupScreen = () => {
       setRandomProfession(PROFESSIONS[randomIndex])
     }
   }, [randomProfession])
-
-  const handleRandomize = () => {
-    const randomIndex = Math.floor(Math.random() * PROFESSIONS.length)
-    setRandomProfession(PROFESSIONS[randomIndex])
-  }
 
   const handleConfirm = async () => {
     if (!randomProfession || !playerId || !roomCode) return
@@ -99,27 +94,10 @@ const PlayerSetupScreen = () => {
             <h2 className="text-xl font-bold text-gray-800 mb-2">
               You have been assigned:
             </h2>
-            <div className="inline-block">
-              <div className={`px-4 py-2 rounded-full text-sm font-medium mb-2 ${
-                randomProfession.difficulty === 'easy' ? 'bg-green-100 text-green-700' :
-                randomProfession.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                'bg-red-100 text-red-700'
-              }`}>
-                {randomProfession.difficulty.charAt(0).toUpperCase() + randomProfession.difficulty.slice(1)} Difficulty
-              </div>
-            </div>
             <h3 className="text-3xl font-bold text-blue-600 mb-4">
               {randomProfession.title}
             </h3>
             <p className="text-gray-600 mb-4">{randomProfession.description}</p>
-
-            <button
-              onClick={handleRandomize}
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
-            >
-              <RefreshCw className="w-4 h-4" />
-              <span>Try Another Profession</span>
-            </button>
           </div>
 
           {/* Financial Summary */}
