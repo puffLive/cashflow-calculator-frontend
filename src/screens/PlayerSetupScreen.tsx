@@ -26,6 +26,14 @@ const PlayerSetupScreen = () => {
     }
   }, [playerId, playerName, roomCode, navigate])
 
+  // Redirect to lobby if player is already set up
+  useEffect(() => {
+    const isAlreadySetup = sessionStorage.getItem('isPlayerReady') === 'true'
+    if (isAlreadySetup && roomCode) {
+      navigate(`/game/${roomCode}/lobby`)
+    }
+  }, [roomCode, navigate])
+
   // Randomly assign a profession on mount
   useEffect(() => {
     if (PROFESSIONS.length > 0 && !randomProfession) {
@@ -53,6 +61,9 @@ const PlayerSetupScreen = () => {
 
     try {
       await setupPlayer(payload).unwrap()
+
+      // Mark player as ready in session storage
+      sessionStorage.setItem('isPlayerReady', 'true')
 
       // Navigate back to lobby after successful setup
       navigate(`/game/${roomCode}/lobby`)
