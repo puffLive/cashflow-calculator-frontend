@@ -206,42 +206,40 @@ const GameLobbyScreen = () => {
           </div>
         </div>
 
-        {/* Players Section - Only show before player setup */}
-        {!isReady && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <Users className="w-6 h-6 text-gray-600" />
-                <h2 className="text-xl font-semibold text-gray-800">
-                  Players ({players.length}/6)
-                </h2>
-              </div>
-              <div className="text-sm text-gray-500">
-                {6 - players.length} slots available
-              </div>
+        {/* Players Section */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <Users className="w-6 h-6 text-gray-600" />
+              <h2 className="text-xl font-semibold text-gray-800">
+                Players ({players.length}/6)
+              </h2>
             </div>
-
-            <div className="space-y-3">
-              {isLoading ? (
-                <div className="text-center py-8 text-gray-500">
-                  Loading players...
-                </div>
-              ) : players.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  No players yet. Share the room code to invite friends!
-                </div>
-              ) : (
-                players.map(player => (
-                  <PlayerListItem
-                    key={player.id}
-                    player={player}
-                    isCurrentPlayer={player.id === currentPlayerId}
-                  />
-                ))
-              )}
+            <div className="text-sm text-gray-500">
+              {6 - players.length} slots available
             </div>
           </div>
-        )}
+
+          <div className="space-y-3">
+            {isLoading ? (
+              <div className="text-center py-8 text-gray-500">
+                Loading players...
+              </div>
+            ) : players.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No players yet. Share the room code to invite friends!
+              </div>
+            ) : (
+              players.map(player => (
+                <PlayerListItem
+                  key={player.id}
+                  player={player}
+                  isCurrentPlayer={player.id === currentPlayerId}
+                />
+              ))
+            )}
+          </div>
+        </div>
 
         {/* Action Buttons */}
         <div className="bg-white rounded-lg shadow-lg p-6">
