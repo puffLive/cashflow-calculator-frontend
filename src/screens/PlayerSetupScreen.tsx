@@ -39,8 +39,10 @@ const PlayerSetupScreen = () => {
         roomCode,
         playerId,
         profession: randomProfession.title,
-        // dream is optional, omitting for now
-        // auditorPlayerId is optional, omitting for now
+        dream: {
+          name: "Financial Freedom",
+          cost: 0
+        }
       }).unwrap()
 
       // Navigate back to lobby after successful setup

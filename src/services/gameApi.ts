@@ -24,7 +24,7 @@ interface SetupPlayerRequest {
   roomCode: string
   playerId: string
   profession: string
-  dream?: {
+  dream: {
     name: string
     cost: number
   }
