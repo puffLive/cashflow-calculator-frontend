@@ -93,7 +93,9 @@ const GameLobbyScreen = () => {
 
   // Check if current player has completed setup
   const currentPlayer = players.find(p => p.id === currentPlayerId)
-  const isReady = currentPlayer?.isReady || false
+  const isReadyFromStore = currentPlayer?.isReady || false
+  const isReadyFromSession = sessionStorage.getItem('isPlayerReady') === 'true'
+  const isReady = isReadyFromStore || isReadyFromSession
   const allPlayersReady = players.length > 0 && players.every(p => p.isReady)
 
   // Handle game started event
