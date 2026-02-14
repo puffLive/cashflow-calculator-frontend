@@ -84,7 +84,7 @@ export const gameApi = apiSlice.injectEndpoints({
       providesTags: ['Player'],
     }),
 
-    getAllPlayers: builder.query<Player[], string>({
+    getAllPlayers: builder.query<{ players: Player[] }, string>({
       query: (roomCode) => `/games/${roomCode}/players`,
       providesTags: ['AllPlayers'],
       async onQueryStarted(_roomCode, { dispatch, queryFulfilled }) {
@@ -94,7 +94,7 @@ export const gameApi = apiSlice.injectEndpoints({
           const { setAllPlayers } = await import('@/store/slices/allPlayersSlice')
 
           // Transform Player[] to PlayerSummary[]
-          const playerSummaries = data.map(player => ({
+          const playerSummaries = data.players.map(player => ({
             id: player.id,
             name: player.name,
             profession: player.profession,
