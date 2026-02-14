@@ -93,21 +93,22 @@ export const gameApi = apiSlice.injectEndpoints({
           // Import setAllPlayers dynamically to avoid circular dependency
           const { setAllPlayers } = await import('@/store/slices/allPlayersSlice')
 
-          // Transform Player[] to PlayerSummary[]
-          const playerSummaries = data.players.map(player => ({
-            id: player.id,
-            name: player.name,
+          // Transform backend response to PlayerSummary[]
+          // Backend returns flat fields, not nested in financialData
+          const playerSummaries = data.players.map((player: any) => ({
+            id: player._id,
+            name: player.playerName,
             profession: player.profession,
-            cashOnHand: player.financialData?.cashOnHand || 0,
-            cashflow: player.financialData?.cashflow || 0,
-            paydayAmount: player.financialData?.paydayAmount || 0,
-            passiveIncome: player.financialData?.passiveIncome || 0,
-            totalExpenses: player.financialData?.totalExpenses || 0,
-            assetCount: player.financialData?.assets?.length || 0,
-            isOnFastTrack: player.financialData?.isOnFastTrack || false,
-            connectionStatus: player.connectionStatus,
-            isReady: player.isReady,
-            isHost: player.isHost,
+            cashOnHand: player.cashOnHand || 0,
+            cashflow: player.cashflow || 0,
+            paydayAmount: player.paydayAmount || 0,
+            passiveIncome: player.passiveIncome || 0,
+            totalExpenses: player.totalExpenses || 0,
+            assetCount: player.assetCount || 0,
+            isOnFastTrack: player.isOnFastTrack || false,
+            connectionStatus: player.connectionStatus || 'connected',
+            isReady: !!player.profession,
+            isHost: player.isHost || false,
           }))
 
           dispatch(setAllPlayers(playerSummaries))

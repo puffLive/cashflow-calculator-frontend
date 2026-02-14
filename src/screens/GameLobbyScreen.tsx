@@ -44,7 +44,7 @@ const PlayerListItem = ({ player, isCurrentPlayer }: PlayerListItemProps) => {
         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold ${
           player.isHost ? 'bg-yellow-500' : 'bg-gray-400'
         }`}>
-          {player.isHost ? <Crown className="w-5 h-5" /> : player.name[0].toUpperCase()}
+          {player.isHost ? <Crown className="w-5 h-5" /> : (player.name?.[0]?.toUpperCase() || '?')}
         </div>
         <div>
           <p className="font-semibold text-gray-800">
