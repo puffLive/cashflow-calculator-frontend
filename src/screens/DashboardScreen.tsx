@@ -1,12 +1,10 @@
 import { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAppSelector } from '@/hooks/redux'
-import { useGetPlayerQuery, useCollectPaydayMutation } from '@/services/gameApi'
+import { useGetPlayerQuery } from '@/services/gameApi'
 import { selectCurrentPlayer } from '@/store/slices/playerSlice'
 import { selectPendingAuditCount } from '@/store/slices/auditSlice'
 import { selectHasPendingTransaction } from '@/store/slices/transactionSlice'
-import MetricCard from '@/components/MetricCard'
-import CollectPaydayButton from '@/components/CollectPaydayButton'
 import BottomNavBar from '@/components/BottomNavBar'
 import TransactionFAB from '@/components/TransactionFAB'
 import { Loader2 } from 'lucide-react'
@@ -25,8 +23,6 @@ const DashboardScreen = () => {
     { skip: !roomCode || !playerId, pollingInterval: 5000 }
   )
 
-  const [collectPayday] = useCollectPaydayMutation()
-
   // Redux selectors - using Redux state as source of truth
   const player = useAppSelector(selectCurrentPlayer)
   const pendingAuditCount = useAppSelector(selectPendingAuditCount)
@@ -37,17 +33,6 @@ const DashboardScreen = () => {
       navigate('/')
     }
   }, [playerId, playerName, roomCode, navigate])
-
-  const handleCollectPayday = async () => {
-    if (!roomCode || !playerId) return
-
-    try {
-      await collectPayday({ roomCode, playerId }).unwrap()
-      // Success notification would be handled by Socket.io event
-    } catch (err) {
-      console.error('Failed to collect payday:', err)
-    }
-  }
 
   if (isLoading && player.cashOnHand === 0) {
     return (
@@ -77,19 +62,46 @@ const DashboardScreen = () => {
     )
   }
 
+  // Format profession for display (convert snake_case to Title Case)
+  const formatProfession = (profession: string) => {
+    if (!profession) return 'Professional'
+    return profession
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header */}
       <div className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">{playerName}</h1>
-              <p className="text-sm text-gray-600">{player.profession || 'Professional'}</p>
+              <p className="text-sm text-gray-600">{formatProfession(player.profession)}</p>
             </div>
             <div className="text-right">
               <p className="text-xs text-gray-500">Room Code</p>
               <p className="text-lg font-mono font-bold text-blue-600">{roomCode}</p>
+            </div>
+          </div>
+
+          {/* Passive Income vs Expenses Progress Bar */}
+          <div>
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-700">Progress to Fast Track</span>
+              <span className="text-xs text-gray-500">
+                ${player.passiveIncome.toLocaleString()} / ${player.totalExpenses.toLocaleString()}
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div
+                className={`h-2.5 rounded-full transition-all duration-500 ${
+                  player.passiveIncome >= player.totalExpenses ? 'bg-green-600' : 'bg-blue-500'
+                }`}
+                style={{ width: `${Math.min(100, Math.max(0, (player.passiveIncome / player.totalExpenses) * 100))}%` }}
+              />
             </div>
           </div>
         </div>
@@ -97,43 +109,82 @@ const DashboardScreen = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Financial Metrics Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div className="col-span-2 md:col-span-1">
-            <MetricCard
-              label="Cash on Hand"
-              value={player.cashOnHand}
-              variant="neutral"
-              large
-            />
+        {/* Action Buttons Grid */}
+        <div className="grid grid-cols-3 gap-3">
+          {/* Row 1 */}
+          <button
+            onClick={() => navigate(`/game/${roomCode}/transaction/buy`)}
+            disabled={hasPendingTransaction}
+            className="bg-blue-600 text-white px-4 py-3 rounded-md hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          >
+            Buy Asset
+          </button>
+          <button
+            onClick={() => navigate(`/game/${roomCode}/transaction/sell`)}
+            disabled={hasPendingTransaction}
+            className="bg-blue-600 text-white px-4 py-3 rounded-md hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          >
+            Sell Asset
+          </button>
+          <button
+            onClick={() => navigate(`/game/${roomCode}/transaction/loan`)}
+            disabled={hasPendingTransaction}
+            className="bg-blue-600 text-white px-4 py-3 rounded-md hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          >
+            Take Loan
+          </button>
+
+          {/* Row 2 */}
+          <button
+            onClick={() => navigate(`/game/${roomCode}/transaction/market`)}
+            disabled={hasPendingTransaction}
+            className="bg-blue-600 text-white px-4 py-3 rounded-md hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          >
+            Market
+          </button>
+          <button
+            onClick={() => navigate(`/game/${roomCode}/transaction/pay`)}
+            disabled={hasPendingTransaction}
+            className="bg-blue-600 text-white px-4 py-3 rounded-md hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          >
+            Pay
+          </button>
+          <button
+            onClick={() => navigate(`/game/${roomCode}/transaction/collect`)}
+            disabled={hasPendingTransaction}
+            className="bg-blue-600 text-white px-4 py-3 rounded-md hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          >
+            Collect
+          </button>
+        </div>
+
+        {/* Financial Overview */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-bold text-gray-800 mb-4">Financial Overview</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-700">Cash on Hand</span>
+              <span className="text-sm font-bold text-gray-800">${player.cashOnHand.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-700">Passive Income</span>
+              <span className="text-sm font-bold text-purple-600">${player.passiveIncome.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-700">Expenses</span>
+              <span className="text-sm font-bold text-red-600">${player.totalExpenses.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-700">Total Income</span>
+              <span className="text-sm font-bold text-green-600">${player.totalIncome.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-700">PAYDAY</span>
+              <span className={`text-sm font-bold ${player.paydayAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                ${player.paydayAmount.toLocaleString()}
+              </span>
+            </div>
           </div>
-          <MetricCard
-            label="PAYDAY Amount"
-            value={player.paydayAmount}
-            variant="income"
-          />
-          <MetricCard
-            label="Cashflow"
-            value={player.cashflow}
-            variant={player.cashflow >= 0 ? 'positive' : 'negative'}
-            subtitle={`${player.isOnFastTrack ? '✓ On Fast Track!' : 'Rat Race'}`}
-          />
-          <MetricCard
-            label="Total Income"
-            value={player.totalIncome}
-            variant="income"
-          />
-          <MetricCard
-            label="Total Expenses"
-            value={player.totalExpenses}
-            variant="expense"
-          />
-          <MetricCard
-            label="Passive Income"
-            value={player.passiveIncome}
-            variant="positive"
-            subtitle={`Goal: $${player.totalExpenses.toLocaleString()}`}
-          />
         </div>
 
         {/* Fast Track Progress */}
@@ -158,12 +209,6 @@ const DashboardScreen = () => {
             </p>
           </div>
         )}
-
-        {/* Collect PAYDAY Button */}
-        <CollectPaydayButton
-          paydayAmount={player.paydayAmount}
-          onCollect={handleCollectPayday}
-        />
 
         {/* Pending Transaction Warning */}
         {hasPendingTransaction && (

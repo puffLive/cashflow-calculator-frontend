@@ -32,7 +32,7 @@ export const PROFESSIONS: Profession[] = [
     difficulty: 'easy'
   },
   {
-    id: 'truck-driver',
+    id: 'truck_driver',
     title: 'Truck Driver',
     salary: 2500,
     taxes: 460,
@@ -62,7 +62,7 @@ export const PROFESSIONS: Profession[] = [
     difficulty: 'easy'
   },
   {
-    id: 'police-officer',
+    id: 'police_officer',
     title: 'Police Officer',
     salary: 3000,
     taxes: 580,
@@ -122,7 +122,7 @@ export const PROFESSIONS: Profession[] = [
     difficulty: 'medium'
   },
   {
-    id: 'business-manager',
+    id: 'business_manager',
     title: 'Business Manager',
     salary: 4600,
     taxes: 910,
@@ -137,7 +137,7 @@ export const PROFESSIONS: Profession[] = [
     difficulty: 'medium'
   },
   {
-    id: 'airline-pilot',
+    id: 'airline_pilot',
     title: 'Airline Pilot',
     salary: 9500,
     taxes: 2350,

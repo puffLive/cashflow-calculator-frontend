@@ -58,47 +58,21 @@ const FinancialSheetPreview = ({ profession }: FinancialSheetPreviewProps) => {
           <h4 className="text-lg font-semibold text-gray-700">Expenses</h4>
         </div>
         <div className="bg-red-50 rounded-lg p-3 space-y-2">
-          {profession.taxes > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Taxes</span>
-              <span className="font-medium text-gray-800">${profession.taxes.toLocaleString()}</span>
-            </div>
-          )}
-          {profession.mortgage > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Home Mortgage</span>
-              <span className="font-medium text-gray-800">${profession.mortgage.toLocaleString()}</span>
-            </div>
-          )}
-          {profession.schoolLoan > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">School Loan Payment</span>
-              <span className="font-medium text-gray-800">${profession.schoolLoan.toLocaleString()}</span>
-            </div>
-          )}
-          {profession.carLoan > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Car Loan Payment</span>
-              <span className="font-medium text-gray-800">${profession.carLoan.toLocaleString()}</span>
-            </div>
-          )}
-          {profession.creditCard > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Credit Card Payment</span>
-              <span className="font-medium text-gray-800">${profession.creditCard.toLocaleString()}</span>
-            </div>
-          )}
-          {profession.otherExpenses > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Other Expenses</span>
-              <span className="font-medium text-gray-800">${profession.otherExpenses.toLocaleString()}</span>
-            </div>
-          )}
-          {profession.bankLoan > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Bank Loan Payment</span>
-              <span className="font-medium text-gray-800">${profession.bankLoan.toLocaleString()}</span>
-            </div>
+          {[
+            { label: 'Taxes', value: profession.taxes },
+            { label: 'Home Mortgage', value: profession.mortgage },
+            { label: 'School Loan Payment', value: profession.schoolLoan },
+            { label: 'Car Loan Payment', value: profession.carLoan },
+            { label: 'Credit Card Payment', value: profession.creditCard },
+            { label: 'Other Expenses', value: profession.otherExpenses },
+            { label: 'Bank Loan Payment', value: profession.bankLoan }
+          ].map(({ label, value }) =>
+            value > 0 && (
+              <div key={label} className="flex justify-between items-center">
+                <span className="text-gray-600">{label}</span>
+                <span className="font-medium text-gray-800">${value.toLocaleString()}</span>
+              </div>
+            )
           )}
           <div className="pt-2 border-t border-red-200">
             <div className="flex justify-between items-center">

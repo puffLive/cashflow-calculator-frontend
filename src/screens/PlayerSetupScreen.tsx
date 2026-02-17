@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, CheckCircle, Target } from 'lucide-react'
-import { useSetupPlayerMutation } from '@/services/gameApi'
+import { ArrowLeft, CheckCircle, Target, Users } from 'lucide-react'
+import { useSetupPlayerMutation, useGetAllPlayersQuery } from '@/services/gameApi'
 import { PROFESSIONS } from '@/constants/professions'
 import { DREAMS } from '@/constants/dreams'
 import FinancialSheetPreview from '@/components/FinancialSheetPreview'
@@ -13,6 +13,7 @@ const PlayerSetupScreen = () => {
   const { roomCode } = useParams<{ roomCode: string }>()
   const [randomProfession, setRandomProfession] = useState<Profession | null>(null)
   const [selectedDream, setSelectedDream] = useState<Dream | null>(null)
+  const [selectedAuditorId, setSelectedAuditorId] = useState<string | null>(null)
 
   const [setupPlayer, { isLoading, error }] = useSetupPlayerMutation()
 
@@ -20,19 +21,28 @@ const PlayerSetupScreen = () => {
   const playerId = sessionStorage.getItem('playerId')
   const playerName = sessionStorage.getItem('playerName')
 
+  // Fetch all players to select auditor
+  const { data: allPlayersData } = useGetAllPlayersQuery(
+    roomCode!,
+    { skip: !roomCode, pollingInterval: 3000 }
+  )
+
+  // Filter out current player from auditor options
+  const otherPlayers = allPlayersData?.players?.filter((p: any) => {
+    console.log('[AUDITOR FILTER] Comparing:', p._id, '!==', playerId, '=', p._id !== playerId)
+    return p._id !== playerId
+  }) || []
+
+  console.log('[AUDITOR] All players:', allPlayersData?.players)
+  console.log('[AUDITOR] Current playerId:', playerId, typeof playerId)
+  console.log('[AUDITOR] Other players available:', otherPlayers)
+  console.log('[AUDITOR] Selected auditor ID:', selectedAuditorId)
+
   useEffect(() => {
     if (!playerId || !playerName || !roomCode) {
       navigate('/')
     }
   }, [playerId, playerName, roomCode, navigate])
-
-  // Redirect to lobby if player is already set up
-  useEffect(() => {
-    const isAlreadySetup = sessionStorage.getItem('isPlayerReady') === 'true'
-    if (isAlreadySetup && roomCode) {
-      navigate(`/game/${roomCode}/lobby`)
-    }
-  }, [roomCode, navigate])
 
   // Randomly assign a profession on mount
   useEffect(() => {
@@ -52,12 +62,14 @@ const PlayerSetupScreen = () => {
       dream: {
         name: selectedDream.name,
         cost: selectedDream.cost
-      }
+      },
+      auditorPlayerId: selectedAuditorId || undefined
     }
 
     console.log('Setup payload:', payload)
     console.log('Profession:', randomProfession)
     console.log('Dream:', selectedDream)
+    console.log('Selected Auditor ID:', selectedAuditorId)
 
     try {
       await setupPlayer(payload).unwrap()
@@ -185,6 +197,51 @@ const PlayerSetupScreen = () => {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Auditor Selection */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <Users className="w-6 h-6 text-blue-600" />
+            <h3 className="text-lg font-bold text-gray-800">Select Your Auditor</h3>
+          </div>
+          <p className="text-sm text-gray-600 mb-4">
+            Choose a player who will review and approve your transactions
+          </p>
+          {otherPlayers.length === 0 ? (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p className="text-sm text-yellow-800">
+                Waiting for other players to join... You can skip auditor selection for now and assign one later.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-3">
+              {otherPlayers.map((player: any) => {
+                console.log('[AUDITOR] Rendering player button:', player._id, player.playerName)
+                return (
+                  <button
+                    key={player._id}
+                    onClick={() => {
+                      console.log('[AUDITOR] Clicked player:', player._id, player.playerName)
+                      setSelectedAuditorId(player._id)
+                    }}
+                    className={`p-4 rounded-lg border-2 text-left transition-all ${
+                      selectedAuditorId === player._id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-blue-300 bg-white'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="font-bold text-gray-800">{player.playerName}</span>
+                      {selectedAuditorId === player._id && (
+                        <CheckCircle className="w-5 h-5 text-blue-600" />
+                      )}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          )}
         </div>
 
         {/* Financial Sheet Preview */}

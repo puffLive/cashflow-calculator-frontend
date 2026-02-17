@@ -104,7 +104,8 @@ const CreateGameScreen = () => {
 
   const handleContinueToLobby = () => {
     if (roomCode) {
-      navigate(buildRoute(ROUTES.GAME_LOBBY, { roomCode }))
+      // Redirect host to player setup instead of lobby
+      navigate(buildRoute(ROUTES.GAME_SETUP, { roomCode }))
     }
   }
 
@@ -166,7 +167,7 @@ const CreateGameScreen = () => {
               onClick={handleContinueToLobby}
               className="w-full btn-success py-3 text-lg font-semibold"
             >
-              Continue to Lobby
+              Set Up Your Player
             </button>
 
             <p className="text-center text-sm text-gray-500 mt-4">

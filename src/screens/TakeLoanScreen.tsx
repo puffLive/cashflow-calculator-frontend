@@ -1,17 +1,19 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Plus, Minus } from 'lucide-react'
-import { useAppSelector } from '@/hooks/redux'
-import { useSubmitTransactionMutation } from '@/services/transactionApi'
+import { useAppSelector, useAppDispatch } from '@/hooks/redux'
+import { useTakeLoanMutation } from '@/services/gameApi'
 import { selectCurrentPlayer } from '@/store/slices/playerSlice'
+import { addNotification } from '@/store/slices/uiSlice'
 import TransactionImpactPreview from '@/components/TransactionImpactPreview'
 
 const TakeLoanScreen = () => {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const { roomCode } = useParams<{ roomCode: string }>()
   const player = useAppSelector(selectCurrentPlayer)
 
-  const [submitTransaction, { isLoading }] = useSubmitTransactionMutation()
+  const [takeLoan, { isLoading }] = useTakeLoanMutation()
 
   const [step, setStep] = useState<1 | 2>(1)
   const [loanIncrements, setLoanIncrements] = useState(1) // Number of $1,000 increments
@@ -63,20 +65,29 @@ const TakeLoanScreen = () => {
     if (!playerId) return
 
     try {
-      await submitTransaction({
+      await takeLoan({
         roomCode,
         playerId,
-        type: 'loan',
-        subType: 'take',
-        details: {
-          amount: loanAmount,
-          monthlyPayment: monthlyPayment
-        } as unknown as Record<string, unknown>
+        amountIn1000s: loanIncrements
       }).unwrap()
 
+      dispatch(addNotification({
+        id: Date.now().toString(),
+        type: 'success',
+        message: 'Loan taken successfully',
+        duration: 3000
+      }))
+
       navigate(`/game/${roomCode}/dashboard`)
-    } catch (err) {
-      console.error('Failed to submit transaction:', err)
+    } catch (err: any) {
+      console.error('Failed to take loan:', err)
+
+      dispatch(addNotification({
+        id: Date.now().toString(),
+        type: 'error',
+        message: err?.data?.message || 'Failed to take loan',
+        duration: 5000
+      }))
     }
   }
 

@@ -85,8 +85,8 @@ const JoinGameScreen = () => {
         gameVersion: 'cashflow_101'
       }))
 
-      // Navigate to lobby (lobby will fetch full game session data)
-      navigate(buildRoute(ROUTES.GAME_LOBBY, { roomCode: roomCode.toUpperCase() }))
+      // Navigate to player setup instead of lobby
+      navigate(buildRoute(ROUTES.GAME_SETUP, { roomCode: roomCode.toUpperCase() }))
 
       dispatch(addNotification({
         id: Date.now().toString(),

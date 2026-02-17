@@ -4,7 +4,7 @@ export interface Transaction {
   id: string
   roomCode: string
   playerId: string
-  type: 'buy' | 'sell' | 'loan' | 'payday' | 'market_event'
+  type: 'buy' | 'sell' | 'loan' | 'payday' | 'market_event' | 'expense' | 'payment'
   subType?: string
   details: Record<string, any>
   status: 'pending' | 'approved' | 'rejected'

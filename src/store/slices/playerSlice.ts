@@ -61,11 +61,11 @@ export const playerSlice = createSlice({
     },
     addExpense: (state, action: PayloadAction<ExpenseItem>) => {
       state.expenses.push(action.payload)
-      state.totalExpenses = state.expenses.reduce((sum, item) => sum + item.amount, 0)
+      // Don't recalculate totalExpenses here - backend manages this
     },
     removeExpense: (state, action: PayloadAction<string>) => {
       state.expenses = state.expenses.filter(item => item.id !== action.payload)
-      state.totalExpenses = state.expenses.reduce((sum, item) => sum + item.amount, 0)
+      // Don't recalculate totalExpenses here - backend manages this
     },
     addAsset: (state, action: PayloadAction<Asset>) => {
       state.assets.push(action.payload)

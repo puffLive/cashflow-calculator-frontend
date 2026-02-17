@@ -90,6 +90,27 @@ export const useSocketEvents = (roomCode: string | null) => {
     }))
   }, [dispatch])
 
+  const handleAuditRequested = useCallback((data: SocketEvents['audit:requested']) => {
+    console.log('[FRONTEND] ✅ Received audit:requested event:', data)
+    console.log('[FRONTEND] Adding to audit queue for transaction:', data.transactionId)
+    // Add to audit queue for the auditor
+    dispatch(addPendingReview({
+      transactionId: data.transactionId,
+      playerId: data.playerId,
+      playerName: data.playerName,
+      transactionType: data.type as any,
+      transactionDetails: data.impact || {},
+      submittedAt: new Date().toISOString(),
+    }))
+    console.log('[FRONTEND] Dispatching notification')
+    dispatch(addNotification({
+      id: generateId(),
+      type: 'warning',
+      message: `${data.playerName} submitted a ${data.type} for your review`,
+      duration: 5000,
+    }))
+  }, [dispatch])
+
   const handleTransactionFinalized = useCallback((data: SocketEvents['transaction:finalized']) => {
     if (data.approved) {
       dispatch(clearPendingTransaction())
@@ -208,6 +229,7 @@ export const useSocketEvents = (roomCode: string | null) => {
     socketService.onEvent('player:joined', handlePlayerJoined)
     socketService.onEvent('game:started', handleGameStarted)
     socketService.onEvent('transaction:pending', handleTransactionPending)
+    socketService.onEvent('audit:requested', handleAuditRequested)
     socketService.onEvent('transaction:finalized', handleTransactionFinalized)
     socketService.onEvent('transaction:rejected', handleTransactionRejected)
     socketService.onEvent('payday:collected', handlePaydayCollected)
@@ -224,6 +246,7 @@ export const useSocketEvents = (roomCode: string | null) => {
       socketService.offEvent('player:joined')
       socketService.offEvent('game:started')
       socketService.offEvent('transaction:pending')
+      socketService.offEvent('audit:requested')
       socketService.offEvent('transaction:finalized')
       socketService.offEvent('transaction:rejected')
       socketService.offEvent('payday:collected')
@@ -240,6 +263,7 @@ export const useSocketEvents = (roomCode: string | null) => {
     handlePlayerJoined,
     handleGameStarted,
     handleTransactionPending,
+    handleAuditRequested,
     handleTransactionFinalized,
     handleTransactionRejected,
     handlePaydayCollected,
@@ -260,7 +284,11 @@ export const useSocketEvents = (roomCode: string | null) => {
       try {
         dispatch(setReconnecting(true))
         await socketService.connect()
-        socketService.joinRoom(roomCode)
+
+        // Get playerId from session storage
+        const playerId = sessionStorage.getItem('playerId')
+        socketService.joinRoom(roomCode, playerId || undefined)
+
         dispatch(setReconnecting(false))
       } catch (error) {
         console.error('Failed to connect to socket:', error)

@@ -8,6 +8,7 @@ export interface SocketEvents {
   'transaction:pending': { transactionId: string; playerId: string; type: string }
   'transaction:finalized': { transactionId: string; approved: boolean; playerData?: any }
   'transaction:rejected': { transactionId: string; note: string }
+  'audit:requested': { transactionId: string; playerId: string; playerName: string; type: string; description: string; impact?: any }
   'payday:collected': { playerId: string; amount: number }
   'player:updated': { playerId: string; data: any }
   'player:disconnected': { playerId: string }
@@ -97,6 +98,7 @@ class SocketService {
       'transaction:pending',
       'transaction:finalized',
       'transaction:rejected',
+      'audit:requested',
       'payday:collected',
       'player:updated',
       'player:disconnected',
@@ -117,15 +119,20 @@ class SocketService {
     })
   }
 
-  joinRoom(roomCode: string): void {
+  joinRoom(roomCode: string, playerId?: string): void {
     if (!this.socket?.connected) {
       console.error('Socket not connected')
       return
     }
 
-    this.socket.emit('join:room', { roomCode })
+    const payload: { roomCode: string; playerId?: string } = { roomCode }
+    if (playerId) {
+      payload.playerId = playerId
+    }
+
+    this.socket.emit('join:room', payload)
     this.currentRoom = roomCode
-    console.log('Joined room:', roomCode)
+    console.log('Joined room:', roomCode, 'Player:', playerId)
   }
 
   leaveRoom(): void {

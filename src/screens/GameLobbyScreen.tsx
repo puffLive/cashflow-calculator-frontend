@@ -36,6 +36,14 @@ const PlayerListItem = ({ player, isCurrentPlayer }: PlayerListItemProps) => {
     return 'Setting up...'
   }
 
+  const formatProfession = (profession?: string) => {
+    if (!profession) return 'No profession selected'
+    return profession
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  }
+
   return (
     <div className={`flex items-center justify-between p-4 rounded-lg ${
       isCurrentPlayer ? 'bg-blue-50 border-2 border-blue-200' : 'bg-gray-50'
@@ -53,7 +61,7 @@ const PlayerListItem = ({ player, isCurrentPlayer }: PlayerListItemProps) => {
             {player.isHost && <span className="ml-2 text-sm text-yellow-600">(Host)</span>}
           </p>
           <p className="text-sm text-gray-500">
-            {player.profession || 'No profession selected'}
+            {formatProfession(player.profession)}
           </p>
         </div>
       </div>
@@ -98,6 +106,17 @@ const GameLobbyScreen = () => {
   const isReady = isReadyFromStore || isReadyFromSession
   const allPlayersReady = players.length > 0 && players.every(p => p.isReady)
 
+  // Redirect to setup if player is not ready
+  useEffect(() => {
+    if (currentPlayerId && !isReady && players.length > 0) {
+      const currentPlayer = players.find(p => p.id === currentPlayerId)
+      if (currentPlayer && !currentPlayer.isReady) {
+        // Player needs to complete setup
+        navigate(buildRoute(ROUTES.GAME_SETUP, { roomCode: roomCode || '' }), { replace: true })
+      }
+    }
+  }, [currentPlayerId, isReady, players, navigate, roomCode])
+
   // Handle game started event
   useEffect(() => {
     if (gameSession?.status === 'active') {
@@ -139,17 +158,20 @@ const GameLobbyScreen = () => {
   }
 
   const handleStartGame = async () => {
-    if (!roomCode || !isHost || !allPlayersReady) return
+    if (!roomCode || !isHost || !allPlayersReady || !currentPlayerId) return
 
     try {
-      await startGame(roomCode).unwrap()
+      await startGame({ roomCode, playerId: currentPlayerId }).unwrap()
       dispatch(addNotification({
         id: Date.now().toString(),
         type: 'success',
         message: 'Game started!',
         duration: 3000
       }))
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Failed to start game:', error)
+      console.error('Error data:', error?.data)
+      console.error('Error status:', error?.status)
       dispatch(addNotification({
         id: Date.now().toString(),
         type: 'error',
@@ -180,28 +202,30 @@ const GameLobbyScreen = () => {
           </div>
 
           {/* Room Code Section */}
-          <div className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Room Code</p>
-              <p className="text-2xl font-mono font-bold text-gray-800">{roomCode}</p>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={handleCopyCode}
-                className="btn-primary px-3 py-2 flex items-center space-x-2"
-              >
-                {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-                <span>{copied ? 'Copied!' : 'Copy'}</span>
-              </button>
-              {navigator.share !== undefined && (
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Room Code</p>
+                <p className="text-2xl font-mono font-bold text-gray-800">{roomCode}</p>
+              </div>
+              <div className="flex gap-2 flex-shrink-0">
                 <button
-                  onClick={handleShare}
+                  onClick={handleCopyCode}
                   className="btn-primary px-3 py-2 flex items-center space-x-2"
                 >
-                  <Share2 className="w-5 h-5" />
-                  <span>Share</span>
+                  {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                  <span>{copied ? 'Copied!' : 'Copy'}</span>
                 </button>
-              )}
+                {navigator.share !== undefined && (
+                  <button
+                    onClick={handleShare}
+                    className="btn-primary px-3 py-2 flex items-center space-x-2"
+                  >
+                    <Share2 className="w-5 h-5" />
+                    <span>Share</span>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -278,10 +302,18 @@ const GameLobbyScreen = () => {
                   </p>
                   <button
                     disabled
-                    className="btn-primary px-8 py-3 text-lg font-bold mx-auto opacity-50 cursor-not-allowed"
+                    className="btn-primary px-8 py-3 text-lg font-bold mx-auto opacity-50 cursor-not-allowed mb-3"
                   >
                     Start Game (Waiting for Players)
                   </button>
+                  <div>
+                    <button
+                      onClick={handleSetupPlayer}
+                      className="text-blue-600 hover:text-blue-700 text-sm underline"
+                    >
+                      Edit your profile
+                    </button>
+                  </div>
                 </>
               )}
             </div>
@@ -291,9 +323,15 @@ const GameLobbyScreen = () => {
                 <Check className="w-5 h-5" />
                 <span className="font-semibold">You're ready!</span>
               </div>
-              <p className="text-gray-600">
+              <p className="text-gray-600 mb-3">
                 Waiting for the host to start the game...
               </p>
+              <button
+                onClick={handleSetupPlayer}
+                className="text-blue-600 hover:text-blue-700 text-sm underline"
+              >
+                Edit your profile
+              </button>
             </div>
           )}
         </div>
