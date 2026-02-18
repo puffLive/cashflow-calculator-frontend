@@ -31,8 +31,14 @@ export const auditSlice = createSlice({
   initialState,
   reducers: {
     addPendingReview: (state, action: PayloadAction<PendingAudit>) => {
-      state.pendingReviews.push(action.payload)
-      state.pendingCount = state.pendingReviews.length
+      // Prevent duplicates - only add if this transactionId doesn't already exist
+      const exists = state.pendingReviews.some(
+        review => review.transactionId === action.payload.transactionId
+      )
+      if (!exists) {
+        state.pendingReviews.push(action.payload)
+        state.pendingCount = state.pendingReviews.length
+      }
     },
     removePendingReview: (state, action: PayloadAction<string>) => {
       state.pendingReviews = state.pendingReviews.filter(

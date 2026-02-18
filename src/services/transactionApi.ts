@@ -39,6 +39,7 @@ interface GetTransactionsRequest {
 interface AuditTransactionRequest {
   roomCode: string
   transactionId: string
+  auditorId: string
   action: 'approve' | 'reject'
   note?: string
 }
@@ -68,10 +69,10 @@ export const transactionApi = apiSlice.injectEndpoints({
     }),
 
     auditTransaction: builder.mutation<TransactionResponse, AuditTransactionRequest>({
-      query: ({ roomCode, transactionId, ...data }) => ({
-        url: `/games/${roomCode}/transactions/${transactionId}/audit`,
+      query: ({ roomCode, transactionId, auditorId, action, note }) => ({
+        url: `/games/${roomCode}/transactions/${transactionId}/audit?auditorId=${auditorId}`,
         method: 'PATCH',
-        body: data,
+        body: { action, ...(note && { note }) },
       }),
       invalidatesTags: ['Transactions', 'Player', 'AllPlayers'],
     }),

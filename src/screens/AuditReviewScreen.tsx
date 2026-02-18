@@ -13,6 +13,9 @@ const AuditReviewScreen = () => {
   const [showRejectInput, setShowRejectInput] = useState(false)
   const [rejectionNote, setRejectionNote] = useState('')
 
+  // Get auditor ID from session storage
+  const auditorId = sessionStorage.getItem('playerId')
+
   const review = pendingReviews.find((r: { transactionId: string }) => r.transactionId === transactionId)
 
   if (!review) {
@@ -34,12 +37,13 @@ const AuditReviewScreen = () => {
   }
 
   const handleApprove = async () => {
-    if (!roomCode || !transactionId) return
+    if (!roomCode || !transactionId || !auditorId) return
 
     try {
       await auditTransaction({
         roomCode,
         transactionId,
+        auditorId,
         action: 'approve'
       }).unwrap()
 
@@ -50,12 +54,13 @@ const AuditReviewScreen = () => {
   }
 
   const handleReject = async () => {
-    if (!roomCode || !transactionId || !rejectionNote.trim()) return
+    if (!roomCode || !transactionId || !auditorId || !rejectionNote.trim()) return
 
     try {
       await auditTransaction({
         roomCode,
         transactionId,
+        auditorId,
         action: 'reject',
         note: rejectionNote
       }).unwrap()
