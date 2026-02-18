@@ -69,12 +69,14 @@ export const transactionApi = apiSlice.injectEndpoints({
     }),
 
     auditTransaction: builder.mutation<TransactionResponse, AuditTransactionRequest>({
-      query: ({ roomCode, transactionId, auditorId, action, note }) => ({
-        url: `/games/${roomCode}/transactions/${transactionId}/audit`,
-        method: 'PATCH',
-        params: { auditorId },
-        body: { action, ...(note && { note }) },
-      }),
+      query: ({ roomCode, transactionId, auditorId, action, note }) => {
+        console.log('[AUDIT API] Request:', { roomCode, transactionId, auditorId, action, note })
+        return {
+          url: `/games/${roomCode}/transactions/${transactionId}/audit?auditorId=${encodeURIComponent(auditorId)}`,
+          method: 'PATCH',
+          body: { action, ...(note && { note }) },
+        }
+      },
       invalidatesTags: ['Transactions', 'Player', 'AllPlayers'],
     }),
 

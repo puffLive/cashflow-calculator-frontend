@@ -235,6 +235,23 @@ const DashboardScreen = () => {
           </div>
         )}
 
+        {/* Pending Audits Alert */}
+        {pendingAuditCount > 0 && (
+          <div
+            onClick={() => navigate(`/game/${roomCode}/audits`)}
+            className="bg-amber-50 border-2 border-amber-400 rounded-lg p-4 cursor-pointer hover:bg-amber-100 transition-colors"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-amber-900 font-medium">
+                🔔 You have {pendingAuditCount} transaction{pendingAuditCount !== 1 ? 's' : ''} to review
+              </p>
+              <button className="text-amber-700 font-semibold text-sm underline">
+                Review Now
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Pending Transaction Warning */}
         {hasPendingTransaction && (
           <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">

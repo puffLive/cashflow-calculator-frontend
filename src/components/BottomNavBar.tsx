@@ -5,7 +5,8 @@ import {
   TrendingUp,
   TrendingDown,
   Building2,
-  CreditCard
+  CreditCard,
+  ClipboardCheck
 } from 'lucide-react'
 
 interface BottomNavBarProps {
@@ -19,11 +20,11 @@ const BottomNavBar = ({ pendingAuditCount = 0 }: BottomNavBarProps) => {
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: `/game/${roomCode}/dashboard` },
+    { id: 'audits', label: 'Audits', icon: ClipboardCheck, path: `/game/${roomCode}/audits`, badge: pendingAuditCount },
     { id: 'players', label: 'Players', icon: Users, path: `/game/${roomCode}/players` },
     { id: 'income', label: 'Income', icon: TrendingUp, path: `/game/${roomCode}/income` },
     { id: 'expenses', label: 'Expenses', icon: TrendingDown, path: `/game/${roomCode}/expenses` },
-    { id: 'assets', label: 'Assets', icon: Building2, path: `/game/${roomCode}/assets` },
-    { id: 'liabilities', label: 'Liabilities', icon: CreditCard, path: `/game/${roomCode}/liabilities` }
+    { id: 'assets', label: 'Assets', icon: Building2, path: `/game/${roomCode}/assets` }
   ]
 
   const isActive = (path: string) => location.pathname === path
