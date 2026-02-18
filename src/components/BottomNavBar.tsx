@@ -56,9 +56,7 @@ const BottomNavBar = ({ pendingAuditCount = 0 }: BottomNavBarProps) => {
                 {tab.label}
               </span>
               {tab.badge && tab.badge > 0 && (
-                <span className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                  {tab.badge > 9 ? '9+' : tab.badge}
-                </span>
+                <span className="absolute top-1 right-1 bg-red-500 rounded-full w-2.5 h-2.5"></span>
               )}
             </button>
           )
