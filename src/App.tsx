@@ -29,6 +29,8 @@ import LiabilityDetailScreen from '@/screens/LiabilityDetailScreen'
 import SessionExpiryWarning from '@/components/SessionExpiryWarning'
 import SessionExpiredModal from '@/components/SessionExpiredModal'
 import ReconnectionHandler from '@/components/ReconnectionHandler'
+import { GameSocketProvider } from '@/components/GameSocketProvider'
+import { NotificationToast } from '@/components/NotificationToast'
 import { useAppSelector } from '@/hooks/redux'
 import { selectModalOpen } from '@/store/slices/uiSlice'
 
@@ -52,6 +54,7 @@ function App() {
       <SessionExpiryWarning />
       <SessionExpiredModal isOpen={modalOpen === 'session_expired'} />
       <ReconnectionHandler />
+      <NotificationToast />
 
       <Routes>
         {/* Landing and game creation */}
@@ -59,32 +62,32 @@ function App() {
         <Route path="/create" element={<CreateGameScreen />} />
         <Route path="/join" element={<JoinGameScreen />} />
 
-        {/* Game routes */}
-        <Route path={ROUTES.GAME_LOBBY} element={<GameLobbyScreen />} />
-        <Route path={ROUTES.GAME_SETUP} element={<PlayerSetupScreen />} />
-        <Route path={ROUTES.GAME_DASHBOARD} element={<DashboardScreen />} />
-        <Route path="/game/:roomCode/players" element={<PlayersOverviewScreen />} />
-        <Route path="/game/:roomCode/history" element={<TransactionHistoryScreen />} />
+        {/* Game routes - all wrapped with GameSocketProvider for socket connection */}
+        <Route path={ROUTES.GAME_LOBBY} element={<GameSocketProvider><GameLobbyScreen /></GameSocketProvider>} />
+        <Route path={ROUTES.GAME_SETUP} element={<GameSocketProvider><PlayerSetupScreen /></GameSocketProvider>} />
+        <Route path={ROUTES.GAME_DASHBOARD} element={<GameSocketProvider><DashboardScreen /></GameSocketProvider>} />
+        <Route path="/game/:roomCode/players" element={<GameSocketProvider><PlayersOverviewScreen /></GameSocketProvider>} />
+        <Route path="/game/:roomCode/history" element={<GameSocketProvider><TransactionHistoryScreen /></GameSocketProvider>} />
 
         {/* Detail screens */}
-        <Route path="/game/:roomCode/income" element={<IncomeDetailScreen />} />
-        <Route path="/game/:roomCode/expenses" element={<ExpenseDetailScreen />} />
-        <Route path="/game/:roomCode/assets" element={<AssetDetailScreen />} />
-        <Route path="/game/:roomCode/liabilities" element={<LiabilityDetailScreen />} />
+        <Route path="/game/:roomCode/income" element={<GameSocketProvider><IncomeDetailScreen /></GameSocketProvider>} />
+        <Route path="/game/:roomCode/expenses" element={<GameSocketProvider><ExpenseDetailScreen /></GameSocketProvider>} />
+        <Route path="/game/:roomCode/assets" element={<GameSocketProvider><AssetDetailScreen /></GameSocketProvider>} />
+        <Route path="/game/:roomCode/liabilities" element={<GameSocketProvider><LiabilityDetailScreen /></GameSocketProvider>} />
 
         {/* Transaction routes */}
-        <Route path="/game/:roomCode/transaction/buy" element={<BuyTransactionScreen />} />
-        <Route path="/game/:roomCode/transaction/sell" element={<SellTransactionScreen />} />
-        <Route path="/game/:roomCode/transaction/loan" element={<TakeLoanScreen />} />
-        <Route path="/game/:roomCode/transaction/payoff" element={<PayOffLoanScreen />} />
-        <Route path="/game/:roomCode/transaction/market" element={<MarketEventScreen />} />
-        <Route path="/game/:roomCode/transaction/collect" element={<CollectScreen />} />
-        <Route path="/game/:roomCode/transaction/pay" element={<PayTransactionScreen />} />
+        <Route path="/game/:roomCode/transaction/buy" element={<GameSocketProvider><BuyTransactionScreen /></GameSocketProvider>} />
+        <Route path="/game/:roomCode/transaction/sell" element={<GameSocketProvider><SellTransactionScreen /></GameSocketProvider>} />
+        <Route path="/game/:roomCode/transaction/loan" element={<GameSocketProvider><TakeLoanScreen /></GameSocketProvider>} />
+        <Route path="/game/:roomCode/transaction/payoff" element={<GameSocketProvider><PayOffLoanScreen /></GameSocketProvider>} />
+        <Route path="/game/:roomCode/transaction/market" element={<GameSocketProvider><MarketEventScreen /></GameSocketProvider>} />
+        <Route path="/game/:roomCode/transaction/collect" element={<GameSocketProvider><CollectScreen /></GameSocketProvider>} />
+        <Route path="/game/:roomCode/transaction/pay" element={<GameSocketProvider><PayTransactionScreen /></GameSocketProvider>} />
 
         {/* Audit routes */}
-        <Route path="/game/:roomCode/audits" element={<PendingAuditsScreen />} />
-        <Route path="/game/:roomCode/audit/:transactionId" element={<AuditReviewScreen />} />
-        <Route path="/game/:roomCode/audit/handoff" element={<HandoffAuditScreen />} />
+        <Route path="/game/:roomCode/audits" element={<GameSocketProvider><PendingAuditsScreen /></GameSocketProvider>} />
+        <Route path="/game/:roomCode/audit/:transactionId" element={<GameSocketProvider><AuditReviewScreen /></GameSocketProvider>} />
+        <Route path="/game/:roomCode/audit/handoff" element={<GameSocketProvider><HandoffAuditScreen /></GameSocketProvider>} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

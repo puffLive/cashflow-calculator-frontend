@@ -1,17 +1,20 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useAppSelector } from '@/hooks/redux'
+import { useAppSelector, useAppDispatch } from '@/hooks/redux'
 import { useGetPlayerQuery } from '@/services/gameApi'
 import { selectCurrentPlayer } from '@/store/slices/playerSlice'
 import { selectPendingAuditCount } from '@/store/slices/auditSlice'
 import { selectHasPendingTransaction } from '@/store/slices/transactionSlice'
+import { resetUI } from '@/store/slices/uiSlice'
 import BottomNavBar from '@/components/BottomNavBar'
 import TransactionFAB from '@/components/TransactionFAB'
-import { Loader2 } from 'lucide-react'
+import { Loader2, LogOut } from 'lucide-react'
 
 const DashboardScreen = () => {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const { roomCode } = useParams<{ roomCode: string }>()
+  const [showNewGameConfirm, setShowNewGameConfirm] = useState(false)
 
   // Get player data from session storage
   const playerId = sessionStorage.getItem('playerId')
@@ -33,6 +36,19 @@ const DashboardScreen = () => {
       navigate('/')
     }
   }, [playerId, playerName, roomCode, navigate])
+
+  const handleNewGame = () => {
+    // Clear all session data
+    sessionStorage.removeItem('playerId')
+    sessionStorage.removeItem('playerName')
+    sessionStorage.removeItem('roomCode')
+
+    // Reset UI state
+    dispatch(resetUI())
+
+    // Navigate to landing page
+    navigate('/')
+  }
 
   if (isLoading && player.cashOnHand === 0) {
     return (
@@ -77,13 +93,22 @@ const DashboardScreen = () => {
       <div className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-3">
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-800">{playerName}</h1>
               <p className="text-sm text-gray-600">{formatProfession(player.profession)}</p>
             </div>
-            <div className="text-right">
-              <p className="text-xs text-gray-500">Room Code</p>
-              <p className="text-lg font-mono font-bold text-blue-600">{roomCode}</p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowNewGameConfirm(true)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="New Game"
+              >
+                <LogOut className="h-5 w-5 text-gray-700" />
+              </button>
+              <div className="text-right">
+                <p className="text-xs text-gray-500">Room Code</p>
+                <p className="text-lg font-mono font-bold text-blue-600">{roomCode}</p>
+              </div>
             </div>
           </div>
 
@@ -228,6 +253,32 @@ const DashboardScreen = () => {
         disabled={hasPendingTransaction}
         disabledTooltip="Waiting for auditor to review your pending transaction"
       />
+
+      {/* New Game Confirmation Modal */}
+      {showNewGameConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-3">Start New Game?</h2>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to start a new game? This will end your current session and you'll lose all your progress.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowNewGameConfirm(false)}
+                className="flex-1 bg-gray-100 text-gray-700 px-4 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleNewGame}
+                className="flex-1 bg-red-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors"
+              >
+                New Game
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

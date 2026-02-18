@@ -58,7 +58,7 @@ class SocketService {
       })
 
       this.socket.on('connect', () => {
-        console.log('Socket connected:', this.socket?.id)
+        console.log('[SOCKET] Socket connected with ID:', this.socket?.id)
         resolve()
         this.connectionPromise = null
       })
@@ -111,7 +111,9 @@ class SocketService {
 
     events.forEach((event) => {
       this.socket?.on(event, (data: any) => {
+        console.log(`[SOCKET] Received event: ${event}`, data)
         const handlers = this.eventHandlers.get(event)
+        console.log(`[SOCKET] Handlers registered for ${event}:`, handlers?.size || 0)
         if (handlers) {
           handlers.forEach((handler) => handler(data))
         }
@@ -132,7 +134,7 @@ class SocketService {
 
     this.socket.emit('join:room', payload)
     this.currentRoom = roomCode
-    console.log('Joined room:', roomCode, 'Player:', playerId)
+    console.log('[SOCKET] Joined room:', roomCode, 'Player:', playerId, 'SocketID:', this.socket.id)
   }
 
   leaveRoom(): void {
@@ -153,6 +155,7 @@ class SocketService {
       this.eventHandlers.set(eventName, new Set())
     }
     this.eventHandlers.get(eventName)?.add(callback)
+    console.log(`[SOCKET] Handler registered for: ${eventName}, total handlers:`, this.eventHandlers.get(eventName)?.size)
   }
 
   offEvent<K extends keyof SocketEvents>(

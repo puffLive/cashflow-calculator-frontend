@@ -93,23 +93,35 @@ export const useSocketEvents = (roomCode: string | null) => {
   const handleAuditRequested = useCallback((data: SocketEvents['audit:requested']) => {
     console.log('[FRONTEND] ✅ Received audit:requested event:', data)
     console.log('[FRONTEND] Adding to audit queue for transaction:', data.transactionId)
-    // Add to audit queue for the auditor
-    dispatch(addPendingReview({
+
+    const auditPayload = {
       transactionId: data.transactionId,
       playerId: data.playerId,
       playerName: data.playerName,
       transactionType: data.type as any,
       transactionDetails: data.impact || {},
       submittedAt: new Date().toISOString(),
-    }))
-    console.log('[FRONTEND] Dispatching notification')
-    dispatch(addNotification({
-      id: generateId(),
-      type: 'warning',
+    }
+    console.log('[FRONTEND] Audit payload:', auditPayload)
+
+    // Add to audit queue for the auditor
+    dispatch(addPendingReview(auditPayload))
+    console.log('[FRONTEND] ✅ Added to pending reviews')
+
+    const notificationId = generateId()
+    const notification = {
+      id: notificationId,
+      type: 'warning' as const,
       message: `${data.playerName} submitted a ${data.type} for your review`,
-      duration: 5000,
-    }))
-  }, [dispatch])
+      duration: 8000, // Longer duration for audit notifications
+      actionLabel: 'Review Now',
+      actionPath: roomCode ? `/game/${roomCode}/audits` : undefined,
+    }
+    console.log('[FRONTEND] Notification payload:', notification)
+
+    dispatch(addNotification(notification))
+    console.log('[FRONTEND] ✅ Notification dispatched')
+  }, [dispatch, roomCode])
 
   const handleTransactionFinalized = useCallback((data: SocketEvents['transaction:finalized']) => {
     if (data.approved) {
@@ -225,6 +237,8 @@ export const useSocketEvents = (roomCode: string | null) => {
   useEffect(() => {
     if (!roomCode) return
 
+    console.log('[SOCKET EVENTS] Registering all event handlers for room:', roomCode)
+
     // Register all event handlers
     socketService.onEvent('player:joined', handlePlayerJoined)
     socketService.onEvent('game:started', handleGameStarted)
@@ -240,6 +254,8 @@ export const useSocketEvents = (roomCode: string | null) => {
     socketService.onEvent('fasttrack:achieved', handleFastTrackAchieved)
     socketService.onEvent('session:expiry_warning', handleSessionExpiryWarning)
     socketService.onEvent('session:expired', handleSessionExpired)
+
+    console.log('[SOCKET EVENTS] ✅ All event handlers registered')
 
     // Cleanup on unmount
     return () => {
@@ -282,16 +298,19 @@ export const useSocketEvents = (roomCode: string | null) => {
 
     const connectAndJoin = async () => {
       try {
+        console.log('[SOCKET EVENTS] Connecting and joining room...')
         dispatch(setReconnecting(true))
         await socketService.connect()
 
         // Get playerId from session storage
         const playerId = sessionStorage.getItem('playerId')
+        console.log('[SOCKET EVENTS] About to join room with playerId:', playerId)
         socketService.joinRoom(roomCode, playerId || undefined)
 
         dispatch(setReconnecting(false))
+        console.log('[SOCKET EVENTS] ✅ Connected and joined room successfully')
       } catch (error) {
-        console.error('Failed to connect to socket:', error)
+        console.error('[SOCKET EVENTS] ❌ Failed to connect to socket:', error)
         dispatch(setReconnecting(false))
         dispatch(addNotification({
           id: generateId(),
@@ -305,6 +324,7 @@ export const useSocketEvents = (roomCode: string | null) => {
     connectAndJoin()
 
     return () => {
+      console.log('[SOCKET EVENTS] Leaving room:', roomCode)
       socketService.leaveRoom()
     }
   }, [roomCode, dispatch])

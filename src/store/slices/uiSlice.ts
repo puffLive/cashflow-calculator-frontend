@@ -7,6 +7,8 @@ export interface Notification {
   type: 'success' | 'error' | 'warning' | 'info'
   message: string
   duration?: number // milliseconds, default 5000
+  actionLabel?: string // Optional button label (e.g., "Review")
+  actionPath?: string // Optional navigation path (e.g., "/game/ABC123/audits")
 }
 
 interface UIState {
