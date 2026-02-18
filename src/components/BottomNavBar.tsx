@@ -20,7 +20,13 @@ const BottomNavBar = ({ pendingAuditCount = 0 }: BottomNavBarProps) => {
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: `/game/${roomCode}/dashboard` },
-    { id: 'audits', label: 'Audits', icon: ClipboardCheck, path: `/game/${roomCode}/audits`, badge: pendingAuditCount },
+    {
+      id: 'audits',
+      label: 'Audits',
+      icon: ClipboardCheck,
+      path: `/game/${roomCode}/audits`,
+      ...(pendingAuditCount > 0 && { badge: pendingAuditCount })
+    },
     { id: 'players', label: 'Players', icon: Users, path: `/game/${roomCode}/players` },
     { id: 'income', label: 'Income', icon: TrendingUp, path: `/game/${roomCode}/income` },
     { id: 'expenses', label: 'Expenses', icon: TrendingDown, path: `/game/${roomCode}/expenses` },
