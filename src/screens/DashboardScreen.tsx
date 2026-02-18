@@ -243,7 +243,7 @@ const DashboardScreen = () => {
           >
             <div className="flex items-center justify-between">
               <p className="text-sm text-amber-900 font-medium">
-                🔔 You have {pendingAuditCount} transaction{pendingAuditCount !== 1 ? 's' : ''} to review
+                🔔 You have pending transaction{pendingAuditCount !== 1 ? 's' : ''} to review
               </p>
               <button className="text-amber-700 font-semibold text-sm underline">
                 Review Now
