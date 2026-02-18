@@ -131,17 +131,25 @@ const AuditReviewScreen = () => {
 
         {/* Transaction Data */}
         <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <h3 className="font-bold text-gray-900 mb-3">Transaction Information</h3>
-          <div className="space-y-2">
-            {Object.entries(review.transactionDetails).map(([key, value]) => (
-              <div key={key} className="flex justify-between text-sm">
-                <span className="text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                <span className="font-medium text-gray-900">
-                  {typeof value === 'number' ? formatCurrency(value) : String(value)}
-                </span>
-              </div>
-            ))}
-          </div>
+          <h3 className="font-bold text-gray-900 mb-3">Financial Impact</h3>
+          {Object.keys(review.transactionDetails).length > 0 ? (
+            <div className="space-y-2">
+              {Object.entries(review.transactionDetails).map(([key, value]) => (
+                <div key={key} className="flex justify-between text-sm">
+                  <span className="text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
+                  <span className={`font-medium ${
+                    typeof value === 'number' && value < 0 ? 'text-red-600' :
+                    typeof value === 'number' && value > 0 ? 'text-green-600' :
+                    'text-gray-900'
+                  }`}>
+                    {typeof value === 'number' ? formatCurrency(value) : String(value)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">No detailed impact information available.</p>
+          )}
         </div>
 
         {/* Impact Summary Note */}
