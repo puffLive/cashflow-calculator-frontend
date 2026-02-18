@@ -5,7 +5,6 @@ import {
   TrendingUp,
   TrendingDown,
   Building2,
-  CreditCard,
   ClipboardCheck
 } from 'lucide-react'
 

@@ -73,21 +73,10 @@ export const useSocketEvents = (roomCode: string | null) => {
   }, [dispatch])
 
   const handleTransactionPending = useCallback((data: SocketEvents['transaction:pending']) => {
-    // Add to audit queue if we're the auditor
-    dispatch(addPendingReview({
-      transactionId: data.transactionId,
-      playerId: data.playerId,
-      playerName: '', // This should be filled from player data
-      transactionType: data.type as any,
-      transactionDetails: {},
-      submittedAt: new Date().toISOString(),
-    }))
-    dispatch(addNotification({
-      id: generateId(),
-      type: 'info',
-      message: `New transaction pending review`,
-      duration: 5000,
-    }))
+    console.log('[FRONTEND] Received transaction:pending (room-wide notification):', data)
+    // This is just a room-wide notification that a transaction was created
+    // The actual audit request comes via 'audit:requested' event
+    // We don't add to audit queue here - that's handled by audit:requested
   }, [dispatch])
 
   const handleAuditRequested = useCallback((data: SocketEvents['audit:requested']) => {

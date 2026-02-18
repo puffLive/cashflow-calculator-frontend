@@ -74,18 +74,18 @@ const TakeLoanScreen = () => {
       dispatch(addNotification({
         id: Date.now().toString(),
         type: 'success',
-        message: 'Loan taken successfully',
+        message: 'Loan submitted for audit',
         duration: 3000
       }))
 
       navigate(`/game/${roomCode}/dashboard`)
     } catch (err: any) {
-      console.error('Failed to take loan:', err)
+      console.error('Failed to submit loan:', err)
 
       dispatch(addNotification({
         id: Date.now().toString(),
         type: 'error',
-        message: err?.data?.message || 'Failed to take loan',
+        message: err?.data?.message || 'Failed to submit loan',
         duration: 5000
       }))
     }

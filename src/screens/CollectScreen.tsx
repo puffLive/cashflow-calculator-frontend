@@ -100,7 +100,8 @@ const CollectScreen = () => {
         await submitTransaction({
           roomCode,
           playerId,
-          type: 'collect_money',
+          type: 'payment',
+          subType: 'collect_money',
           details: { amount }
         }).unwrap()
         dispatch(addNotification({

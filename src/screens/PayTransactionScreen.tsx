@@ -73,15 +73,16 @@ const PayTransactionScreen = () => {
   const calculateImpact = () => {
     const cashBefore = player.cashOnHand
     let cashAfter = cashBefore - amount
-    let liabilitiesBefore = player.totalLiabilities
+    // Calculate total liabilities from liabilities array
+    let liabilitiesBefore = player.liabilities.reduce((sum, l) => sum + l.currentBalance, 0)
     let liabilitiesAfter = liabilitiesBefore
     let expensesBefore = player.totalExpenses
     let expensesAfter = expensesBefore
 
     if (selectedType === 'payoff_loan' && selectedLiability) {
-      liabilitiesAfter = liabilitiesBefore - selectedLiability.liability
+      liabilitiesAfter = liabilitiesBefore - selectedLiability.currentBalance
       // Remove the liability payment from monthly expenses
-      expensesAfter = expensesBefore - selectedLiability.payment
+      expensesAfter = expensesBefore - selectedLiability.monthlyPayment
     }
 
     const paydayBefore = player.paydayAmount
@@ -106,7 +107,7 @@ const PayTransactionScreen = () => {
       case 'pay_money':
         return `Paying money: $${amount.toLocaleString()}`
       case 'payoff_loan':
-        return selectedLiability ? `Paying off ${selectedLiability.type}: $${selectedLiability.liability.toLocaleString()}` : ''
+        return selectedLiability ? `Paying off ${selectedLiability.name}: $${selectedLiability.currentBalance.toLocaleString()}` : ''
       default:
         return ''
     }
@@ -154,7 +155,7 @@ const PayTransactionScreen = () => {
           roomCode,
           playerId,
           liabilityId: selectedLiability.id,
-          payoffAmount: selectedLiability.liability
+          payoffAmount: selectedLiability.currentBalance
         }).unwrap()
       }
 
@@ -396,17 +397,15 @@ const PayTransactionScreen = () => {
                           key={liability.id}
                           asset={{
                             id: liability.id,
-                            name: liability.type,
+                            name: liability.name,
                             type: liability.type as any,
-                            costBasis: liability.liability,
-                            currentValue: liability.liability,
-                            cashflow: -liability.payment,
+                            costBasis: liability.currentBalance,
                             quantity: 1
                           }}
                           isSelected={selectedLiability?.id === liability.id}
                           onSelect={() => {
                             setSelectedLiability(liability)
-                            setAmount(liability.liability)
+                            setAmount(liability.currentBalance)
                           }}
                         />
                       ))}
@@ -418,16 +417,16 @@ const PayTransactionScreen = () => {
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
                             <span className="text-gray-600">Liability Amount:</span>
-                            <span className="font-medium text-red-600">${selectedLiability.liability.toLocaleString()}</span>
+                            <span className="font-medium text-red-600">${selectedLiability.currentBalance.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-gray-600">Monthly Payment Removed:</span>
-                            <span className="font-medium text-green-600">${selectedLiability.payment.toLocaleString()}</span>
+                            <span className="font-medium text-green-600">${selectedLiability.monthlyPayment.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-gray-600">Cash After Payment:</span>
                             <span className={`font-medium ${hasInsufficientFunds ? 'text-red-600' : 'text-blue-600'}`}>
-                              ${(player.cashOnHand - selectedLiability.liability).toLocaleString()}
+                              ${(player.cashOnHand - selectedLiability.currentBalance).toLocaleString()}
                             </span>
                           </div>
                         </div>

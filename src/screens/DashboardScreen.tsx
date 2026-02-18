@@ -95,7 +95,7 @@ const DashboardScreen = () => {
           <div className="flex items-center justify-between mb-3">
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-800">{playerName}</h1>
-              <p className="text-sm text-gray-600">{formatProfession(player.profession)}</p>
+              <p className="text-sm text-gray-600">{formatProfession(player.profession || '')}</p>
             </div>
             <div className="flex items-center gap-3">
               <button

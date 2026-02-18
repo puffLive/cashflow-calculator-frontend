@@ -80,7 +80,7 @@ export const gameApi = apiSlice.injectEndpoints({
       invalidatesTags: ['Player', 'AllPlayers', 'GameSession'],
     }),
 
-    getPlayer: builder.query<Player, { roomCode: string; playerId: string }>({
+    getPlayer: builder.query<any, { roomCode: string; playerId: string }>({
       query: ({ roomCode, playerId }) => `/games/${roomCode}/players/${playerId}`,
       providesTags: ['Player'],
       async onQueryStarted(_args, { dispatch, queryFulfilled }) {
@@ -94,8 +94,8 @@ export const gameApi = apiSlice.injectEndpoints({
           // Transform backend response to frontend format
           // Backend sends expenses as an object, convert to array for display
           const expensesArray = []
-          if (data.expenses) {
-            const exp = data.expenses
+          if ((data as any).expenses) {
+            const exp = (data as any).expenses
             if (exp.taxes) expensesArray.push({ id: 'taxes', name: 'Taxes', amount: exp.taxes, type: 'fixed' })
             if (exp.mortgagePayment) expensesArray.push({ id: 'mortgage', name: 'Mortgage Payment', amount: exp.mortgagePayment, type: 'fixed' })
             if (exp.schoolLoanPayment) expensesArray.push({ id: 'schoolLoan', name: 'School Loan Payment', amount: exp.schoolLoanPayment, type: 'fixed' })
@@ -111,33 +111,33 @@ export const gameApi = apiSlice.injectEndpoints({
 
           // Handle income structure (backend sends as object)
           const incomeArray = []
-          if (data.income?.salary) {
-            incomeArray.push({ id: 'salary', name: 'Salary', amount: data.income.salary, type: 'salary' })
+          if ((data as any).income?.salary) {
+            incomeArray.push({ id: 'salary', name: 'Salary', amount: (data as any).income.salary, type: 'salary' })
           }
-          if (data.income?.passiveIncomeItems) {
-            incomeArray.push(...data.income.passiveIncomeItems)
+          if ((data as any).income?.passiveIncomeItems) {
+            incomeArray.push(...(data as any).income.passiveIncomeItems)
           }
 
           const playerData = {
-            id: data._id || data.id,
-            name: data.playerName || data.name,
-            profession: data.profession,
-            dream: data.dream,
-            auditorPlayerId: data.auditorPlayerId,
-            isReady: !!data.profession,
-            cashOnHand: data.cashOnHand || 0,
-            salary: data.salary || data.income?.salary || 0,
-            totalIncome: data.totalIncome || 0,
-            totalExpenses: calculatedTotalExpenses || data.totalExpenses || 0,
-            passiveIncome: data.passiveIncome || data.income?.passiveIncome || 0,
-            paydayAmount: data.paydayAmount || 0,
-            cashflow: data.cashflow || 0,
-            isOnFastTrack: data.isOnFastTrack || false,
-            numberOfChildren: data.numberOfChildren || 0,
+            id: (data as any)._id || (data as any).id,
+            name: (data as any).playerName || (data as any).name,
+            profession: (data as any).profession,
+            dream: (data as any).dream,
+            auditorPlayerId: (data as any).auditorPlayerId,
+            isReady: !!(data as any).profession,
+            cashOnHand: (data as any).cashOnHand || 0,
+            salary: (data as any).salary || (data as any).income?.salary || 0,
+            totalIncome: (data as any).totalIncome || 0,
+            totalExpenses: calculatedTotalExpenses || (data as any).totalExpenses || 0,
+            passiveIncome: (data as any).passiveIncome || (data as any).income?.passiveIncome || 0,
+            paydayAmount: (data as any).paydayAmount || 0,
+            cashflow: (data as any).cashflow || 0,
+            isOnFastTrack: (data as any).isOnFastTrack || false,
+            numberOfChildren: (data as any).numberOfChildren || 0,
             income: incomeArray,
             expenses: expensesArray,
-            assets: data.assets || [],
-            liabilities: data.liabilities || [],
+            assets: (data as any).assets || [],
+            liabilities: (data as any).liabilities || [],
           }
 
           console.log('Transformed player data:', playerData)
@@ -148,7 +148,7 @@ export const gameApi = apiSlice.injectEndpoints({
       },
     }),
 
-    getAllPlayers: builder.query<{ players: Player[] }, string>({
+    getAllPlayers: builder.query<{ players: any[] }, string>({
       query: (roomCode) => `/games/${roomCode}/players`,
       providesTags: ['AllPlayers'],
       async onQueryStarted(_roomCode, { dispatch, queryFulfilled }) {
@@ -226,7 +226,7 @@ export const gameApi = apiSlice.injectEndpoints({
         },
       }),
       invalidatesTags: ['Player', 'AllPlayers'],
-      async onQueryStarted({ roomCode, playerId }, { dispatch, queryFulfilled }) {
+      async onQueryStarted({ }, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled
           // Force refetch player data immediately

@@ -20,6 +20,9 @@ const HandoffAuditScreen = () => {
   const [showRejectInput, setShowRejectInput] = useState(false)
   const [rejectionNote, setRejectionNote] = useState('')
 
+  // Get auditor ID from session storage
+  const auditorId = sessionStorage.getItem('playerId') || ''
+
   if (!state) {
     navigate(`/game/${roomCode}/dashboard`)
     return null
@@ -28,12 +31,13 @@ const HandoffAuditScreen = () => {
   const { transactionId, playerName, transactionType, transactionDetails } = state
 
   const handleApprove = async () => {
-    if (!roomCode || !transactionId) return
+    if (!roomCode || !transactionId || !auditorId) return
 
     try {
       await auditTransaction({
         roomCode,
         transactionId,
+        auditorId,
         action: 'approve'
       }).unwrap()
 
@@ -44,12 +48,13 @@ const HandoffAuditScreen = () => {
   }
 
   const handleReject = async () => {
-    if (!roomCode || !transactionId || !rejectionNote.trim()) return
+    if (!roomCode || !transactionId || !auditorId || !rejectionNote.trim()) return
 
     try {
       await auditTransaction({
         roomCode,
         transactionId,
+        auditorId,
         action: 'reject',
         note: rejectionNote
       }).unwrap()
