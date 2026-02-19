@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, DollarSign, Banknote, User } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '@/hooks/redux'
-import { useCollectPaydayMutation } from '@/services/gameApi'
-import { useSubmitTransactionMutation } from '@/services/transactionApi'
+import { useCollectPaydayMutation, useSubmitMarketEventMutation } from '@/services/gameApi'
 import { selectCurrentPlayer } from '@/store/slices/playerSlice'
 import { selectHasPendingTransaction } from '@/store/slices/transactionSlice'
 import { selectAllPlayers } from '@/store/slices/allPlayersSlice'
@@ -29,7 +28,7 @@ const CollectScreen = () => {
   const hasPendingTransaction = useAppSelector(selectHasPendingTransaction)
 
   const [collectPayday, { isLoading: isCollectingPayday }] = useCollectPaydayMutation()
-  const [submitTransaction, { isLoading: isSubmittingTransaction }] = useSubmitTransactionMutation()
+  const [submitMarketEvent, { isLoading: isSubmittingMarketEvent }] = useSubmitMarketEventMutation()
 
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [selectedType, setSelectedType] = useState<CollectType | null>(null)
@@ -115,18 +114,13 @@ const CollectScreen = () => {
         }))
         navigate(`/game/${roomCode}/dashboard`)
       } else if (selectedType === 'money') {
-        // Submit transaction for audit with target player info
+        // Submit market event for collecting money (uses lend_collect with positive amount)
         const selectedPlayer = allPlayers.find(p => p.id === selectedPlayerId)
-        await submitTransaction({
+        await submitMarketEvent({
           roomCode,
           playerId,
-          type: 'payment',
-          subType: 'collect_money',
-          details: {
-            amount,
-            fromPlayerId: selectedPlayerId,
-            fromPlayerName: selectedPlayer?.name
-          }
+          subType: 'lend_collect',
+          amount: amount  // Positive for collect, negative for lend
         }).unwrap()
         dispatch(addNotification({
           id: Date.now().toString(),
@@ -169,7 +163,7 @@ const CollectScreen = () => {
     return selectedType === 'payday' ? 2 : 3
   }
 
-  const isLoading = isCollectingPayday || isSubmittingTransaction
+  const isLoading = isCollectingPayday || isSubmittingMarketEvent
 
   return (
     <div className="min-h-screen bg-gray-50 pb-8">
