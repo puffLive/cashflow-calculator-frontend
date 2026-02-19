@@ -102,7 +102,10 @@ export const useSocketEvents = (roomCode: string | null) => {
       playerId: data.playerId,
       playerName: data.playerName,
       transactionType: data.type as any,
-      transactionDetails: data.impact || {},
+      transactionDetails: {
+        ...data.impact,
+        subType: (data as any).subType, // Include subType for determining transaction kind
+      },
       submittedAt: new Date().toISOString(),
     }
     console.log('[FRONTEND] Audit payload:', auditPayload)

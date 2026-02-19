@@ -29,7 +29,12 @@ const PendingAuditsScreen = () => {
     }
   }
 
-  const getTransactionLabel = (type: string) => {
+  const getTransactionLabel = (type: string, details?: Record<string, any>) => {
+    // Check for collect money (e-transfer) based on subType
+    if (type === 'market_event' && details?.subType === 'lend_collect') {
+      return 'E-Transfer'
+    }
+
     switch (type) {
       case 'buy': return 'Buy Transaction'
       case 'sell': return 'Sell Transaction'
@@ -110,7 +115,7 @@ const PendingAuditsScreen = () => {
 
       {/* Pending Reviews List */}
       <div className="px-4 py-4 space-y-3">
-        {pendingReviews.map((review: { transactionId: string; playerName: string; transactionType: Transaction['type']; submittedAt: string }) => {
+        {pendingReviews.map((review: { transactionId: string; playerName: string; transactionType: Transaction['type']; transactionDetails?: Record<string, any>; submittedAt: string }) => {
           const Icon = getTransactionIcon(review.transactionType)
           const colorClass = getTransactionColor(review.transactionType)
 
@@ -127,7 +132,7 @@ const PendingAuditsScreen = () => {
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <div>
                       <h3 className="font-semibold text-gray-900">{review.playerName}</h3>
-                      <p className="text-sm text-gray-600">{getTransactionLabel(review.transactionType)}</p>
+                      <p className="text-sm text-gray-600">{getTransactionLabel(review.transactionType, review.transactionDetails)}</p>
                     </div>
                     <span className="text-xs text-gray-500 whitespace-nowrap">
                       {formatTimestamp(review.submittedAt)}
