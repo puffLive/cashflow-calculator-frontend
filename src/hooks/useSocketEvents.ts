@@ -163,6 +163,7 @@ export const useSocketEvents = (roomCode: string | null) => {
       message: `Transaction rejected: ${data.note}`,
       duration: 5000,
     }))
+    dispatch(removePendingReview(data.transactionId))
   }, [dispatch])
 
   const handlePaydayCollected = useCallback((data: SocketEvents['payday:collected']) => {
