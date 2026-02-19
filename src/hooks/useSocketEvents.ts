@@ -222,76 +222,37 @@ export const useSocketEvents = (roomCode: string | null) => {
     dispatch(setGameStatus('expired'))
   }, [dispatch])
 
-  // Set up and tear down event listeners
+  // Connect, register handlers, and join room - all in one effect to avoid race conditions
   useEffect(() => {
     if (!roomCode) return
 
-    console.log('[SOCKET EVENTS] Registering all event handlers for room:', roomCode)
-
-    // Register all event handlers
-    socketService.onEvent('player:joined', handlePlayerJoined)
-    socketService.onEvent('game:started', handleGameStarted)
-    socketService.onEvent('transaction:pending', handleTransactionPending)
-    socketService.onEvent('audit:requested', handleAuditRequested)
-    socketService.onEvent('transaction:finalized', handleTransactionFinalized)
-    socketService.onEvent('transaction:rejected', handleTransactionRejected)
-    socketService.onEvent('payday:collected', handlePaydayCollected)
-    socketService.onEvent('player:updated', handlePlayerUpdated)
-    socketService.onEvent('player:disconnected', handlePlayerDisconnected)
-    socketService.onEvent('player:reconnected', handlePlayerReconnected)
-    socketService.onEvent('player:removed', handlePlayerRemoved)
-    socketService.onEvent('fasttrack:achieved', handleFastTrackAchieved)
-    socketService.onEvent('session:expiry_warning', handleSessionExpiryWarning)
-    socketService.onEvent('session:expired', handleSessionExpired)
-
-    console.log('[SOCKET EVENTS] ✅ All event handlers registered')
-
-    // Cleanup on unmount
-    return () => {
-      socketService.offEvent('player:joined')
-      socketService.offEvent('game:started')
-      socketService.offEvent('transaction:pending')
-      socketService.offEvent('audit:requested')
-      socketService.offEvent('transaction:finalized')
-      socketService.offEvent('transaction:rejected')
-      socketService.offEvent('payday:collected')
-      socketService.offEvent('player:updated')
-      socketService.offEvent('player:disconnected')
-      socketService.offEvent('player:reconnected')
-      socketService.offEvent('player:removed')
-      socketService.offEvent('fasttrack:achieved')
-      socketService.offEvent('session:expiry_warning')
-      socketService.offEvent('session:expired')
-    }
-  }, [
-    roomCode,
-    handlePlayerJoined,
-    handleGameStarted,
-    handleTransactionPending,
-    handleAuditRequested,
-    handleTransactionFinalized,
-    handleTransactionRejected,
-    handlePaydayCollected,
-    handlePlayerUpdated,
-    handlePlayerDisconnected,
-    handlePlayerReconnected,
-    handlePlayerRemoved,
-    handleFastTrackAchieved,
-    handleSessionExpiryWarning,
-    handleSessionExpired,
-  ])
-
-  // Connect and join room
-  useEffect(() => {
-    if (!roomCode) return
-
-    const connectAndJoin = async () => {
+    const connectAndSetup = async () => {
       try {
-        console.log('[SOCKET EVENTS] Connecting and joining room...')
+        console.log('[SOCKET EVENTS] Connecting to socket...')
         dispatch(setReconnecting(true))
+
+        // FIRST: Register all event handlers BEFORE connecting
+        console.log('[SOCKET EVENTS] Registering all event handlers for room:', roomCode)
+        socketService.onEvent('player:joined', handlePlayerJoined)
+        socketService.onEvent('game:started', handleGameStarted)
+        socketService.onEvent('transaction:pending', handleTransactionPending)
+        socketService.onEvent('audit:requested', handleAuditRequested)
+        socketService.onEvent('transaction:finalized', handleTransactionFinalized)
+        socketService.onEvent('transaction:rejected', handleTransactionRejected)
+        socketService.onEvent('payday:collected', handlePaydayCollected)
+        socketService.onEvent('player:updated', handlePlayerUpdated)
+        socketService.onEvent('player:disconnected', handlePlayerDisconnected)
+        socketService.onEvent('player:reconnected', handlePlayerReconnected)
+        socketService.onEvent('player:removed', handlePlayerRemoved)
+        socketService.onEvent('fasttrack:achieved', handleFastTrackAchieved)
+        socketService.onEvent('session:expiry_warning', handleSessionExpiryWarning)
+        socketService.onEvent('session:expired', handleSessionExpired)
+        console.log('[SOCKET EVENTS] ✅ All event handlers registered')
+
+        // SECOND: Connect to socket
         await socketService.connect()
 
-        // Get playerId from session storage
+        // THIRD: Join room
         const playerId = sessionStorage.getItem('playerId')
         console.log('[SOCKET EVENTS] About to join room with playerId:', playerId)
         socketService.joinRoom(roomCode, playerId || undefined)
@@ -310,13 +271,45 @@ export const useSocketEvents = (roomCode: string | null) => {
       }
     }
 
-    connectAndJoin()
+    connectAndSetup()
 
+    // Cleanup on unmount
     return () => {
-      console.log('[SOCKET EVENTS] Leaving room:', roomCode)
+      console.log('[SOCKET EVENTS] Cleaning up - leaving room and removing handlers')
       socketService.leaveRoom()
+      socketService.offEvent('player:joined')
+      socketService.offEvent('game:started')
+      socketService.offEvent('transaction:pending')
+      socketService.offEvent('audit:requested')
+      socketService.offEvent('transaction:finalized')
+      socketService.offEvent('transaction:rejected')
+      socketService.offEvent('payday:collected')
+      socketService.offEvent('player:updated')
+      socketService.offEvent('player:disconnected')
+      socketService.offEvent('player:reconnected')
+      socketService.offEvent('player:removed')
+      socketService.offEvent('fasttrack:achieved')
+      socketService.offEvent('session:expiry_warning')
+      socketService.offEvent('session:expired')
     }
-  }, [roomCode, dispatch])
+  }, [
+    roomCode,
+    dispatch,
+    handlePlayerJoined,
+    handleGameStarted,
+    handleTransactionPending,
+    handleAuditRequested,
+    handleTransactionFinalized,
+    handleTransactionRejected,
+    handlePaydayCollected,
+    handlePlayerUpdated,
+    handlePlayerDisconnected,
+    handlePlayerReconnected,
+    handlePlayerRemoved,
+    handleFastTrackAchieved,
+    handleSessionExpiryWarning,
+    handleSessionExpired,
+  ])
 
   return {
     isConnected: socketService.isConnected(),
