@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, DollarSign, Banknote } from 'lucide-react'
+import { ArrowLeft, DollarSign, Banknote, User } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '@/hooks/redux'
 import { useCollectPaydayMutation } from '@/services/gameApi'
 import { useSubmitTransactionMutation } from '@/services/transactionApi'
 import { selectCurrentPlayer } from '@/store/slices/playerSlice'
 import { selectHasPendingTransaction } from '@/store/slices/transactionSlice'
+import { selectAllPlayers } from '@/store/slices/allPlayersSlice'
 import { addNotification } from '@/store/slices/uiSlice'
 import TransactionImpactPreview from '@/components/TransactionImpactPreview'
 import AssetTypeCard from '@/components/AssetTypeCard'
@@ -24,14 +25,19 @@ const CollectScreen = () => {
   const dispatch = useAppDispatch()
   const { roomCode } = useParams<{ roomCode: string }>()
   const player = useAppSelector(selectCurrentPlayer)
+  const allPlayers = useAppSelector(selectAllPlayers)
   const hasPendingTransaction = useAppSelector(selectHasPendingTransaction)
 
   const [collectPayday, { isLoading: isCollectingPayday }] = useCollectPaydayMutation()
   const [submitTransaction, { isLoading: isSubmittingTransaction }] = useSubmitTransactionMutation()
 
-  const [step, setStep] = useState<1 | 2>(1)
+  const [step, setStep] = useState<1 | 2 | 3>(1)
   const [selectedType, setSelectedType] = useState<CollectType | null>(null)
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null)
   const [amount, setAmount] = useState(0)
+
+  // Filter out current player from selection
+  const otherPlayers = allPlayers.filter(p => p.id !== player.id && p.connectionStatus === 'connected')
 
   const collectTypes: CollectTypeInfo[] = [
     { id: 'payday', title: 'Collect PAYDAY', description: 'Collect your monthly PAYDAY', icon: DollarSign },
@@ -43,12 +49,24 @@ const CollectScreen = () => {
   }
 
   const handleNext = () => {
-    setStep(2)
+    if (step === 1 && selectedType === 'money') {
+      setStep(2) // Go to player selection
+    } else if (step === 1 && selectedType === 'payday') {
+      setStep(3) // Skip player selection for payday
+    } else if (step === 2) {
+      setStep(3) // Go to amount/review
+    }
   }
 
   const handleBack = () => {
     if (step > 1) {
-      setStep(1)
+      setStep((step - 1) as 1 | 2 | 3)
+      if (step === 2) {
+        setSelectedPlayerId(null)
+      }
+      if (step === 1) {
+        setAmount(0)
+      }
     } else {
       navigate(`/game/${roomCode}/dashboard`)
     }
@@ -72,8 +90,9 @@ const CollectScreen = () => {
   const getCollectDetails = (): string => {
     if (selectedType === 'payday') {
       return `Collecting PAYDAY: $${player.paydayAmount.toLocaleString()}`
-    } else if (selectedType === 'money') {
-      return `Collecting money from player: $${amount.toLocaleString()}`
+    } else if (selectedType === 'money' && selectedPlayerId) {
+      const selectedPlayer = allPlayers.find(p => p.id === selectedPlayerId)
+      return `Collecting $${amount.toLocaleString()} from ${selectedPlayer?.name || 'player'}`
     }
     return ''
   }
@@ -96,18 +115,23 @@ const CollectScreen = () => {
         }))
         navigate(`/game/${roomCode}/dashboard`)
       } else if (selectedType === 'money') {
-        // Submit transaction for audit
+        // Submit transaction for audit with target player info
+        const selectedPlayer = allPlayers.find(p => p.id === selectedPlayerId)
         await submitTransaction({
           roomCode,
           playerId,
           type: 'payment',
           subType: 'collect_money',
-          details: { amount }
+          details: {
+            amount,
+            fromPlayerId: selectedPlayerId,
+            fromPlayerName: selectedPlayer?.name
+          }
         }).unwrap()
         dispatch(addNotification({
           id: Date.now().toString(),
           type: 'success',
-          message: 'Collection submitted for audit',
+          message: `Collection request sent to ${selectedPlayer?.name}`,
           duration: 3000
         }))
         navigate(`/game/${roomCode}/dashboard`)
@@ -141,6 +165,10 @@ const CollectScreen = () => {
     }
   }
 
+  const getTotalSteps = () => {
+    return selectedType === 'payday' ? 2 : 3
+  }
+
   const isLoading = isCollectingPayday || isSubmittingTransaction
 
   return (
@@ -157,7 +185,7 @@ const CollectScreen = () => {
               <span>Back</span>
             </button>
             <h1 className="text-xl font-bold text-gray-800">Collect</h1>
-            <div className="text-sm text-gray-500">Step {step}/2</div>
+            <div className="text-sm text-gray-500">Step {step}/{getTotalSteps()}</div>
           </div>
         </div>
       </div>
@@ -207,8 +235,75 @@ const CollectScreen = () => {
           </div>
         )}
 
-        {/* Step 2: Collection Details */}
-        {step === 2 && selectedType && (
+        {/* Step 2: Player Selection (only for "money" type) */}
+        {step === 2 && selectedType === 'money' && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Select Player</h2>
+              <p className="text-gray-600">Who are you collecting money from?</p>
+            </div>
+
+            {otherPlayers.length === 0 ? (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                <p className="text-yellow-800 font-medium">No other players are connected</p>
+                <p className="text-sm text-yellow-700 mt-1">Wait for other players to join the game</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {otherPlayers.map((otherPlayer) => (
+                  <button
+                    key={otherPlayer.id}
+                    onClick={() => setSelectedPlayerId(otherPlayer.id)}
+                    className={`w-full p-4 rounded-lg border-2 transition-all ${
+                      selectedPlayerId === otherPlayer.id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                          selectedPlayerId === otherPlayer.id ? 'bg-blue-500' : 'bg-gray-200'
+                        }`}>
+                          <User className={`w-6 h-6 ${
+                            selectedPlayerId === otherPlayer.id ? 'text-white' : 'text-gray-600'
+                          }`} />
+                        </div>
+                        <div className="text-left">
+                          <p className="font-semibold text-gray-800">{otherPlayer.name}</p>
+                          <p className="text-sm text-gray-600">{otherPlayer.profession || 'No profession'}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-600">Cash on Hand</p>
+                        <p className="font-semibold text-gray-800">${otherPlayer.cashOnHand.toLocaleString()}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="flex space-x-3">
+              <button
+                onClick={handleBack}
+                className="flex-1 py-3 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300"
+              >
+                Back
+              </button>
+              <button
+                onClick={handleNext}
+                disabled={!selectedPlayerId}
+                className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Collection Details */}
+        {step === 3 && selectedType && (
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -263,8 +358,8 @@ const CollectScreen = () => {
             {selectedType === 'money' && (
               <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h3 className="font-semibold text-blue-800 mb-2">Collect Money from Another Player</h3>
-                  <p className="text-sm text-blue-700">Enter the amount you're receiving (from selling an asset, card, or other agreement).</p>
+                  <h3 className="font-semibold text-blue-800 mb-2">Collect Money from {allPlayers.find(p => p.id === selectedPlayerId)?.name}</h3>
+                  <p className="text-sm text-blue-700">Enter the amount you're receiving. The selected player will be notified to confirm this payment.</p>
                 </div>
 
                 <div>
@@ -306,18 +401,18 @@ const CollectScreen = () => {
                 onClick={handleBack}
                 className="flex-1 py-3 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300"
               >
-                Change Type
+                {selectedType === 'payday' ? 'Change Type' : 'Back'}
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={
                   isLoading ||
                   (selectedType === 'payday' && (player.paydayAmount <= 0 || hasPendingTransaction)) ||
-                  (selectedType === 'money' && amount <= 0)
+                  (selectedType === 'money' && (amount <= 0 || !selectedPlayerId))
                 }
                 className="flex-1 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
-                {isLoading ? 'Processing...' : selectedType === 'payday' ? 'Collect PAYDAY' : 'Submit for Audit'}
+                {isLoading ? 'Processing...' : selectedType === 'payday' ? 'Collect PAYDAY' : 'Send Request'}
               </button>
             </div>
           </div>
