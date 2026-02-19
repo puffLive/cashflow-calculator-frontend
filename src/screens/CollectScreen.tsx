@@ -120,7 +120,9 @@ const CollectScreen = () => {
           roomCode,
           playerId,
           subType: 'lend_collect',
-          amount: amount  // Positive for collect, negative for lend
+          amount: amount,  // Positive for collect, negative for lend
+          fromPlayerId: selectedPlayerId || undefined,  // The player being asked to pay
+          fromPlayerName: selectedPlayer?.name
         }).unwrap()
         dispatch(addNotification({
           id: Date.now().toString(),

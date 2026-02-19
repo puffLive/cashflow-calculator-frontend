@@ -8,6 +8,7 @@ export interface SocketEvents {
   'transaction:pending': { transactionId: string; playerId: string; type: string }
   'transaction:finalized': { transactionId: string; approved: boolean; playerData?: any }
   'transaction:rejected': { transactionId: string; note: string }
+  'payment:requested': { transactionId: string; collectorId: string; collectorName: string; amount: number; description: string }
   'audit:requested': { transactionId: string; playerId: string; playerName: string; type: string; description: string; impact?: any }
   'payday:collected': { playerId: string; amount: number }
   'player:updated': { playerId: string; data: any }
@@ -98,6 +99,7 @@ class SocketService {
       'transaction:pending',
       'transaction:finalized',
       'transaction:rejected',
+      'payment:requested',
       'audit:requested',
       'payday:collected',
       'player:updated',

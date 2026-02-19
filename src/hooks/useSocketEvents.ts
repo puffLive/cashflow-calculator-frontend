@@ -79,6 +79,20 @@ export const useSocketEvents = (roomCode: string | null) => {
     // We don't add to audit queue here - that's handled by audit:requested
   }, [dispatch])
 
+  const handlePaymentRequested = useCallback((data: SocketEvents['payment:requested']) => {
+    console.log('[FRONTEND] ✅ Received payment:requested event:', data)
+
+    // Show notification to the payer
+    dispatch(addNotification({
+      id: generateId(),
+      type: 'warning',
+      message: `${data.collectorName} is requesting $${data.amount.toLocaleString()} from you`,
+      duration: 10000,
+      actionLabel: 'Review Payment',
+      actionPath: roomCode ? `/game/${roomCode}/audits` : undefined,
+    }))
+  }, [dispatch, roomCode])
+
   const handleAuditRequested = useCallback((data: SocketEvents['audit:requested']) => {
     console.log('[FRONTEND] ✅ Received audit:requested event:', data)
     console.log('[FRONTEND] Adding to audit queue for transaction:', data.transactionId)
@@ -236,6 +250,7 @@ export const useSocketEvents = (roomCode: string | null) => {
         socketService.onEvent('player:joined', handlePlayerJoined)
         socketService.onEvent('game:started', handleGameStarted)
         socketService.onEvent('transaction:pending', handleTransactionPending)
+        socketService.onEvent('payment:requested', handlePaymentRequested)
         socketService.onEvent('audit:requested', handleAuditRequested)
         socketService.onEvent('transaction:finalized', handleTransactionFinalized)
         socketService.onEvent('transaction:rejected', handleTransactionRejected)
@@ -280,6 +295,7 @@ export const useSocketEvents = (roomCode: string | null) => {
       socketService.offEvent('player:joined')
       socketService.offEvent('game:started')
       socketService.offEvent('transaction:pending')
+      socketService.offEvent('payment:requested')
       socketService.offEvent('audit:requested')
       socketService.offEvent('transaction:finalized')
       socketService.offEvent('transaction:rejected')
@@ -298,6 +314,7 @@ export const useSocketEvents = (roomCode: string | null) => {
     handlePlayerJoined,
     handleGameStarted,
     handleTransactionPending,
+    handlePaymentRequested,
     handleAuditRequested,
     handleTransactionFinalized,
     handleTransactionRejected,

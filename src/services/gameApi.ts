@@ -214,15 +214,17 @@ export const gameApi = apiSlice.injectEndpoints({
     // Market Event endpoint
     submitMarketEvent: builder.mutation<
       { message: string; transactionId: string; status: string; requiresLoan: boolean; impact: any },
-      { roomCode: string; playerId: string; subType: string; amount?: number }
+      { roomCode: string; playerId: string; subType: string; amount?: number; fromPlayerId?: string; fromPlayerName?: string }
     >({
-      query: ({ roomCode, playerId, subType, amount }) => ({
+      query: ({ roomCode, playerId, subType, amount, fromPlayerId, fromPlayerName }) => ({
         url: `/games/${roomCode}/players/${playerId}/market-event`,
         method: 'POST',
         body: {
           type: 'market_event',
           subType,
-          amount
+          amount,
+          fromPlayerId,
+          fromPlayerName
         },
       }),
       invalidatesTags: ['Player', 'AllPlayers'],
