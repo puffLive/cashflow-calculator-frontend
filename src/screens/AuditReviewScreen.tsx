@@ -97,6 +97,24 @@ const AuditReviewScreen = () => {
       return 'E-Transfer'
     }
 
+    // Handle loan subtypes
+    if (type === 'loan' && details?.subType) {
+      switch (details.subType) {
+        case 'loan_take': return 'Take Loan'
+        case 'loan_payoff': return 'Pay Off Loan'
+        default: return 'Loan Transaction'
+      }
+    }
+
+    // Handle buy/sell subtypes
+    if (details?.subType) {
+      const formatted = details.subType
+        .split('_')
+        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+      return formatted
+    }
+
     switch (type) {
       case 'buy': return 'Buy Transaction'
       case 'sell': return 'Sell Transaction'
