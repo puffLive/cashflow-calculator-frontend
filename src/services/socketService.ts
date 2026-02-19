@@ -51,22 +51,41 @@ class SocketService {
       const url = serverUrl || this.serverUrl
 
       this.socket = io(url, {
-        transports: ['websocket', 'polling'],
+        // Start with polling first, then upgrade to websocket if available
+        transports: ['polling', 'websocket'],
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         reconnectionDelayMax: 5000,
+        // Add timeout to prevent hanging
+        timeout: 20000,
+        // Force new connection
+        forceNew: false,
+        // Allow upgrade from polling to websocket
+        upgrade: true,
       })
 
       this.socket.on('connect', () => {
         console.log('[SOCKET] Socket connected with ID:', this.socket?.id)
+        console.log('[SOCKET] Transport type:', this.socket?.io.engine.transport.name)
         resolve()
         this.connectionPromise = null
       })
 
-      this.socket.on('connect_error', (error) => {
-        console.error('Socket connection error:', error)
-        reject(error)
+      this.socket.on('connect_error', (error: any) => {
+        console.error('[SOCKET] Connection error:', error)
+        console.error('[SOCKET] Error details:', {
+          message: error.message,
+          type: error.type,
+          description: error.description
+        })
+        // Don't reject immediately on first error - let it retry
+        // Only reject after all reconnection attempts fail
+      })
+
+      this.socket.on('reconnect_failed', () => {
+        console.error('[SOCKET] All reconnection attempts failed')
+        reject(new Error('Failed to connect to server after multiple attempts'))
         this.connectionPromise = null
       })
 
