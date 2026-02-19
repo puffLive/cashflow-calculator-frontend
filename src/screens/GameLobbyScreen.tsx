@@ -3,11 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Copy, Check, Share2, Users, Crown, Clock, Settings } from 'lucide-react'
 import { useGetGameSessionQuery, useStartGameMutation, useGetAllPlayersQuery } from '@/services/gameApi'
 import { useAppDispatch, useAppSelector } from '@/hooks/redux'
-import { useSocketEvents } from '@/hooks/useSocketEvents'
 import { selectCurrentPlayerId, selectIsHost } from '@/store/slices/gameSessionSlice'
 import { selectAllPlayers } from '@/store/slices/allPlayersSlice'
 import { addNotification } from '@/store/slices/uiSlice'
 import { buildRoute, ROUTES } from '@/constants/routes'
+import { socketService } from '@/services/socketService'
 
 interface PlayerListItemProps {
   player: {
@@ -95,9 +95,6 @@ const GameLobbyScreen = () => {
   )
 
   const [startGame, { isLoading: isStarting }] = useStartGameMutation()
-
-  // Socket.io connection
-  const { isConnected } = useSocketEvents(roomCode || null)
 
   // Check if current player has completed setup
   const currentPlayer = players.find(p => p.id === currentPlayerId)
@@ -194,9 +191,9 @@ const GameLobbyScreen = () => {
               <p className="text-gray-600">Waiting for all players to be ready...</p>
             </div>
             <div className="flex items-center space-x-2">
-              <span className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
+              <span className={`w-3 h-3 rounded-full ${socketService.isConnected() ? 'bg-green-500' : 'bg-red-500'}`}></span>
               <span className="text-sm text-gray-600">
-                {isConnected ? 'Connected' : 'Disconnected'}
+                {socketService.isConnected() ? 'Connected' : 'Disconnected'}
               </span>
             </div>
           </div>
