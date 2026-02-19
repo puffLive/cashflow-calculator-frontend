@@ -248,7 +248,25 @@ export const useSocketEvents = (roomCode: string | null) => {
         console.log('[SOCKET EVENTS] Connecting to socket...')
         dispatch(setReconnecting(true))
 
-        // FIRST: Register all event handlers BEFORE connecting
+        // FIRST: Clear any existing handlers to prevent duplicates (React Strict Mode)
+        console.log('[SOCKET EVENTS] Clearing existing handlers')
+        socketService.offEvent('player:joined')
+        socketService.offEvent('game:started')
+        socketService.offEvent('transaction:pending')
+        socketService.offEvent('payment:requested')
+        socketService.offEvent('audit:requested')
+        socketService.offEvent('transaction:finalized')
+        socketService.offEvent('transaction:rejected')
+        socketService.offEvent('payday:collected')
+        socketService.offEvent('player:updated')
+        socketService.offEvent('player:disconnected')
+        socketService.offEvent('player:reconnected')
+        socketService.offEvent('player:removed')
+        socketService.offEvent('fasttrack:achieved')
+        socketService.offEvent('session:expiry_warning')
+        socketService.offEvent('session:expired')
+
+        // SECOND: Register all event handlers BEFORE connecting
         console.log('[SOCKET EVENTS] Registering all event handlers for room:', roomCode)
         socketService.onEvent('player:joined', handlePlayerJoined)
         socketService.onEvent('game:started', handleGameStarted)
@@ -267,10 +285,10 @@ export const useSocketEvents = (roomCode: string | null) => {
         socketService.onEvent('session:expired', handleSessionExpired)
         console.log('[SOCKET EVENTS] ✅ All event handlers registered')
 
-        // SECOND: Connect to socket
+        // THIRD: Connect to socket
         await socketService.connect()
 
-        // THIRD: Join room
+        // FOURTH: Join room
         const playerId = sessionStorage.getItem('playerId')
         console.log('[SOCKET EVENTS] About to join room with playerId:', playerId)
         socketService.joinRoom(roomCode, playerId || undefined)
