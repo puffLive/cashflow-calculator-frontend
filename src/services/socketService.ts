@@ -140,6 +140,14 @@ class SocketService {
         }
       })
     })
+
+    // Listen for socket registration confirmation
+    this.socket?.on('socket:registered', (data: any) => {
+      console.log('[SOCKET] ✅ Socket registered with backend:', data)
+      console.log('[SOCKET]   PlayerId:', data.playerId)
+      console.log('[SOCKET]   PlayerName:', data.playerName)
+      console.log('[SOCKET]   SocketId:', data.socketId)
+    })
   }
 
   joinRoom(roomCode: string, playerId?: string): void {
