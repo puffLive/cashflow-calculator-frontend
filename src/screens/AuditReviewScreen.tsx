@@ -91,6 +91,22 @@ const AuditReviewScreen = () => {
     })
   }
 
+  const getTransactionLabel = (type: string, details?: Record<string, any>) => {
+    // Check for collect money (e-transfer) based on subType
+    if (type === 'market_event' && details?.subType === 'lend_collect') {
+      return 'E-Transfer'
+    }
+
+    switch (type) {
+      case 'buy': return 'Buy Transaction'
+      case 'sell': return 'Sell Transaction'
+      case 'loan': return 'Loan Transaction'
+      case 'market_event': return 'Market Event'
+      case 'payday': return 'PAYDAY'
+      default: return type
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pb-32">
       {/* Header */}
@@ -124,7 +140,7 @@ const AuditReviewScreen = () => {
               <span className="font-medium">Player:</span> {review.playerName}
             </p>
             <p className="text-sm text-gray-600">
-              <span className="font-medium">Type:</span> {review.transactionType}
+              <span className="font-medium">Type:</span> {getTransactionLabel(review.transactionType, review.transactionDetails)}
             </p>
           </div>
         </div>
