@@ -34,6 +34,9 @@ import { NotificationToast } from '@/components/NotificationToast'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { useAppSelector } from '@/hooks/redux'
 import { selectModalOpen } from '@/store/slices/uiSlice'
+import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation'
+import { AccessibilityProvider } from '@/components/AccessibilityProvider'
+import { MobileOptimizations } from '@/components/MobileOptimizations'
 
 // Placeholder components for features not yet implemented
 
@@ -46,11 +49,17 @@ const NotFound = () => (
   </div>
 )
 
-function App() {
+// App content with all providers
+const AppContent = () => {
   const modalOpen = useAppSelector(selectModalOpen)
+  useKeyboardNavigation()
 
   return (
-    <Router>
+    <>
+      {/* Optimization Providers */}
+      <AccessibilityProvider />
+      <MobileOptimizations />
+
       {/* Global UI Components */}
       <SessionExpiryWarning />
       <SessionExpiredModal isOpen={modalOpen === 'session_expired'} />
@@ -264,6 +273,14 @@ function App() {
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+    </>
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   )
 }

@@ -22,4 +22,18 @@ export default defineConfig({
       '@/constants': path.resolve(__dirname, './src/constants'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunks
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'redux-vendor': ['@reduxjs/toolkit', 'react-redux'],
+          'socket-vendor': ['socket.io-client'],
+          'ui-vendor': ['lucide-react', 'clsx'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 500, // Keep warning for chunks over 500kb
+  },
 })

@@ -401,8 +401,25 @@ export const useSocketEvents = (roomCode: string | null) => {
       socketService.offEvent('session:expiry_warning', handleSessionExpiryWarning)
       socketService.offEvent('session:expired', handleSessionExpired)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomCode, dispatch])
+  }, [
+    roomCode,
+    dispatch,
+    handlePlayerJoined,
+    handleGameStarted,
+    handleTransactionPending,
+    handlePaymentRequested,
+    handleAuditRequested,
+    handleTransactionFinalized,
+    handleTransactionRejected,
+    handlePaydayCollected,
+    handlePlayerUpdated,
+    handlePlayerDisconnected,
+    handlePlayerReconnected,
+    handlePlayerRemoved,
+    handleFastTrackAchieved,
+    handleSessionExpiryWarning,
+    handleSessionExpired,
+  ])
 
   return {
     isConnected: socketService.isConnected(),
