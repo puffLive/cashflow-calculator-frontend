@@ -167,14 +167,7 @@ const GameLobbyScreen = () => {
 
     try {
       await startGame({ roomCode, playerId: currentPlayerId }).unwrap()
-      dispatch(
-        addNotification({
-          id: Date.now().toString(),
-          type: 'success',
-          message: 'Game started!',
-          duration: 3000,
-        })
-      )
+      // Notification will be shown by the socket event handler for all players
     } catch (error: any) {
       console.error('Failed to start game:', error)
       console.error('Error data:', error?.data)
