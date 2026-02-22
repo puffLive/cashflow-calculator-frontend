@@ -9,7 +9,9 @@ const ReconnectionHandler = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const [reconnectPlayer] = useReconnectPlayerMutation()
-  const [status, setStatus] = useState<'checking' | 'reconnecting' | 'success' | 'failed' | null>(null)
+  const [status, setStatus] = useState<'checking' | 'reconnecting' | 'success' | 'failed' | null>(
+    null
+  )
   const [missedEvents, setMissedEvents] = useState<string[]>([])
 
   useEffect(() => {
@@ -32,7 +34,11 @@ const ReconnectionHandler = () => {
       }
 
       // Only reconnect if user is on the landing/join/create pages but has session data
-      if (!currentPath.includes('/') && !currentPath.includes('/join') && !currentPath.includes('/create')) {
+      if (
+        !currentPath.includes('/') &&
+        !currentPath.includes('/join') &&
+        !currentPath.includes('/create')
+      ) {
         return
       }
 

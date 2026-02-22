@@ -50,7 +50,7 @@ export const uiSlice = createSlice({
       state.notifications.push(action.payload)
     },
     removeNotification: (state, action: PayloadAction<string>) => {
-      state.notifications = state.notifications.filter(n => n.id !== action.payload)
+      state.notifications = state.notifications.filter((n) => n.id !== action.payload)
     },
     clearNotifications: (state) => {
       state.notifications = []

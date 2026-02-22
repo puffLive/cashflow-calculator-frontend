@@ -55,7 +55,7 @@ const PayOffLoanScreen = () => {
   const calculateImpact = () => {
     if (!selectedLiability) {
       return {
-        cashOnHand: { before: player.cashOnHand, after: player.cashOnHand }
+        cashOnHand: { before: player.cashOnHand, after: player.cashOnHand },
       }
     }
 
@@ -66,7 +66,9 @@ const PayOffLoanScreen = () => {
     const isFullPayoff = payoffAmount === selectedLiability.currentBalance
     const expenseReduction = isFullPayoff
       ? selectedLiability.monthlyPayment
-      : Math.round((selectedLiability.monthlyPayment * payoffAmount) / selectedLiability.currentBalance)
+      : Math.round(
+          (selectedLiability.monthlyPayment * payoffAmount) / selectedLiability.currentBalance
+        )
 
     const expensesBefore = player.totalExpenses
     const expensesAfter = expensesBefore - expenseReduction
@@ -81,7 +83,7 @@ const PayOffLoanScreen = () => {
       cashOnHand: { before: cashBefore, after: cashAfter },
       totalExpenses: { before: expensesBefore, after: expensesAfter },
       paydayAmount: { before: paydayBefore, after: paydayAfter },
-      cashflow: { before: cashflowBefore, after: cashflowAfter }
+      cashflow: { before: cashflowBefore, after: cashflowAfter },
     }
   }
 
@@ -113,8 +115,8 @@ const PayOffLoanScreen = () => {
           liabilityId: selectedLiability.id,
           liabilityName: selectedLiability.name,
           payoffAmount: payoffAmount,
-          isFullPayoff: payoffAmount === selectedLiability.currentBalance
-        } as unknown as Record<string, unknown>
+          isFullPayoff: payoffAmount === selectedLiability.currentBalance,
+        } as unknown as Record<string, unknown>,
       }).unwrap()
 
       navigate(`/game/${roomCode}/dashboard`)
@@ -172,22 +174,29 @@ const PayOffLoanScreen = () => {
                       onClick={() => setSelectedLiability(liability)}
                       className={`
                         cursor-pointer transition-all duration-200 rounded-lg p-4 border-2
-                        ${selectedLiability?.id === liability.id
-                          ? 'border-blue-500 bg-blue-50 shadow-lg transform scale-105'
-                          : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
+                        ${
+                          selectedLiability?.id === liability.id
+                            ? 'border-blue-500 bg-blue-50 shadow-lg transform scale-105'
+                            : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
                         }
                       `}
                     >
                       <div className="flex items-start space-x-3">
-                        <div className={`p-2 rounded-lg ${selectedLiability?.id === liability.id ? 'bg-blue-100' : 'bg-gray-100'}`}>
-                          <CreditCard className={`w-6 h-6 ${selectedLiability?.id === liability.id ? 'text-blue-600' : 'text-gray-600'}`} />
+                        <div
+                          className={`p-2 rounded-lg ${selectedLiability?.id === liability.id ? 'bg-blue-100' : 'bg-gray-100'}`}
+                        >
+                          <CreditCard
+                            className={`w-6 h-6 ${selectedLiability?.id === liability.id ? 'text-blue-600' : 'text-gray-600'}`}
+                          />
                         </div>
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between mb-2">
                             <div>
                               <h3 className="font-semibold text-gray-800">{liability.name}</h3>
-                              <p className="text-xs text-gray-500 capitalize">{liability.type.replace('_', ' ')}</p>
+                              <p className="text-xs text-gray-500 capitalize">
+                                {liability.type.replace('_', ' ')}
+                              </p>
                             </div>
                             {selectedLiability?.id === liability.id && (
                               <span className="text-xs text-blue-600 font-medium">✓</span>
@@ -197,15 +206,21 @@ const PayOffLoanScreen = () => {
                           <div className="grid grid-cols-3 gap-2 text-sm">
                             <div>
                               <span className="text-gray-500">Original:</span>
-                              <span className="ml-1 font-medium text-gray-800">${liability.originalAmount.toLocaleString()}</span>
+                              <span className="ml-1 font-medium text-gray-800">
+                                ${liability.originalAmount.toLocaleString()}
+                              </span>
                             </div>
                             <div>
                               <span className="text-gray-500">Balance:</span>
-                              <span className="ml-1 font-medium text-red-600">${liability.currentBalance.toLocaleString()}</span>
+                              <span className="ml-1 font-medium text-red-600">
+                                ${liability.currentBalance.toLocaleString()}
+                              </span>
                             </div>
                             <div>
                               <span className="text-gray-500">Payment:</span>
-                              <span className="ml-1 font-medium text-gray-800">${liability.monthlyPayment.toLocaleString()}/mo</span>
+                              <span className="ml-1 font-medium text-gray-800">
+                                ${liability.monthlyPayment.toLocaleString()}/mo
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -261,7 +276,9 @@ const PayOffLoanScreen = () => {
                     </button>
 
                     <div className="text-center min-w-[150px]">
-                      <p className="text-3xl font-bold text-gray-800">${(payoffAmount / 1000).toFixed(0)}k</p>
+                      <p className="text-3xl font-bold text-gray-800">
+                        ${(payoffAmount / 1000).toFixed(0)}k
+                      </p>
                     </div>
 
                     <button
@@ -309,19 +326,39 @@ const PayOffLoanScreen = () => {
               <div className="pt-4 border-t border-gray-200 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="font-medium text-gray-700">Payoff Amount:</span>
-                  <span className="text-2xl font-bold text-green-600">${payoffAmount.toLocaleString()}</span>
+                  <span className="text-2xl font-bold text-green-600">
+                    ${payoffAmount.toLocaleString()}
+                  </span>
                 </div>
 
-                <div className={`p-3 rounded-lg ${hasInsufficientFunds ? 'bg-red-50 border border-red-200' : 'bg-blue-50 border border-blue-200'}`}>
+                <div
+                  className={`p-3 rounded-lg ${hasInsufficientFunds ? 'bg-red-50 border border-red-200' : 'bg-blue-50 border border-blue-200'}`}
+                >
                   <div className="flex justify-between text-sm">
-                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-blue-700'}>Cash on Hand:</span>
-                    <span className={hasInsufficientFunds ? 'text-red-800 font-medium' : 'text-blue-800 font-medium'}>
+                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-blue-700'}>
+                      Cash on Hand:
+                    </span>
+                    <span
+                      className={
+                        hasInsufficientFunds
+                          ? 'text-red-800 font-medium'
+                          : 'text-blue-800 font-medium'
+                      }
+                    >
                       ${player.cashOnHand.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-blue-700'}>Remaining Cash:</span>
-                    <span className={hasInsufficientFunds ? 'text-red-800 font-medium' : 'text-blue-800 font-medium'}>
+                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-blue-700'}>
+                      Remaining Cash:
+                    </span>
+                    <span
+                      className={
+                        hasInsufficientFunds
+                          ? 'text-red-800 font-medium'
+                          : 'text-blue-800 font-medium'
+                      }
+                    >
                       ${(player.cashOnHand - payoffAmount).toLocaleString()}
                     </span>
                   </div>

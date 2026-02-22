@@ -42,7 +42,8 @@ const SessionExpiryWarning = () => {
           <div className="flex-1 min-w-0">
             <p className="font-bold text-sm">Session Expiring Soon</p>
             <p className="text-xs text-amber-100">
-              Session will expire in {formatTime(secondsLeft)} due to inactivity. Make any action to keep playing.
+              Session will expire in {formatTime(secondsLeft)} due to inactivity. Make any action to
+              keep playing.
             </p>
           </div>
         </div>

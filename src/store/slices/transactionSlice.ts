@@ -8,6 +8,8 @@ interface TransactionState {
   transactionHistory: Transaction[]
   isSubmitting: boolean
   lastError: string | null
+  pendingSubmittedAt: number | null // Timestamp when transaction was submitted
+  canRenotify: boolean // Can user re-notify auditor
 }
 
 const initialState: TransactionState = {
@@ -15,6 +17,8 @@ const initialState: TransactionState = {
   transactionHistory: [],
   isSubmitting: false,
   lastError: null,
+  pendingSubmittedAt: null,
+  canRenotify: false,
 }
 
 export const transactionSlice = createSlice({
@@ -23,6 +27,11 @@ export const transactionSlice = createSlice({
   reducers: {
     setPendingTransaction: (state, action: PayloadAction<Transaction | null>) => {
       state.pendingTransaction = action.payload
+      state.pendingSubmittedAt = action.payload ? Date.now() : null
+      state.canRenotify = false
+    },
+    enableRenotify: (state) => {
+      state.canRenotify = true
     },
     setTransactionHistory: (state, action: PayloadAction<Transaction[]>) => {
       state.transactionHistory = action.payload
@@ -42,7 +51,7 @@ export const transactionSlice = createSlice({
       }
 
       // Update in history
-      const historyIndex = state.transactionHistory.findIndex(t => t.id === id)
+      const historyIndex = state.transactionHistory.findIndex((t) => t.id === id)
       if (historyIndex !== -1) {
         state.transactionHistory[historyIndex] = {
           ...state.transactionHistory[historyIndex],
@@ -60,6 +69,8 @@ export const transactionSlice = createSlice({
       state.pendingTransaction = null
       state.isSubmitting = false
       state.lastError = null
+      state.pendingSubmittedAt = null
+      state.canRenotify = false
     },
     resetTransactions: () => initialState,
   },
@@ -74,6 +85,7 @@ export const {
   setTransactionError,
   clearPendingTransaction,
   resetTransactions,
+  enableRenotify,
 } = transactionSlice.actions
 
 // Selectors
@@ -84,5 +96,7 @@ export const selectHasPendingTransaction = (state: RootState) =>
   state.transaction.pendingTransaction !== null &&
   state.transaction.pendingTransaction.status === 'pending'
 export const selectTransactionError = (state: RootState) => state.transaction.lastError
+export const selectPendingSubmittedAt = (state: RootState) => state.transaction.pendingSubmittedAt
+export const selectCanRenotify = (state: RootState) => state.transaction.canRenotify
 
 export default transactionSlice.reducer

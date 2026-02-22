@@ -54,13 +54,13 @@ const AuditorDisconnectedAlert = ({ auditorId, onDismiss }: AuditorDisconnectedA
             <p className="text-sm text-amber-800 mb-3">
               {auditor.connectionStatus === 'removed' ? (
                 <>
-                  Your auditor <span className="font-semibold">{auditor.name}</span> has been removed after 15 minutes
-                  of inactivity. Please select a new auditor to continue.
+                  Your auditor <span className="font-semibold">{auditor.name}</span> has been
+                  removed after 15 minutes of inactivity. Please select a new auditor to continue.
                 </>
               ) : (
                 <>
-                  Your auditor <span className="font-semibold">{auditor.name}</span> has disconnected. Pending
-                  reviews are paused.
+                  Your auditor <span className="font-semibold">{auditor.name}</span> has
+                  disconnected. Pending reviews are paused.
                 </>
               )}
             </p>

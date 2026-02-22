@@ -19,8 +19,7 @@ export const store = configureStore({
     transaction: transactionReducer,
     ui: uiReducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(apiSlice.middleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiSlice.middleware),
   devTools: import.meta.env.DEV,
 })
 

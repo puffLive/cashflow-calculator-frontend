@@ -6,7 +6,13 @@ interface MetricCardProps {
   large?: boolean
 }
 
-const MetricCard = ({ label, value, subtitle, variant = 'neutral', large = false }: MetricCardProps) => {
+const MetricCard = ({
+  label,
+  value,
+  subtitle,
+  variant = 'neutral',
+  large = false,
+}: MetricCardProps) => {
   const getColorClasses = () => {
     switch (variant) {
       case 'income':
@@ -26,7 +32,7 @@ const MetricCard = ({ label, value, subtitle, variant = 'neutral', large = false
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount)
   }
 
@@ -45,9 +51,7 @@ const MetricCard = ({ label, value, subtitle, variant = 'neutral', large = false
         >
           {formatCurrency(value)}
         </span>
-        {subtitle && (
-          <span className="text-xs text-gray-500 mt-1">{subtitle}</span>
-        )}
+        {subtitle && <span className="text-xs text-gray-500 mt-1">{subtitle}</span>}
       </div>
     </div>
   )

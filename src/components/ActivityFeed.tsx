@@ -1,7 +1,16 @@
 import { useState } from 'react'
 import type { Transaction } from '@/services/transactionApi'
 import { useGetTransactionsQuery } from '@/services/transactionApi'
-import { TrendingUp, TrendingDown, DollarSign, Building2, Zap, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
+import {
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Building2,
+  Zap,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+} from 'lucide-react'
 
 interface ActivityFeedProps {
   roomCode: string
@@ -18,23 +27,35 @@ const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
 
   const getTransactionIcon = (type: Transaction['type']) => {
     switch (type) {
-      case 'buy': return TrendingUp
-      case 'sell': return TrendingDown
-      case 'payday': return DollarSign
-      case 'loan': return Building2
-      case 'market_event': return Zap
-      default: return DollarSign
+      case 'buy':
+        return TrendingUp
+      case 'sell':
+        return TrendingDown
+      case 'payday':
+        return DollarSign
+      case 'loan':
+        return Building2
+      case 'market_event':
+        return Zap
+      default:
+        return DollarSign
     }
   }
 
   const getTransactionColor = (type: Transaction['type']) => {
     switch (type) {
-      case 'buy': return 'text-green-600 bg-green-50'
-      case 'sell': return 'text-blue-600 bg-blue-50'
-      case 'payday': return 'text-emerald-600 bg-emerald-50'
-      case 'loan': return 'text-red-600 bg-red-50'
-      case 'market_event': return 'text-amber-600 bg-amber-50'
-      default: return 'text-gray-600 bg-gray-50'
+      case 'buy':
+        return 'text-green-600 bg-green-50'
+      case 'sell':
+        return 'text-blue-600 bg-blue-50'
+      case 'payday':
+        return 'text-emerald-600 bg-emerald-50'
+      case 'loan':
+        return 'text-red-600 bg-red-50'
+      case 'market_event':
+        return 'text-amber-600 bg-amber-50'
+      default:
+        return 'text-gray-600 bg-gray-50'
     }
   }
 
@@ -146,7 +167,8 @@ const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
                             amountInfo.amount >= 0 ? 'text-green-600' : 'text-red-600'
                           }`}
                         >
-                          {amountInfo.label}{formatCurrency(amountInfo.amount)}
+                          {amountInfo.label}
+                          {formatCurrency(amountInfo.amount)}
                         </span>
                       )}
                       {isExpanded ? (
@@ -195,22 +217,24 @@ const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
                     </span>
                   </div>
                 )}
-                {tx.financialImpact.incomeDelta !== undefined && tx.financialImpact.incomeDelta !== 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Income Change:</span>
-                    <span className="font-medium text-green-600">
-                      +{formatCurrency(tx.financialImpact.incomeDelta)}
-                    </span>
-                  </div>
-                )}
-                {tx.financialImpact.expenseDelta !== undefined && tx.financialImpact.expenseDelta !== 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Expense Change:</span>
-                    <span className="font-medium text-red-600">
-                      +{formatCurrency(tx.financialImpact.expenseDelta)}
-                    </span>
-                  </div>
-                )}
+                {tx.financialImpact.incomeDelta !== undefined &&
+                  tx.financialImpact.incomeDelta !== 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Income Change:</span>
+                      <span className="font-medium text-green-600">
+                        +{formatCurrency(tx.financialImpact.incomeDelta)}
+                      </span>
+                    </div>
+                  )}
+                {tx.financialImpact.expenseDelta !== undefined &&
+                  tx.financialImpact.expenseDelta !== 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Expense Change:</span>
+                      <span className="font-medium text-red-600">
+                        +{formatCurrency(tx.financialImpact.expenseDelta)}
+                      </span>
+                    </div>
+                  )}
                 {tx.auditorNote && (
                   <div className="pt-2 border-t border-gray-200">
                     <p className="text-gray-600 mb-1">Auditor Note:</p>

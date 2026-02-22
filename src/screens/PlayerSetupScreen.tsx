@@ -22,16 +22,17 @@ const PlayerSetupScreen = () => {
   const playerName = sessionStorage.getItem('playerName')
 
   // Fetch all players to select auditor
-  const { data: allPlayersData } = useGetAllPlayersQuery(
-    roomCode!,
-    { skip: !roomCode, pollingInterval: 3000 }
-  )
+  const { data: allPlayersData } = useGetAllPlayersQuery(roomCode!, {
+    skip: !roomCode,
+    pollingInterval: 3000,
+  })
 
   // Filter out current player from auditor options
-  const otherPlayers = allPlayersData?.players?.filter((p: any) => {
-    console.log('[AUDITOR FILTER] Comparing:', p._id, '!==', playerId, '=', p._id !== playerId)
-    return p._id !== playerId
-  }) || []
+  const otherPlayers =
+    allPlayersData?.players?.filter((p: any) => {
+      console.log('[AUDITOR FILTER] Comparing:', p._id, '!==', playerId, '=', p._id !== playerId)
+      return p._id !== playerId
+    }) || []
 
   console.log('[AUDITOR] All players:', allPlayersData?.players)
   console.log('[AUDITOR] Current playerId:', playerId, typeof playerId)
@@ -61,9 +62,9 @@ const PlayerSetupScreen = () => {
       profession: randomProfession.id,
       dream: {
         name: selectedDream.name,
-        cost: selectedDream.cost
+        cost: selectedDream.cost,
       },
-      auditorPlayerId: selectedAuditorId || undefined
+      auditorPlayerId: selectedAuditorId || undefined,
     }
 
     console.log('Setup payload:', payload)
@@ -127,12 +128,8 @@ const PlayerSetupScreen = () => {
         {/* Profession Assignment Card */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="text-center mb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-2">
-              You have been assigned:
-            </h2>
-            <h3 className="text-3xl font-bold text-blue-600 mb-4">
-              {randomProfession.title}
-            </h3>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">You have been assigned:</h2>
+            <h3 className="text-3xl font-bold text-blue-600 mb-4">{randomProfession.title}</h3>
             <p className="text-gray-600 mb-4">{randomProfession.description}</p>
           </div>
 
@@ -147,13 +144,32 @@ const PlayerSetupScreen = () => {
             <div className="bg-red-50 rounded-lg p-4 text-center">
               <p className="text-sm text-red-600 font-medium mb-1">Monthly Expenses</p>
               <p className="text-2xl font-bold text-red-700">
-                ${(randomProfession.taxes + randomProfession.mortgage + randomProfession.schoolLoan + randomProfession.carLoan + randomProfession.creditCard + randomProfession.otherExpenses + randomProfession.bankLoan).toLocaleString()}
+                $
+                {(
+                  randomProfession.taxes +
+                  randomProfession.mortgage +
+                  randomProfession.schoolLoan +
+                  randomProfession.carLoan +
+                  randomProfession.creditCard +
+                  randomProfession.otherExpenses +
+                  randomProfession.bankLoan
+                ).toLocaleString()}
               </p>
             </div>
             <div className="bg-green-50 rounded-lg p-4 text-center">
               <p className="text-sm text-green-600 font-medium mb-1">Monthly Cashflow</p>
               <p className="text-2xl font-bold text-green-700">
-                ${(randomProfession.salary - (randomProfession.taxes + randomProfession.mortgage + randomProfession.schoolLoan + randomProfession.carLoan + randomProfession.creditCard + randomProfession.otherExpenses + randomProfession.bankLoan)).toLocaleString()}
+                $
+                {(
+                  randomProfession.salary -
+                  (randomProfession.taxes +
+                    randomProfession.mortgage +
+                    randomProfession.schoolLoan +
+                    randomProfession.carLoan +
+                    randomProfession.creditCard +
+                    randomProfession.otherExpenses +
+                    randomProfession.bankLoan)
+                ).toLocaleString()}
               </p>
             </div>
           </div>
@@ -161,8 +177,9 @@ const PlayerSetupScreen = () => {
           {/* Note about children */}
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
             <p className="text-sm text-yellow-800">
-              <strong>Note:</strong> You start with 0 children. Children can be added during the game when you draw a "Baby" card.
-              Each child adds ${randomProfession.perChildExpense.toLocaleString()}/month in expenses.
+              <strong>Note:</strong> You start with 0 children. Children can be added during the
+              game when you draw a "Baby" card. Each child adds $
+              {randomProfession.perChildExpense.toLocaleString()}/month in expenses.
             </p>
           </div>
         </div>
@@ -211,7 +228,8 @@ const PlayerSetupScreen = () => {
           {otherPlayers.length === 0 ? (
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <p className="text-sm text-yellow-800">
-                Waiting for other players to join... You can skip auditor selection for now and assign one later.
+                Waiting for other players to join... You can skip auditor selection for now and
+                assign one later.
               </p>
             </div>
           ) : (
@@ -247,9 +265,7 @@ const PlayerSetupScreen = () => {
         {/* Financial Sheet Preview */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <h3 className="text-lg font-bold text-gray-800 mb-4">Your Starting Financial Sheet</h3>
-          <FinancialSheetPreview
-            profession={randomProfession}
-          />
+          <FinancialSheetPreview profession={randomProfession} />
         </div>
 
         {/* Confirm Button */}
@@ -272,9 +288,7 @@ const PlayerSetupScreen = () => {
 
         {error && (
           <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-800 text-center">
-              Failed to setup player. Please try again.
-            </p>
+            <p className="text-red-800 text-center">Failed to setup player. Please try again.</p>
           </div>
         )}
       </div>

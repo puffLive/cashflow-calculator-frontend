@@ -55,7 +55,7 @@ const SellTransactionScreen = () => {
   const calculateImpact = () => {
     if (!selectedAsset) {
       return {
-        cashOnHand: { before: player.cashOnHand, after: player.cashOnHand }
+        cashOnHand: { before: player.cashOnHand, after: player.cashOnHand },
       }
     }
 
@@ -69,7 +69,9 @@ const SellTransactionScreen = () => {
 
     // For partial sales, scale the income reduction
     const isFull = saleDetails.quantity === selectedAsset.quantity
-    const actualIncomeReduction = isFull ? incomeReduction : (incomeReduction * saleDetails.quantity / selectedAsset.quantity)
+    const actualIncomeReduction = isFull
+      ? incomeReduction
+      : (incomeReduction * saleDetails.quantity) / selectedAsset.quantity
     const actualIncomeAfter = incomeBefore - actualIncomeReduction
 
     const paydayBefore = player.paydayAmount
@@ -82,7 +84,7 @@ const SellTransactionScreen = () => {
       cashOnHand: { before: cashBefore, after: cashAfter },
       totalIncome: { before: incomeBefore, after: actualIncomeAfter },
       paydayAmount: { before: paydayBefore, after: paydayAfter },
-      cashflow: { before: cashflowBefore, after: cashflowAfter }
+      cashflow: { before: cashflowBefore, after: cashflowAfter },
     }
   }
 
@@ -90,7 +92,10 @@ const SellTransactionScreen = () => {
     if (!selectedAsset) return ''
 
     const capitalGain = calculateCapitalGain()
-    const gainLossText = capitalGain >= 0 ? `+$${capitalGain.toLocaleString()} gain` : `-$${Math.abs(capitalGain).toLocaleString()} loss`
+    const gainLossText =
+      capitalGain >= 0
+        ? `+$${capitalGain.toLocaleString()} gain`
+        : `-$${Math.abs(capitalGain).toLocaleString()} loss`
 
     return `Selling ${saleDetails.quantity} of ${selectedAsset.name} @ $${saleDetails.pricePerUnit.toLocaleString()}/unit (${gainLossText})`
   }
@@ -112,8 +117,8 @@ const SellTransactionScreen = () => {
           assetName: selectedAsset.name,
           quantity: saleDetails.quantity,
           pricePerUnit: saleDetails.pricePerUnit,
-          totalProceeds: calculateSaleProceeds()
-        } as unknown as Record<string, unknown>
+          totalProceeds: calculateSaleProceeds(),
+        } as unknown as Record<string, unknown>,
       }).unwrap()
 
       navigate(`/game/${roomCode}/dashboard`)
@@ -215,7 +220,9 @@ const SellTransactionScreen = () => {
                   type="number"
                   inputMode="numeric"
                   value={saleDetails.pricePerUnit || ''}
-                  onChange={(e) => setSaleDetails({ ...saleDetails, pricePerUnit: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setSaleDetails({ ...saleDetails, pricePerUnit: Number(e.target.value) })
+                  }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0"
                 />
@@ -230,7 +237,12 @@ const SellTransactionScreen = () => {
                   type="number"
                   inputMode="numeric"
                   value={saleDetails.quantity}
-                  onChange={(e) => setSaleDetails({ ...saleDetails, quantity: Math.min(Number(e.target.value), selectedAsset.quantity) })}
+                  onChange={(e) =>
+                    setSaleDetails({
+                      ...saleDetails,
+                      quantity: Math.min(Number(e.target.value), selectedAsset.quantity),
+                    })
+                  }
                   max={selectedAsset.quantity}
                   min={1}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -243,19 +255,26 @@ const SellTransactionScreen = () => {
               <div className="pt-4 border-t border-gray-200 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="font-medium text-gray-700">Sale Proceeds:</span>
-                  <span className="text-2xl font-bold text-green-600">${saleProceeds.toLocaleString()}</span>
+                  <span className="text-2xl font-bold text-green-600">
+                    ${saleProceeds.toLocaleString()}
+                  </span>
                 </div>
 
-                <div className={`p-3 rounded-lg ${capitalGain >= 0 ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                <div
+                  className={`p-3 rounded-lg ${capitalGain >= 0 ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}
+                >
                   <div className="flex justify-between text-sm">
-                    <span className={capitalGain >= 0 ? 'text-green-700' : 'text-red-700'}>Capital Gain/Loss:</span>
-                    <span className={`font-bold ${capitalGain >= 0 ? 'text-green-800' : 'text-red-800'}`}>
-                      {capitalGain >= 0 ? '+' : ''}{capitalGain < 0 ? '-' : ''}${Math.abs(capitalGain).toLocaleString()}
+                    <span className={capitalGain >= 0 ? 'text-green-700' : 'text-red-700'}>
+                      Capital Gain/Loss:
+                    </span>
+                    <span
+                      className={`font-bold ${capitalGain >= 0 ? 'text-green-800' : 'text-red-800'}`}
+                    >
+                      {capitalGain >= 0 ? '+' : ''}
+                      {capitalGain < 0 ? '-' : ''}${Math.abs(capitalGain).toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-xs mt-1 text-gray-600">
-                    (Sale Price - Cost Basis) × Quantity
-                  </p>
+                  <p className="text-xs mt-1 text-gray-600">(Sale Price - Cost Basis) × Quantity</p>
                 </div>
               </div>
             </div>
@@ -286,19 +305,23 @@ const SellTransactionScreen = () => {
               <p className="text-gray-600">Confirm the financial impact before submitting</p>
             </div>
 
-            <TransactionImpactPreview
-              impact={calculateImpact()}
-              assetDetails={getAssetDetails()}
-            />
+            <TransactionImpactPreview impact={calculateImpact()} assetDetails={getAssetDetails()} />
 
             {/* Capital Gain/Loss Highlight */}
-            <div className={`rounded-lg p-4 ${capitalGain >= 0 ? 'bg-green-50 border-2 border-green-200' : 'bg-red-50 border-2 border-red-200'}`}>
+            <div
+              className={`rounded-lg p-4 ${capitalGain >= 0 ? 'bg-green-50 border-2 border-green-200' : 'bg-red-50 border-2 border-red-200'}`}
+            >
               <div className="flex items-center justify-between">
-                <span className={`font-semibold ${capitalGain >= 0 ? 'text-green-800' : 'text-red-800'}`}>
+                <span
+                  className={`font-semibold ${capitalGain >= 0 ? 'text-green-800' : 'text-red-800'}`}
+                >
                   {capitalGain >= 0 ? 'Capital Gain' : 'Capital Loss'}
                 </span>
-                <span className={`text-2xl font-bold ${capitalGain >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {capitalGain >= 0 ? '+' : ''}{capitalGain < 0 ? '-' : ''}${Math.abs(capitalGain).toLocaleString()}
+                <span
+                  className={`text-2xl font-bold ${capitalGain >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                >
+                  {capitalGain >= 0 ? '+' : ''}
+                  {capitalGain < 0 ? '-' : ''}${Math.abs(capitalGain).toLocaleString()}
                 </span>
               </div>
             </div>

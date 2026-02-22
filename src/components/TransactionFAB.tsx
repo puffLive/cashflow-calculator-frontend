@@ -13,10 +13,34 @@ const TransactionFAB = ({ disabled = false, disabledTooltip }: TransactionFABPro
   const { roomCode } = useParams<{ roomCode: string }>()
 
   const actions = [
-    { id: 'buy', label: 'Buy', icon: ShoppingCart, color: 'bg-green-500 hover:bg-green-600', path: `/game/${roomCode}/transaction/buy` },
-    { id: 'sell', label: 'Sell', icon: TrendingDown, color: 'bg-blue-500 hover:bg-blue-600', path: `/game/${roomCode}/transaction/sell` },
-    { id: 'loan', label: 'Loan', icon: Coins, color: 'bg-yellow-500 hover:bg-yellow-600', path: `/game/${roomCode}/transaction/loan` },
-    { id: 'event', label: 'Event', icon: Zap, color: 'bg-purple-500 hover:bg-purple-600', path: `/game/${roomCode}/transaction/event` }
+    {
+      id: 'buy',
+      label: 'Buy',
+      icon: ShoppingCart,
+      color: 'bg-green-500 hover:bg-green-600',
+      path: `/game/${roomCode}/transaction/buy`,
+    },
+    {
+      id: 'sell',
+      label: 'Sell',
+      icon: TrendingDown,
+      color: 'bg-blue-500 hover:bg-blue-600',
+      path: `/game/${roomCode}/transaction/sell`,
+    },
+    {
+      id: 'loan',
+      label: 'Loan',
+      icon: Coins,
+      color: 'bg-yellow-500 hover:bg-yellow-600',
+      path: `/game/${roomCode}/transaction/loan`,
+    },
+    {
+      id: 'event',
+      label: 'Event',
+      icon: Zap,
+      color: 'bg-purple-500 hover:bg-purple-600',
+      path: `/game/${roomCode}/transaction/event`,
+    },
   ]
 
   const handleActionClick = (path: string) => {
@@ -67,9 +91,10 @@ const TransactionFAB = ({ disabled = false, disabledTooltip }: TransactionFABPro
           className={`
             w-14 h-14 rounded-full shadow-lg flex items-center justify-center
             transition-all duration-300 transform
-            ${disabled
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700 active:scale-95'
+            ${
+              disabled
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 active:scale-95'
             }
             ${isExpanded ? 'rotate-45' : 'rotate-0'}
           `}

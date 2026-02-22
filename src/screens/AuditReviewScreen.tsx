@@ -16,7 +16,9 @@ const AuditReviewScreen = () => {
   // Get auditor ID from session storage
   const auditorId = sessionStorage.getItem('playerId')
 
-  const review = pendingReviews.find((r: { transactionId: string }) => r.transactionId === transactionId)
+  const review = pendingReviews.find(
+    (r: { transactionId: string }) => r.transactionId === transactionId
+  )
 
   if (!review) {
     return (
@@ -44,7 +46,7 @@ const AuditReviewScreen = () => {
         roomCode,
         transactionId,
         auditorId,
-        action: 'approve'
+        action: 'approve',
       }).unwrap()
 
       navigate(`/game/${roomCode}/audits`)
@@ -62,7 +64,7 @@ const AuditReviewScreen = () => {
         transactionId,
         auditorId,
         action: 'reject',
-        note: rejectionNote
+        note: rejectionNote,
       }).unwrap()
 
       navigate(`/game/${roomCode}/audits`)
@@ -87,7 +89,7 @@ const AuditReviewScreen = () => {
       day: 'numeric',
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
     })
   }
 
@@ -100,9 +102,12 @@ const AuditReviewScreen = () => {
     // Handle loan subtypes
     if (type === 'loan' && details?.subType) {
       switch (details.subType) {
-        case 'loan_take': return 'Take Loan'
-        case 'loan_payoff': return 'Pay Off Loan'
-        default: return 'Loan Transaction'
+        case 'loan_take':
+          return 'Take Loan'
+        case 'loan_payoff':
+          return 'Pay Off Loan'
+        default:
+          return 'Loan Transaction'
       }
     }
 
@@ -116,12 +121,18 @@ const AuditReviewScreen = () => {
     }
 
     switch (type) {
-      case 'buy': return 'Buy Transaction'
-      case 'sell': return 'Sell Transaction'
-      case 'loan': return 'Loan Transaction'
-      case 'market_event': return 'Market Event'
-      case 'payday': return 'PAYDAY'
-      default: return type
+      case 'buy':
+        return 'Buy Transaction'
+      case 'sell':
+        return 'Sell Transaction'
+      case 'loan':
+        return 'Loan Transaction'
+      case 'market_event':
+        return 'Market Event'
+      case 'payday':
+        return 'PAYDAY'
+      default:
+        return type
     }
   }
 
@@ -158,7 +169,8 @@ const AuditReviewScreen = () => {
               <span className="font-medium">Player:</span> {review.playerName}
             </p>
             <p className="text-sm text-gray-600">
-              <span className="font-medium">Type:</span> {getTransactionLabel(review.transactionType, review.transactionDetails)}
+              <span className="font-medium">Type:</span>{' '}
+              {getTransactionLabel(review.transactionType, review.transactionDetails)}
             </p>
           </div>
         </div>
@@ -170,12 +182,18 @@ const AuditReviewScreen = () => {
             <div className="space-y-2">
               {Object.entries(review.transactionDetails).map(([key, value]) => (
                 <div key={key} className="flex justify-between text-sm">
-                  <span className="text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                  <span className={`font-medium ${
-                    typeof value === 'number' && value < 0 ? 'text-red-600' :
-                    typeof value === 'number' && value > 0 ? 'text-green-600' :
-                    'text-gray-900'
-                  }`}>
+                  <span className="text-gray-600 capitalize">
+                    {key.replace(/([A-Z])/g, ' $1').trim()}:
+                  </span>
+                  <span
+                    className={`font-medium ${
+                      typeof value === 'number' && value < 0
+                        ? 'text-red-600'
+                        : typeof value === 'number' && value > 0
+                          ? 'text-green-600'
+                          : 'text-gray-900'
+                    }`}
+                  >
                     {typeof value === 'number' ? formatCurrency(value) : String(value)}
                   </span>
                 </div>
@@ -189,8 +207,8 @@ const AuditReviewScreen = () => {
         {/* Impact Summary Note */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-900">
-            <span className="font-semibold">Note:</span> Review all transaction details carefully before approving.
-            This will permanently update the player's financial statement.
+            <span className="font-semibold">Note:</span> Review all transaction details carefully
+            before approving. This will permanently update the player's financial statement.
           </p>
         </div>
       </div>

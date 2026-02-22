@@ -61,7 +61,8 @@ const AssetDetailScreen = () => {
     )
   }
 
-  const totalAssetValue = player.assets?.reduce((sum, asset) => sum + (asset.costBasis * asset.quantity), 0) || 0
+  const totalAssetValue =
+    player.assets?.reduce((sum, asset) => sum + asset.costBasis * asset.quantity, 0) || 0
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
@@ -79,7 +80,9 @@ const AssetDetailScreen = () => {
               <Building2 className="h-5 w-5 text-blue-600" />
               <div>
                 <h1 className="text-lg font-bold text-gray-900">Assets</h1>
-                <p className="text-sm text-gray-600">{player.assets?.length || 0} asset{player.assets?.length !== 1 ? 's' : ''}</p>
+                <p className="text-sm text-gray-600">
+                  {player.assets?.length || 0} asset{player.assets?.length !== 1 ? 's' : ''}
+                </p>
               </div>
             </div>
           </div>
@@ -96,7 +99,10 @@ const AssetDetailScreen = () => {
               const monthlyIncome = asset.monthlyIncome || 0
 
               return (
-                <div key={index} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div
+                  key={index}
+                  className="bg-white rounded-lg border border-gray-200 overflow-hidden"
+                >
                   <div className="p-4">
                     <div className="flex items-start gap-3 mb-3">
                       <div className="bg-blue-50 rounded-lg p-2">
@@ -104,7 +110,9 @@ const AssetDetailScreen = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-gray-900 mb-1">{asset.name}</h3>
-                        <p className="text-xs text-gray-500 capitalize">{asset.type.replace('_', ' ')}</p>
+                        <p className="text-xs text-gray-500 capitalize">
+                          {asset.type.replace('_', ' ')}
+                        </p>
                       </div>
                     </div>
 
@@ -115,7 +123,9 @@ const AssetDetailScreen = () => {
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Cost Basis</p>
-                        <p className="font-semibold text-gray-900">{formatCurrency(asset.costBasis)}</p>
+                        <p className="font-semibold text-gray-900">
+                          {formatCurrency(asset.costBasis)}
+                        </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Total Value</p>
@@ -123,7 +133,9 @@ const AssetDetailScreen = () => {
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Monthly Income</p>
-                        <p className="font-semibold text-green-600">{formatCurrency(monthlyIncome)}</p>
+                        <p className="font-semibold text-green-600">
+                          {formatCurrency(monthlyIncome)}
+                        </p>
                       </div>
                     </div>
                   </div>

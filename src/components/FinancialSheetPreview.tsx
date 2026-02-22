@@ -45,7 +45,9 @@ const FinancialSheetPreview = ({ profession }: FinancialSheetPreviewProps) => {
           <div className="pt-2 border-t border-green-200">
             <div className="flex justify-between items-center">
               <span className="text-gray-700 font-semibold">Total Income</span>
-              <span className="font-bold text-green-600">${profession.salary.toLocaleString()}</span>
+              <span className="font-bold text-green-600">
+                ${profession.salary.toLocaleString()}
+              </span>
             </div>
           </div>
         </div>
@@ -65,14 +67,15 @@ const FinancialSheetPreview = ({ profession }: FinancialSheetPreviewProps) => {
             { label: 'Car Loan Payment', value: profession.carLoan },
             { label: 'Credit Card Payment', value: profession.creditCard },
             { label: 'Other Expenses', value: profession.otherExpenses },
-            { label: 'Bank Loan Payment', value: profession.bankLoan }
-          ].map(({ label, value }) =>
-            value > 0 && (
-              <div key={label} className="flex justify-between items-center">
-                <span className="text-gray-600">{label}</span>
-                <span className="font-medium text-gray-800">${value.toLocaleString()}</span>
-              </div>
-            )
+            { label: 'Bank Loan Payment', value: profession.bankLoan },
+          ].map(
+            ({ label, value }) =>
+              value > 0 && (
+                <div key={label} className="flex justify-between items-center">
+                  <span className="text-gray-600">{label}</span>
+                  <span className="font-medium text-gray-800">${value.toLocaleString()}</span>
+                </div>
+              )
           )}
           <div className="pt-2 border-t border-red-200">
             <div className="flex justify-between items-center">
@@ -92,7 +95,9 @@ const FinancialSheetPreview = ({ profession }: FinancialSheetPreviewProps) => {
         <div className={`${monthlyCashflow >= 0 ? 'bg-blue-50' : 'bg-yellow-50'} rounded-lg p-3`}>
           <div className="flex justify-between items-center">
             <span className="text-gray-700 font-semibold">Net Cashflow</span>
-            <span className={`font-bold text-xl ${monthlyCashflow >= 0 ? 'text-blue-600' : 'text-yellow-600'}`}>
+            <span
+              className={`font-bold text-xl ${monthlyCashflow >= 0 ? 'text-blue-600' : 'text-yellow-600'}`}
+            >
               ${monthlyCashflow.toLocaleString()}
             </span>
           </div>
@@ -120,7 +125,8 @@ const FinancialSheetPreview = ({ profession }: FinancialSheetPreviewProps) => {
 
       <div className="mt-4 p-3 bg-yellow-50 rounded-lg">
         <p className="text-xs text-yellow-800">
-          <span className="font-semibold">Goal:</span> Build passive income of ${totalExpenses.toLocaleString()}/month to escape the rat race!
+          <span className="font-semibold">Goal:</span> Build passive income of $
+          {totalExpenses.toLocaleString()}/month to escape the rat race!
         </p>
       </div>
     </div>

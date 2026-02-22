@@ -57,12 +57,42 @@ const BuyTransactionScreen = () => {
   const [details, setDetails] = useState<TransactionDetails>({ name: '' })
 
   const assetTypes: AssetTypeInfo[] = [
-    { id: 'stock', title: 'Stocks', description: 'Individual company shares with potential dividends', icon: TrendingUp },
-    { id: 'mutual_fund', title: 'Mutual Funds', description: 'Diversified investment portfolios', icon: PieChart },
-    { id: 'cd', title: 'CDs', description: 'Fixed-term savings with guaranteed returns', icon: Coins },
-    { id: 'real_estate', title: 'Real Estate', description: 'Property investments with rental income', icon: Building2 },
-    { id: 'gold', title: 'Gold/Precious Metals', description: 'Physical commodities as store of value', icon: Gem },
-    { id: 'business', title: 'Business', description: 'Small business ownership opportunities', icon: Briefcase }
+    {
+      id: 'stock',
+      title: 'Stocks',
+      description: 'Individual company shares with potential dividends',
+      icon: TrendingUp,
+    },
+    {
+      id: 'mutual_fund',
+      title: 'Mutual Funds',
+      description: 'Diversified investment portfolios',
+      icon: PieChart,
+    },
+    {
+      id: 'cd',
+      title: 'CDs',
+      description: 'Fixed-term savings with guaranteed returns',
+      icon: Coins,
+    },
+    {
+      id: 'real_estate',
+      title: 'Real Estate',
+      description: 'Property investments with rental income',
+      icon: Building2,
+    },
+    {
+      id: 'gold',
+      title: 'Gold/Precious Metals',
+      description: 'Physical commodities as store of value',
+      icon: Gem,
+    },
+    {
+      id: 'business',
+      title: 'Business',
+      description: 'Small business ownership opportunities',
+      icon: Briefcase,
+    },
   ]
 
   const calculateTotalCost = (): number => {
@@ -99,7 +129,8 @@ const BuyTransactionScreen = () => {
       incomeIncrease = ((details.cdValue || 0) * (details.interestRate || 0)) / 100 / 12
     } else if (selectedAssetType === 'real_estate') {
       incomeIncrease = details.monthlyCashflow || 0
-      expenseIncrease = (details.mortgageAmount || 0) > 0 ? ((details.mortgageAmount || 0) * 0.1) / 12 : 0
+      expenseIncrease =
+        (details.mortgageAmount || 0) > 0 ? ((details.mortgageAmount || 0) * 0.1) / 12 : 0
     } else if (selectedAssetType === 'business') {
       incomeIncrease = details.businessCashflow || 0
     }
@@ -121,7 +152,7 @@ const BuyTransactionScreen = () => {
       totalIncome: { before: incomeBefore, after: incomeAfter },
       totalExpenses: { before: expensesBefore, after: expensesAfter },
       paydayAmount: { before: paydayBefore, after: paydayAfter },
-      cashflow: { before: cashflowBefore, after: cashflowAfter }
+      cashflow: { before: cashflowBefore, after: cashflowAfter },
     }
   }
 
@@ -149,7 +180,10 @@ const BuyTransactionScreen = () => {
     if (selectedAssetType === 'real_estate' && (details.mortgageAmount || 0) > 0) {
       return `Mortgage: $${details.mortgageAmount?.toLocaleString()} on ${details.name}`
     }
-    if (selectedAssetType === 'business' && (details.businessCost || 0) > (details.businessDownPayment || 0)) {
+    if (
+      selectedAssetType === 'business' &&
+      (details.businessCost || 0) > (details.businessDownPayment || 0)
+    ) {
       const liability = (details.businessCost || 0) - (details.businessDownPayment || 0)
       return `Business Loan: $${liability.toLocaleString()} for ${details.name}`
     }
@@ -184,7 +218,7 @@ const BuyTransactionScreen = () => {
         playerId,
         type: 'buy',
         subType: selectedAssetType,
-        details: details as unknown as Record<string, unknown>
+        details: details as unknown as Record<string, unknown>,
       }).unwrap()
 
       navigate(`/game/${roomCode}/dashboard`)
@@ -254,15 +288,16 @@ const BuyTransactionScreen = () => {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">Transaction Details</h2>
-              <p className="text-gray-600">Enter the details for your {assetTypes.find(a => a.id === selectedAssetType)?.title} purchase</p>
+              <p className="text-gray-600">
+                Enter the details for your{' '}
+                {assetTypes.find((a) => a.id === selectedAssetType)?.title} purchase
+              </p>
             </div>
 
             <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
               {/* Common: Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Asset Name *
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Asset Name *</label>
                 <input
                   type="text"
                   value={details.name}
@@ -283,7 +318,9 @@ const BuyTransactionScreen = () => {
                       type="number"
                       inputMode="numeric"
                       value={details.pricePerShare || ''}
-                      onChange={(e) => setDetails({ ...details, pricePerShare: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setDetails({ ...details, pricePerShare: Number(e.target.value) })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0"
                     />
@@ -296,7 +333,9 @@ const BuyTransactionScreen = () => {
                       type="number"
                       inputMode="numeric"
                       value={details.numberOfShares || ''}
-                      onChange={(e) => setDetails({ ...details, numberOfShares: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setDetails({ ...details, numberOfShares: Number(e.target.value) })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0"
                     />
@@ -309,7 +348,9 @@ const BuyTransactionScreen = () => {
                       type="number"
                       inputMode="numeric"
                       value={details.dividendPerShare || ''}
-                      onChange={(e) => setDetails({ ...details, dividendPerShare: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setDetails({ ...details, dividendPerShare: Number(e.target.value) })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0"
                     />
@@ -342,7 +383,9 @@ const BuyTransactionScreen = () => {
                       inputMode="decimal"
                       step="0.1"
                       value={details.interestRate || ''}
-                      onChange={(e) => setDetails({ ...details, interestRate: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setDetails({ ...details, interestRate: Number(e.target.value) })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0.0"
                     />
@@ -361,7 +404,9 @@ const BuyTransactionScreen = () => {
                       type="number"
                       inputMode="numeric"
                       value={details.totalCost || ''}
-                      onChange={(e) => setDetails({ ...details, totalCost: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setDetails({ ...details, totalCost: Number(e.target.value) })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0"
                     />
@@ -374,7 +419,9 @@ const BuyTransactionScreen = () => {
                       type="number"
                       inputMode="numeric"
                       value={details.downPayment || ''}
-                      onChange={(e) => setDetails({ ...details, downPayment: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setDetails({ ...details, downPayment: Number(e.target.value) })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0"
                     />
@@ -387,7 +434,9 @@ const BuyTransactionScreen = () => {
                       type="number"
                       inputMode="numeric"
                       value={details.mortgageAmount || ''}
-                      onChange={(e) => setDetails({ ...details, mortgageAmount: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setDetails({ ...details, mortgageAmount: Number(e.target.value) })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0"
                     />
@@ -400,7 +449,9 @@ const BuyTransactionScreen = () => {
                       type="number"
                       inputMode="numeric"
                       value={details.monthlyCashflow || ''}
-                      onChange={(e) => setDetails({ ...details, monthlyCashflow: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setDetails({ ...details, monthlyCashflow: Number(e.target.value) })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0"
                     />
@@ -419,7 +470,9 @@ const BuyTransactionScreen = () => {
                       type="number"
                       inputMode="numeric"
                       value={details.costPerUnit || ''}
-                      onChange={(e) => setDetails({ ...details, costPerUnit: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setDetails({ ...details, costPerUnit: Number(e.target.value) })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0"
                     />
@@ -451,7 +504,9 @@ const BuyTransactionScreen = () => {
                       type="number"
                       inputMode="numeric"
                       value={details.businessCost || ''}
-                      onChange={(e) => setDetails({ ...details, businessCost: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setDetails({ ...details, businessCost: Number(e.target.value) })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0"
                     />
@@ -464,7 +519,9 @@ const BuyTransactionScreen = () => {
                       type="number"
                       inputMode="numeric"
                       value={details.businessDownPayment || ''}
-                      onChange={(e) => setDetails({ ...details, businessDownPayment: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setDetails({ ...details, businessDownPayment: Number(e.target.value) })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0"
                     />
@@ -477,7 +534,9 @@ const BuyTransactionScreen = () => {
                       type="number"
                       inputMode="numeric"
                       value={details.businessCashflow || ''}
-                      onChange={(e) => setDetails({ ...details, businessCashflow: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setDetails({ ...details, businessCashflow: Number(e.target.value) })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0"
                     />
@@ -489,20 +548,46 @@ const BuyTransactionScreen = () => {
               <div className="pt-4 border-t border-gray-200">
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-medium text-gray-700">Total Cost:</span>
-                  <span className="text-2xl font-bold text-gray-800">${totalCost.toLocaleString()}</span>
+                  <span className="text-2xl font-bold text-gray-800">
+                    ${totalCost.toLocaleString()}
+                  </span>
                 </div>
-                <div className={`p-3 rounded-lg ${hasInsufficientFunds ? 'bg-red-50 border border-red-200' : 'bg-blue-50 border border-blue-200'}`}>
+                <div
+                  className={`p-3 rounded-lg ${hasInsufficientFunds ? 'bg-red-50 border border-red-200' : 'bg-blue-50 border border-blue-200'}`}
+                >
                   <div className="flex justify-between text-sm">
-                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-blue-700'}>Cash on Hand:</span>
-                    <span className={hasInsufficientFunds ? 'text-red-800 font-medium' : 'text-blue-800 font-medium'}>${player.cashOnHand.toLocaleString()}</span>
+                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-blue-700'}>
+                      Cash on Hand:
+                    </span>
+                    <span
+                      className={
+                        hasInsufficientFunds
+                          ? 'text-red-800 font-medium'
+                          : 'text-blue-800 font-medium'
+                      }
+                    >
+                      ${player.cashOnHand.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-blue-700'}>Remaining:</span>
-                    <span className={hasInsufficientFunds ? 'text-red-800 font-medium' : 'text-blue-800 font-medium'}>${remainingCash.toLocaleString()}</span>
+                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-blue-700'}>
+                      Remaining:
+                    </span>
+                    <span
+                      className={
+                        hasInsufficientFunds
+                          ? 'text-red-800 font-medium'
+                          : 'text-blue-800 font-medium'
+                      }
+                    >
+                      ${remainingCash.toLocaleString()}
+                    </span>
                   </div>
                 </div>
                 {hasInsufficientFunds && (
-                  <p className="text-sm text-red-600 mt-2">⚠️ Insufficient funds for this purchase</p>
+                  <p className="text-sm text-red-600 mt-2">
+                    ⚠️ Insufficient funds for this purchase
+                  </p>
                 )}
               </div>
             </div>

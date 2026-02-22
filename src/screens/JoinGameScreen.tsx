@@ -50,27 +50,31 @@ const JoinGameScreen = () => {
     }
 
     if (!playerName.trim()) {
-      dispatch(addNotification({
-        id: Date.now().toString(),
-        type: 'error',
-        message: 'Please enter your name',
-        duration: 3000
-      }))
+      dispatch(
+        addNotification({
+          id: Date.now().toString(),
+          type: 'error',
+          message: 'Please enter your name',
+          duration: 3000,
+        })
+      )
       return
     }
 
     try {
       const result = await joinGame({
         roomCode: roomCode.toUpperCase(),
-        playerName: playerName.trim()
+        playerName: playerName.trim(),
       }).unwrap()
 
       // Store player data
-      dispatch(setPlayerData({
-        id: result.playerId,
-        name: playerName.trim(),
-        isReady: false
-      }))
+      dispatch(
+        setPlayerData({
+          id: result.playerId,
+          name: playerName.trim(),
+          isReady: false,
+        })
+      )
 
       // Store in session storage for reconnection
       sessionStorage.setItem('roomCode', roomCode.toUpperCase())
@@ -78,23 +82,26 @@ const JoinGameScreen = () => {
       sessionStorage.setItem('playerName', playerName.trim())
 
       // Update Redux with minimal data (game session will be fetched in lobby)
-      dispatch(setGameSession({
-        roomCode: roomCode.toUpperCase(),
-        status: 'waiting',
-        currentPlayerId: result.playerId,
-        gameVersion: 'cashflow_101'
-      }))
+      dispatch(
+        setGameSession({
+          roomCode: roomCode.toUpperCase(),
+          status: 'waiting',
+          currentPlayerId: result.playerId,
+          gameVersion: 'cashflow_101',
+        })
+      )
 
       // Navigate to player setup instead of lobby
       navigate(buildRoute(ROUTES.GAME_SETUP, { roomCode: roomCode.toUpperCase() }))
 
-      dispatch(addNotification({
-        id: Date.now().toString(),
-        type: 'success',
-        message: 'Successfully joined the game!',
-        duration: 3000
-      }))
-
+      dispatch(
+        addNotification({
+          id: Date.now().toString(),
+          type: 'success',
+          message: 'Successfully joined the game!',
+          duration: 3000,
+        })
+      )
     } catch (error: any) {
       console.error('Failed to join game:', error)
 
@@ -113,12 +120,14 @@ const JoinGameScreen = () => {
       }
 
       setCodeError(errorMessage)
-      dispatch(addNotification({
-        id: Date.now().toString(),
-        type: 'error',
-        message: errorMessage,
-        duration: 5000
-      }))
+      dispatch(
+        addNotification({
+          id: Date.now().toString(),
+          type: 'error',
+          message: errorMessage,
+          duration: 5000,
+        })
+      )
     }
   }
 
@@ -138,12 +147,16 @@ const JoinGameScreen = () => {
         <div className="bg-white rounded-lg shadow-xl p-8">
           <div className="flex items-center mb-6">
             <Users className="w-8 h-8 text-blue-600 mr-3" />
-            <h2 className="text-2xl font-bold text-gray-800">
-              Join Existing Game
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-800">Join Existing Game</h2>
           </div>
 
-          <form onSubmit={(e) => { e.preventDefault(); handleJoinGame() }} className="space-y-6">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              handleJoinGame()
+            }}
+            className="space-y-6"
+          >
             <div>
               <label htmlFor="roomCode" className="block text-sm font-medium text-gray-700 mb-2">
                 Room Code
@@ -169,9 +182,7 @@ const JoinGameScreen = () => {
                   {codeError}
                 </div>
               )}
-              <p className="mt-2 text-xs text-gray-500">
-                Get this code from the game host
-              </p>
+              <p className="mt-2 text-xs text-gray-500">Get this code from the game host</p>
             </div>
 
             <div>

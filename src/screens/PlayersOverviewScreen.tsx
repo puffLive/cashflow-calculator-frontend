@@ -15,10 +15,10 @@ const PlayersOverviewScreen = () => {
   const [activeTab, setActiveTab] = useState<'players' | 'activity'>('players')
 
   // Fetch all players (updates Redux state)
-  const { isLoading, error } = useGetAllPlayersQuery(
-    roomCode!,
-    { skip: !roomCode, pollingInterval: 5000 }
-  )
+  const { isLoading, error } = useGetAllPlayersQuery(roomCode!, {
+    skip: !roomCode,
+    pollingInterval: 5000,
+  })
 
   const players = useAppSelector(selectAllPlayers)
 

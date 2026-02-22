@@ -5,7 +5,7 @@ import {
   TrendingUp,
   TrendingDown,
   Building2,
-  ClipboardCheck
+  ClipboardCheck,
 } from 'lucide-react'
 
 interface BottomNavBarProps {
@@ -18,18 +18,23 @@ const BottomNavBar = ({ pendingAuditCount = 0 }: BottomNavBarProps) => {
   const location = useLocation()
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: `/game/${roomCode}/dashboard` },
+    {
+      id: 'dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      path: `/game/${roomCode}/dashboard`,
+    },
     {
       id: 'audits',
       label: 'Audits',
       icon: ClipboardCheck,
       path: `/game/${roomCode}/audits`,
-      ...(pendingAuditCount > 0 && { badge: pendingAuditCount })
+      ...(pendingAuditCount > 0 && { badge: pendingAuditCount }),
     },
     { id: 'players', label: 'Players', icon: Users, path: `/game/${roomCode}/players` },
     { id: 'income', label: 'Income', icon: TrendingUp, path: `/game/${roomCode}/income` },
     { id: 'expenses', label: 'Expenses', icon: TrendingDown, path: `/game/${roomCode}/expenses` },
-    { id: 'assets', label: 'Assets', icon: Building2, path: `/game/${roomCode}/assets` }
+    { id: 'assets', label: 'Assets', icon: Building2, path: `/game/${roomCode}/assets` },
   ]
 
   const isActive = (path: string) => location.pathname === path
@@ -50,16 +55,15 @@ const BottomNavBar = ({ pendingAuditCount = 0 }: BottomNavBarProps) => {
               className={`
                 flex flex-col items-center justify-center py-2 px-1 rounded-lg relative
                 transition-colors duration-200
-                ${active
-                  ? 'text-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                ${
+                  active
+                    ? 'text-blue-600 bg-blue-50'
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
                 }
               `}
             >
               <Icon className={`w-5 h-5 mb-1 ${active ? 'stroke-2' : ''}`} />
-              <span className={`text-xs ${active ? 'font-bold' : 'font-medium'}`}>
-                {tab.label}
-              </span>
+              <span className={`text-xs ${active ? 'font-bold' : 'font-medium'}`}>{tab.label}</span>
               {tab.badge && tab.badge > 0 && (
                 <span className="absolute top-1 right-1 bg-red-500 rounded-full w-2.5 h-2.5"></span>
               )}

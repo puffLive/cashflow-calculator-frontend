@@ -1,6 +1,15 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Frown, Heart, ShoppingBag, Baby as BabyIcon, TrendingUp, TrendingDown, DollarSign } from 'lucide-react'
+import {
+  ArrowLeft,
+  Frown,
+  Heart,
+  ShoppingBag,
+  Baby as BabyIcon,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+} from 'lucide-react'
 import { useAppSelector } from '@/hooks/redux'
 import { useSubmitTransactionMutation } from '@/services/transactionApi'
 import { selectCurrentPlayer } from '@/store/slices/playerSlice'
@@ -9,7 +18,14 @@ import AssetTypeCard from '@/components/AssetTypeCard'
 import OwnedAssetCard from '@/components/OwnedAssetCard'
 import type { Asset } from '@/types'
 
-type EventType = 'downsized' | 'charity' | 'doodad' | 'baby' | 'stock_split' | 'reverse_stock_split' | 'lend_collect'
+type EventType =
+  | 'downsized'
+  | 'charity'
+  | 'doodad'
+  | 'baby'
+  | 'stock_split'
+  | 'reverse_stock_split'
+  | 'lend_collect'
 
 interface EventTypeInfo {
   id: EventType
@@ -32,13 +48,38 @@ const MarketEventScreen = () => {
   const [isLending, setIsLending] = useState(true) // true = lend (negative), false = collect (positive)
 
   const eventTypes: EventTypeInfo[] = [
-    { id: 'downsized', title: 'Downsized', description: 'Lost your job - pay expenses from savings', icon: Frown },
+    {
+      id: 'downsized',
+      title: 'Downsized',
+      description: 'Lost your job - pay expenses from savings',
+      icon: Frown,
+    },
     { id: 'charity', title: 'Charity', description: 'Donate 10% of your income', icon: Heart },
-    { id: 'doodad', title: 'Doodad', description: 'Impulse purchase - spend on luxury item', icon: ShoppingBag },
+    {
+      id: 'doodad',
+      title: 'Doodad',
+      description: 'Impulse purchase - spend on luxury item',
+      icon: ShoppingBag,
+    },
     { id: 'baby', title: 'Baby', description: 'New addition to the family', icon: BabyIcon },
-    { id: 'stock_split', title: 'Stock Split', description: 'Double your shares, halve the price', icon: TrendingUp },
-    { id: 'reverse_stock_split', title: 'Reverse Split', description: 'Halve your shares, double the price', icon: TrendingDown },
-    { id: 'lend_collect', title: 'Lend/Collect Money', description: 'Lend money to or collect from a friend', icon: DollarSign }
+    {
+      id: 'stock_split',
+      title: 'Stock Split',
+      description: 'Double your shares, halve the price',
+      icon: TrendingUp,
+    },
+    {
+      id: 'reverse_stock_split',
+      title: 'Reverse Split',
+      description: 'Halve your shares, double the price',
+      icon: TrendingDown,
+    },
+    {
+      id: 'lend_collect',
+      title: 'Lend/Collect Money',
+      description: 'Lend money to or collect from a friend',
+      icon: DollarSign,
+    },
   ]
 
   const handleEventSelect = (eventId: EventType) => {
@@ -81,7 +122,8 @@ const MarketEventScreen = () => {
         cashAfter = cashBefore - amount
         break
       case 'baby':
-        expensesAfter = expensesBefore + (player.expenses.find(e => e.type === 'child')?.amount || 0)
+        expensesAfter =
+          expensesBefore + (player.expenses.find((e) => e.type === 'child')?.amount || 0)
         break
       case 'lend_collect':
         cashAfter = isLending ? cashBefore - amount : cashBefore + amount
@@ -93,17 +135,27 @@ const MarketEventScreen = () => {
     }
 
     const paydayBefore = player.paydayAmount
-    const paydayAfter = paydayBefore + (incomeAfter - incomeBefore) - (expensesAfter - expensesBefore)
+    const paydayAfter =
+      paydayBefore + (incomeAfter - incomeBefore) - (expensesAfter - expensesBefore)
 
     const cashflowBefore = player.cashflow
-    const cashflowAfter = cashflowBefore + (incomeAfter - incomeBefore) - (expensesAfter - expensesBefore)
+    const cashflowAfter =
+      cashflowBefore + (incomeAfter - incomeBefore) - (expensesAfter - expensesBefore)
 
     return {
       cashOnHand: { before: cashBefore, after: cashAfter },
-      ...(expensesAfter !== expensesBefore && { totalExpenses: { before: expensesBefore, after: expensesAfter } }),
-      ...(incomeAfter !== incomeBefore && { totalIncome: { before: incomeBefore, after: incomeAfter } }),
-      ...(paydayAfter !== paydayBefore && { paydayAmount: { before: paydayBefore, after: paydayAfter } }),
-      ...(cashflowAfter !== cashflowBefore && { cashflow: { before: cashflowBefore, after: cashflowAfter } })
+      ...(expensesAfter !== expensesBefore && {
+        totalExpenses: { before: expensesBefore, after: expensesAfter },
+      }),
+      ...(incomeAfter !== incomeBefore && {
+        totalIncome: { before: incomeBefore, after: incomeAfter },
+      }),
+      ...(paydayAfter !== paydayBefore && {
+        paydayAmount: { before: paydayBefore, after: paydayAfter },
+      }),
+      ...(cashflowAfter !== cashflowBefore && {
+        cashflow: { before: cashflowBefore, after: cashflowAfter },
+      }),
     }
   }
 
@@ -118,11 +170,17 @@ const MarketEventScreen = () => {
       case 'baby':
         return `New baby - Additional monthly expense`
       case 'stock_split':
-        return selectedAsset ? `Stock split: ${selectedAsset.name} (${selectedAsset.quantity} → ${selectedAsset.quantity * 2} shares)` : ''
+        return selectedAsset
+          ? `Stock split: ${selectedAsset.name} (${selectedAsset.quantity} → ${selectedAsset.quantity * 2} shares)`
+          : ''
       case 'reverse_stock_split':
-        return selectedAsset ? `Reverse split: ${selectedAsset.name} (${selectedAsset.quantity} → ${Math.floor(selectedAsset.quantity / 2)} shares)` : ''
+        return selectedAsset
+          ? `Reverse split: ${selectedAsset.name} (${selectedAsset.quantity} → ${Math.floor(selectedAsset.quantity / 2)} shares)`
+          : ''
       case 'lend_collect':
-        return isLending ? `Lending money: $${amount.toLocaleString()}` : `Collecting money: $${amount.toLocaleString()}`
+        return isLending
+          ? `Lending money: $${amount.toLocaleString()}`
+          : `Collecting money: $${amount.toLocaleString()}`
       default:
         return ''
     }
@@ -141,9 +199,10 @@ const MarketEventScreen = () => {
       details.assetId = selectedAsset.id
       details.assetName = selectedAsset.name
       details.currentShares = selectedAsset.quantity
-      details.newShares = selectedEvent === 'stock_split'
-        ? selectedAsset.quantity * 2
-        : Math.floor(selectedAsset.quantity / 2)
+      details.newShares =
+        selectedEvent === 'stock_split'
+          ? selectedAsset.quantity * 2
+          : Math.floor(selectedAsset.quantity / 2)
     }
 
     if (selectedEvent === 'lend_collect') {
@@ -156,7 +215,7 @@ const MarketEventScreen = () => {
         playerId,
         type: 'market_event',
         subType: selectedEvent,
-        details
+        details,
       }).unwrap()
 
       navigate(`/game/${roomCode}/dashboard`)
@@ -165,10 +224,15 @@ const MarketEventScreen = () => {
     }
   }
 
-  const hasInsufficientFunds = (selectedEvent === 'downsized' || selectedEvent === 'charity' || selectedEvent === 'doodad' || (selectedEvent === 'lend_collect' && isLending)) && amount > player.cashOnHand
+  const hasInsufficientFunds =
+    (selectedEvent === 'downsized' ||
+      selectedEvent === 'charity' ||
+      selectedEvent === 'doodad' ||
+      (selectedEvent === 'lend_collect' && isLending)) &&
+    amount > player.cashOnHand
 
   // Filter stocks for split operations
-  const stocks = player.assets.filter(a => a.type === 'stock' || a.type === 'mutual_fund')
+  const stocks = player.assets.filter((a) => a.type === 'stock' || a.type === 'mutual_fund')
 
   return (
     <div className="min-h-screen bg-gray-50 pb-8">
@@ -227,9 +291,11 @@ const MarketEventScreen = () => {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                {eventTypes.find(e => e.id === selectedEvent)?.title}
+                {eventTypes.find((e) => e.id === selectedEvent)?.title}
               </h2>
-              <p className="text-gray-600">{eventTypes.find(e => e.id === selectedEvent)?.description}</p>
+              <p className="text-gray-600">
+                {eventTypes.find((e) => e.id === selectedEvent)?.description}
+              </p>
             </div>
 
             {/* Downsized */}
@@ -237,12 +303,16 @@ const MarketEventScreen = () => {
               <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <h3 className="font-semibold text-red-800 mb-2">You've been downsized!</h3>
-                  <p className="text-sm text-red-700">You must pay your total monthly expenses from your savings.</p>
+                  <p className="text-sm text-red-700">
+                    You must pay your total monthly expenses from your savings.
+                  </p>
                 </div>
 
                 <div className="flex justify-between items-center text-lg">
                   <span className="font-medium text-gray-700">Total Expenses:</span>
-                  <span className="text-2xl font-bold text-red-600">${amount.toLocaleString()}</span>
+                  <span className="text-2xl font-bold text-red-600">
+                    ${amount.toLocaleString()}
+                  </span>
                 </div>
 
                 {hasInsufficientFunds && (
@@ -266,7 +336,9 @@ const MarketEventScreen = () => {
               <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <h3 className="font-semibold text-green-800 mb-2">Give to Charity</h3>
-                  <p className="text-sm text-green-700">Donate 10% of your total income to charity.</p>
+                  <p className="text-sm text-green-700">
+                    Donate 10% of your total income to charity.
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -276,7 +348,9 @@ const MarketEventScreen = () => {
                   </div>
                   <div className="flex justify-between items-center text-lg">
                     <span className="font-medium text-gray-700">Donation (10%):</span>
-                    <span className="text-2xl font-bold text-green-600">${amount.toLocaleString()}</span>
+                    <span className="text-2xl font-bold text-green-600">
+                      ${amount.toLocaleString()}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -287,7 +361,9 @@ const MarketEventScreen = () => {
               <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <h3 className="font-semibold text-yellow-800 mb-2">Impulse Purchase!</h3>
-                  <p className="text-sm text-yellow-700">You bought something you don't really need.</p>
+                  <p className="text-sm text-yellow-700">
+                    You bought something you don't really need.
+                  </p>
                 </div>
 
                 <div>
@@ -318,26 +394,40 @@ const MarketEventScreen = () => {
               <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h3 className="font-semibold text-blue-800 mb-2">🎉 Congratulations!</h3>
-                  <p className="text-sm text-blue-700">You have a new baby! This adds to your monthly expenses.</p>
+                  <p className="text-sm text-blue-700">
+                    You have a new baby! This adds to your monthly expenses.
+                  </p>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>New Child Expense:</span>
                     <span className="font-medium text-red-600">
-                      +${(player.expenses.find(e => e.type === 'child')?.amount || 0).toLocaleString()}/month
+                      +$
+                      {(
+                        player.expenses.find((e) => e.type === 'child')?.amount || 0
+                      ).toLocaleString()}
+                      /month
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>New Total Expenses:</span>
                     <span className="font-medium">
-                      ${(player.totalExpenses + (player.expenses.find(e => e.type === 'child')?.amount || 0)).toLocaleString()}
+                      $
+                      {(
+                        player.totalExpenses +
+                        (player.expenses.find((e) => e.type === 'child')?.amount || 0)
+                      ).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>New PAYDAY:</span>
                     <span className="font-medium">
-                      ${(player.paydayAmount - (player.expenses.find(e => e.type === 'child')?.amount || 0)).toLocaleString()}
+                      $
+                      {(
+                        player.paydayAmount -
+                        (player.expenses.find((e) => e.type === 'child')?.amount || 0)
+                      ).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -379,7 +469,8 @@ const MarketEventScreen = () => {
                           <div className="flex justify-between">
                             <span className="text-gray-600">Shares:</span>
                             <span className="font-medium">
-                              {selectedAsset.quantity} → {selectedEvent === 'stock_split'
+                              {selectedAsset.quantity} →{' '}
+                              {selectedEvent === 'stock_split'
                                 ? selectedAsset.quantity * 2
                                 : Math.floor(selectedAsset.quantity / 2)}
                             </span>
@@ -390,7 +481,9 @@ const MarketEventScreen = () => {
                               ${(selectedAsset.costBasis / selectedAsset.quantity).toFixed(2)} → $
                               {selectedEvent === 'stock_split'
                                 ? (selectedAsset.costBasis / selectedAsset.quantity / 2).toFixed(2)
-                                : (selectedAsset.costBasis / selectedAsset.quantity * 2).toFixed(2)}
+                                : ((selectedAsset.costBasis / selectedAsset.quantity) * 2).toFixed(
+                                    2
+                                  )}
                             </span>
                           </div>
                         </div>
@@ -433,9 +526,7 @@ const MarketEventScreen = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Amount *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Amount *</label>
                   <input
                     type="number"
                     inputMode="numeric"
@@ -446,17 +537,31 @@ const MarketEventScreen = () => {
                   />
                 </div>
 
-                <div className={`p-3 rounded-lg ${hasInsufficientFunds ? 'bg-red-50 border border-red-200' : 'bg-blue-50 border border-blue-200'}`}>
+                <div
+                  className={`p-3 rounded-lg ${hasInsufficientFunds ? 'bg-red-50 border border-red-200' : 'bg-blue-50 border border-blue-200'}`}
+                >
                   <div className="flex justify-between text-sm">
-                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-blue-700'}>Cash Impact:</span>
-                    <span className={`font-medium ${hasInsufficientFunds ? 'text-red-800' : 'text-blue-800'}`}>
+                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-blue-700'}>
+                      Cash Impact:
+                    </span>
+                    <span
+                      className={`font-medium ${hasInsufficientFunds ? 'text-red-800' : 'text-blue-800'}`}
+                    >
                       {isLending ? '-' : '+'}${amount.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-blue-700'}>New Cash on Hand:</span>
-                    <span className={`font-medium ${hasInsufficientFunds ? 'text-red-800' : 'text-blue-800'}`}>
-                      ${(isLending ? player.cashOnHand - amount : player.cashOnHand + amount).toLocaleString()}
+                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-blue-700'}>
+                      New Cash on Hand:
+                    </span>
+                    <span
+                      className={`font-medium ${hasInsufficientFunds ? 'text-red-800' : 'text-blue-800'}`}
+                    >
+                      $
+                      {(isLending
+                        ? player.cashOnHand - amount
+                        : player.cashOnHand + amount
+                      ).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -468,10 +573,7 @@ const MarketEventScreen = () => {
             )}
 
             {/* Impact Preview */}
-            <TransactionImpactPreview
-              impact={calculateImpact()}
-              assetDetails={getEventDetails()}
-            />
+            <TransactionImpactPreview impact={calculateImpact()} assetDetails={getEventDetails()} />
 
             <div className="flex space-x-3">
               <button
@@ -485,7 +587,8 @@ const MarketEventScreen = () => {
                 disabled={
                   isLoading ||
                   (selectedEvent === 'doodad' && amount === 0) ||
-                  ((selectedEvent === 'stock_split' || selectedEvent === 'reverse_stock_split') && !selectedAsset) ||
+                  ((selectedEvent === 'stock_split' || selectedEvent === 'reverse_stock_split') &&
+                    !selectedAsset) ||
                   (selectedEvent === 'lend_collect' && amount === 0)
                 }
                 className="flex-1 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed"

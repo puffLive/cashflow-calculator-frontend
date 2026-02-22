@@ -51,33 +51,37 @@ export const playerSlice = createSlice({
     },
     addIncome: (state, action: PayloadAction<IncomeItem>) => {
       state.income.push(action.payload)
-      state.passiveIncome = state.income.reduce((sum, item) =>
-        item.type !== 'salary' ? sum + item.amount : sum, 0)
+      state.passiveIncome = state.income.reduce(
+        (sum, item) => (item.type !== 'salary' ? sum + item.amount : sum),
+        0
+      )
     },
     removeIncome: (state, action: PayloadAction<string>) => {
-      state.income = state.income.filter(item => item.id !== action.payload)
-      state.passiveIncome = state.income.reduce((sum, item) =>
-        item.type !== 'salary' ? sum + item.amount : sum, 0)
+      state.income = state.income.filter((item) => item.id !== action.payload)
+      state.passiveIncome = state.income.reduce(
+        (sum, item) => (item.type !== 'salary' ? sum + item.amount : sum),
+        0
+      )
     },
     addExpense: (state, action: PayloadAction<ExpenseItem>) => {
       state.expenses.push(action.payload)
       // Don't recalculate totalExpenses here - backend manages this
     },
     removeExpense: (state, action: PayloadAction<string>) => {
-      state.expenses = state.expenses.filter(item => item.id !== action.payload)
+      state.expenses = state.expenses.filter((item) => item.id !== action.payload)
       // Don't recalculate totalExpenses here - backend manages this
     },
     addAsset: (state, action: PayloadAction<Asset>) => {
       state.assets.push(action.payload)
     },
     removeAsset: (state, action: PayloadAction<string>) => {
-      state.assets = state.assets.filter(asset => asset.id !== action.payload)
+      state.assets = state.assets.filter((asset) => asset.id !== action.payload)
     },
     addLiability: (state, action: PayloadAction<Liability>) => {
       state.liabilities.push(action.payload)
     },
     removeLiability: (state, action: PayloadAction<string>) => {
-      state.liabilities = state.liabilities.filter(liability => liability.id !== action.payload)
+      state.liabilities = state.liabilities.filter((liability) => liability.id !== action.payload)
     },
     updateCashOnHand: (state, action: PayloadAction<number>) => {
       state.cashOnHand = action.payload

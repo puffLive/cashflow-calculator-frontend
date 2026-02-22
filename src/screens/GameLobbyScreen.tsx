@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Copy, Check, Share2, Users, Crown, Clock, Settings } from 'lucide-react'
-import { useGetGameSessionQuery, useStartGameMutation, useGetAllPlayersQuery } from '@/services/gameApi'
+import {
+  useGetGameSessionQuery,
+  useStartGameMutation,
+  useGetAllPlayersQuery,
+} from '@/services/gameApi'
 import { useAppDispatch, useAppSelector } from '@/hooks/redux'
 import { selectCurrentPlayerId, selectIsHost } from '@/store/slices/gameSessionSlice'
 import { selectAllPlayers } from '@/store/slices/allPlayersSlice'
@@ -40,19 +44,23 @@ const PlayerListItem = ({ player, isCurrentPlayer }: PlayerListItemProps) => {
     if (!profession) return 'No profession selected'
     return profession
       .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
   }
 
   return (
-    <div className={`flex items-center justify-between p-4 rounded-lg ${
-      isCurrentPlayer ? 'bg-blue-50 border-2 border-blue-200' : 'bg-gray-50'
-    }`}>
+    <div
+      className={`flex items-center justify-between p-4 rounded-lg ${
+        isCurrentPlayer ? 'bg-blue-50 border-2 border-blue-200' : 'bg-gray-50'
+      }`}
+    >
       <div className="flex items-center space-x-3">
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold ${
-          player.isHost ? 'bg-yellow-500' : 'bg-gray-400'
-        }`}>
-          {player.isHost ? <Crown className="w-5 h-5" /> : (player.name?.[0]?.toUpperCase() || '?')}
+        <div
+          className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold ${
+            player.isHost ? 'bg-yellow-500' : 'bg-gray-400'
+          }`}
+        >
+          {player.isHost ? <Crown className="w-5 h-5" /> : player.name?.[0]?.toUpperCase() || '?'}
         </div>
         <div>
           <p className="font-semibold text-gray-800">
@@ -60,9 +68,7 @@ const PlayerListItem = ({ player, isCurrentPlayer }: PlayerListItemProps) => {
             {isCurrentPlayer && <span className="ml-2 text-sm text-blue-600">(You)</span>}
             {player.isHost && <span className="ml-2 text-sm text-yellow-600">(Host)</span>}
           </p>
-          <p className="text-sm text-gray-500">
-            {formatProfession(player.profession)}
-          </p>
+          <p className="text-sm text-gray-500">{formatProfession(player.profession)}</p>
         </div>
       </div>
       <div className="flex items-center space-x-2">
@@ -89,24 +95,24 @@ const GameLobbyScreen = () => {
     { skip: !roomCode, pollingInterval: 5000 }
   )
 
-  const { isLoading: isLoadingPlayers } = useGetAllPlayersQuery(
-    roomCode || '',
-    { skip: !roomCode, pollingInterval: 3000 }
-  )
+  const { isLoading: isLoadingPlayers } = useGetAllPlayersQuery(roomCode || '', {
+    skip: !roomCode,
+    pollingInterval: 3000,
+  })
 
   const [startGame, { isLoading: isStarting }] = useStartGameMutation()
 
   // Check if current player has completed setup
-  const currentPlayer = players.find(p => p.id === currentPlayerId)
+  const currentPlayer = players.find((p) => p.id === currentPlayerId)
   const isReadyFromStore = currentPlayer?.isReady || false
   const isReadyFromSession = sessionStorage.getItem('isPlayerReady') === 'true'
   const isReady = isReadyFromStore || isReadyFromSession
-  const allPlayersReady = players.length > 0 && players.every(p => p.isReady)
+  const allPlayersReady = players.length > 0 && players.every((p) => p.isReady)
 
   // Redirect to setup if player is not ready
   useEffect(() => {
     if (currentPlayerId && !isReady && players.length > 0) {
-      const currentPlayer = players.find(p => p.id === currentPlayerId)
+      const currentPlayer = players.find((p) => p.id === currentPlayerId)
       if (currentPlayer && !currentPlayer.isReady) {
         // Player needs to complete setup
         navigate(buildRoute(ROUTES.GAME_SETUP, { roomCode: roomCode || '' }), { replace: true })
@@ -127,12 +133,14 @@ const GameLobbyScreen = () => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
 
-      dispatch(addNotification({
-        id: Date.now().toString(),
-        type: 'success',
-        message: 'Room code copied!',
-        duration: 2000
-      }))
+      dispatch(
+        addNotification({
+          id: Date.now().toString(),
+          type: 'success',
+          message: 'Room code copied!',
+          duration: 2000,
+        })
+      )
     }
   }
 
@@ -142,7 +150,7 @@ const GameLobbyScreen = () => {
         await navigator.share({
           title: 'Join my Cashflow game!',
           text: `Join my Cashflow game with room code: ${roomCode}`,
-          url: window.location.origin + `/join?code=${roomCode}`
+          url: window.location.origin + `/join?code=${roomCode}`,
         })
       } catch (error) {
         console.log('Share cancelled or failed')
@@ -159,22 +167,26 @@ const GameLobbyScreen = () => {
 
     try {
       await startGame({ roomCode, playerId: currentPlayerId }).unwrap()
-      dispatch(addNotification({
-        id: Date.now().toString(),
-        type: 'success',
-        message: 'Game started!',
-        duration: 3000
-      }))
+      dispatch(
+        addNotification({
+          id: Date.now().toString(),
+          type: 'success',
+          message: 'Game started!',
+          duration: 3000,
+        })
+      )
     } catch (error: any) {
       console.error('Failed to start game:', error)
       console.error('Error data:', error?.data)
       console.error('Error status:', error?.status)
-      dispatch(addNotification({
-        id: Date.now().toString(),
-        type: 'error',
-        message: 'Failed to start game. Please try again.',
-        duration: 5000
-      }))
+      dispatch(
+        addNotification({
+          id: Date.now().toString(),
+          type: 'error',
+          message: 'Failed to start game. Please try again.',
+          duration: 5000,
+        })
+      )
     }
   }
 
@@ -191,7 +203,9 @@ const GameLobbyScreen = () => {
               <p className="text-gray-600">Waiting for all players to be ready...</p>
             </div>
             <div className="flex items-center space-x-2">
-              <span className={`w-3 h-3 rounded-full ${socketService.isConnected() ? 'bg-green-500' : 'bg-red-500'}`}></span>
+              <span
+                className={`w-3 h-3 rounded-full ${socketService.isConnected() ? 'bg-green-500' : 'bg-red-500'}`}
+              ></span>
               <span className="text-sm text-gray-600">
                 {socketService.isConnected() ? 'Connected' : 'Disconnected'}
               </span>
@@ -232,26 +246,20 @@ const GameLobbyScreen = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <Users className="w-6 h-6 text-gray-600" />
-              <h2 className="text-xl font-semibold text-gray-800">
-                Players ({players.length}/6)
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-800">Players ({players.length}/6)</h2>
             </div>
-            <div className="text-sm text-gray-500">
-              {6 - players.length} slots available
-            </div>
+            <div className="text-sm text-gray-500">{6 - players.length} slots available</div>
           </div>
 
           <div className="space-y-3">
             {isLoading ? (
-              <div className="text-center py-8 text-gray-500">
-                Loading players...
-              </div>
+              <div className="text-center py-8 text-gray-500">Loading players...</div>
             ) : players.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 No players yet. Share the room code to invite friends!
               </div>
             ) : (
-              players.map(player => (
+              players.map((player) => (
                 <PlayerListItem
                   key={player.id}
                   player={player}
@@ -294,9 +302,7 @@ const GameLobbyScreen = () => {
                 </>
               ) : (
                 <>
-                  <p className="text-gray-600 mb-4">
-                    Waiting for all players to complete setup...
-                  </p>
+                  <p className="text-gray-600 mb-4">Waiting for all players to complete setup...</p>
                   <button
                     disabled
                     className="btn-primary px-8 py-3 text-lg font-bold mx-auto opacity-50 cursor-not-allowed mb-3"
@@ -320,9 +326,7 @@ const GameLobbyScreen = () => {
                 <Check className="w-5 h-5" />
                 <span className="font-semibold">You're ready!</span>
               </div>
-              <p className="text-gray-600 mb-3">
-                Waiting for the host to start the game...
-              </p>
+              <p className="text-gray-600 mb-3">Waiting for the host to start the game...</p>
               <button
                 onClick={handleSetupPlayer}
                 className="text-blue-600 hover:text-blue-700 text-sm underline"

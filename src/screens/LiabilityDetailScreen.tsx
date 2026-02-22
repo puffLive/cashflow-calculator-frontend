@@ -57,8 +57,10 @@ const LiabilityDetailScreen = () => {
     )
   }
 
-  const totalDebt = player.liabilities?.reduce((sum, liability) => sum + liability.currentBalance, 0) || 0
-  const totalMonthlyPayment = player.liabilities?.reduce((sum, liability) => sum + liability.monthlyPayment, 0) || 0
+  const totalDebt =
+    player.liabilities?.reduce((sum, liability) => sum + liability.currentBalance, 0) || 0
+  const totalMonthlyPayment =
+    player.liabilities?.reduce((sum, liability) => sum + liability.monthlyPayment, 0) || 0
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
@@ -76,7 +78,10 @@ const LiabilityDetailScreen = () => {
               <CreditCard className="h-5 w-5 text-red-600" />
               <div>
                 <h1 className="text-lg font-bold text-gray-900">Liabilities</h1>
-                <p className="text-sm text-gray-600">{player.liabilities?.length || 0} debt{player.liabilities?.length !== 1 ? 's' : ''}</p>
+                <p className="text-sm text-gray-600">
+                  {player.liabilities?.length || 0} debt
+                  {player.liabilities?.length !== 1 ? 's' : ''}
+                </p>
               </div>
             </div>
           </div>
@@ -88,7 +93,10 @@ const LiabilityDetailScreen = () => {
         {player.liabilities && player.liabilities.length > 0 ? (
           <>
             {player.liabilities.map((liability, index) => (
-              <div key={index} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+              <div
+                key={index}
+                className="bg-white rounded-lg border border-gray-200 overflow-hidden"
+              >
                 <div className="p-4">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="bg-red-50 rounded-lg p-2">
@@ -96,22 +104,30 @@ const LiabilityDetailScreen = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold text-gray-900 mb-1">{liability.name}</h3>
-                      <p className="text-xs text-gray-500 capitalize">{liability.type.replace('_', ' ')}</p>
+                      <p className="text-xs text-gray-500 capitalize">
+                        {liability.type.replace('_', ' ')}
+                      </p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     <div>
                       <p className="text-xs text-gray-500 mb-1">Original Amount</p>
-                      <p className="font-semibold text-gray-900">{formatCurrency(liability.originalAmount)}</p>
+                      <p className="font-semibold text-gray-900">
+                        {formatCurrency(liability.originalAmount)}
+                      </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 mb-1">Current Balance</p>
-                      <p className="font-bold text-red-600">{formatCurrency(liability.currentBalance)}</p>
+                      <p className="font-bold text-red-600">
+                        {formatCurrency(liability.currentBalance)}
+                      </p>
                     </div>
                     <div className="col-span-2">
                       <p className="text-xs text-gray-500 mb-1">Monthly Payment</p>
-                      <p className="font-semibold text-gray-900">{formatCurrency(liability.monthlyPayment)}</p>
+                      <p className="font-semibold text-gray-900">
+                        {formatCurrency(liability.monthlyPayment)}
+                      </p>
                     </div>
                   </div>
 
@@ -121,11 +137,18 @@ const LiabilityDetailScreen = () => {
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-green-600 h-2 rounded-full transition-all"
-                          style={{ width: `${Math.max(0, ((liability.originalAmount - liability.currentBalance) / liability.originalAmount) * 100)}%` }}
+                          style={{
+                            width: `${Math.max(0, ((liability.originalAmount - liability.currentBalance) / liability.originalAmount) * 100)}%`,
+                          }}
                         />
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        {Math.round(((liability.originalAmount - liability.currentBalance) / liability.originalAmount) * 100)}% paid off
+                        {Math.round(
+                          ((liability.originalAmount - liability.currentBalance) /
+                            liability.originalAmount) *
+                            100
+                        )}
+                        % paid off
                       </p>
                     </div>
                   )}
@@ -179,7 +202,8 @@ const LiabilityDetailScreen = () => {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h3 className="font-semibold text-blue-900 mb-2">💡 Tip</h3>
             <p className="text-sm text-blue-800">
-              Paying off debts reduces your monthly expenses and increases your cashflow. Focus on high-interest debts first for maximum impact.
+              Paying off debts reduces your monthly expenses and increases your cashflow. Focus on
+              high-interest debts first for maximum impact.
             </p>
           </div>
         )}

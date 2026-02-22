@@ -14,7 +14,7 @@ export const PROFESSIONS: Profession[] = [
     perChildExpense: 70,
     bankLoan: 700,
     description: 'Building maintenance professional with stable income',
-    difficulty: 'easy'
+    difficulty: 'easy',
   },
   {
     id: 'secretary',
@@ -29,7 +29,7 @@ export const PROFESSIONS: Profession[] = [
     perChildExpense: 140,
     bankLoan: 930,
     description: 'Administrative professional with organizational expertise',
-    difficulty: 'easy'
+    difficulty: 'easy',
   },
   {
     id: 'truck_driver',
@@ -44,7 +44,7 @@ export const PROFESSIONS: Profession[] = [
     perChildExpense: 140,
     bankLoan: 930,
     description: 'Transportation professional on the open road',
-    difficulty: 'easy'
+    difficulty: 'easy',
   },
   {
     id: 'mechanic',
@@ -59,7 +59,7 @@ export const PROFESSIONS: Profession[] = [
     perChildExpense: 110,
     bankLoan: 770,
     description: 'Skilled technician keeping vehicles running',
-    difficulty: 'easy'
+    difficulty: 'easy',
   },
   {
     id: 'police_officer',
@@ -74,7 +74,7 @@ export const PROFESSIONS: Profession[] = [
     perChildExpense: 160,
     bankLoan: 1170,
     description: 'Law enforcement professional serving the community',
-    difficulty: 'medium'
+    difficulty: 'medium',
   },
   {
     id: 'nurse',
@@ -89,7 +89,7 @@ export const PROFESSIONS: Profession[] = [
     perChildExpense: 170,
     bankLoan: 1170,
     description: 'Healthcare professional caring for patients',
-    difficulty: 'medium'
+    difficulty: 'medium',
   },
   {
     id: 'teacher',
@@ -104,7 +104,7 @@ export const PROFESSIONS: Profession[] = [
     perChildExpense: 180,
     bankLoan: 1160,
     description: 'Educator shaping young minds',
-    difficulty: 'medium'
+    difficulty: 'medium',
   },
   {
     id: 'engineer',
@@ -119,7 +119,7 @@ export const PROFESSIONS: Profession[] = [
     perChildExpense: 250,
     bankLoan: 1740,
     description: 'Technical professional solving complex problems',
-    difficulty: 'medium'
+    difficulty: 'medium',
   },
   {
     id: 'business_manager',
@@ -134,7 +134,7 @@ export const PROFESSIONS: Profession[] = [
     perChildExpense: 240,
     bankLoan: 1720,
     description: 'Corporate professional managing teams',
-    difficulty: 'medium'
+    difficulty: 'medium',
   },
   {
     id: 'airline_pilot',
@@ -149,7 +149,7 @@ export const PROFESSIONS: Profession[] = [
     perChildExpense: 480,
     bankLoan: 2650,
     description: 'Aviation professional flying the skies',
-    difficulty: 'hard'
+    difficulty: 'hard',
   },
   {
     id: 'lawyer',
@@ -164,7 +164,7 @@ export const PROFESSIONS: Profession[] = [
     perChildExpense: 380,
     bankLoan: 2130,
     description: 'Legal professional advocating for clients',
-    difficulty: 'hard'
+    difficulty: 'hard',
   },
   {
     id: 'doctor',
@@ -179,6 +179,6 @@ export const PROFESSIONS: Profession[] = [
     perChildExpense: 640,
     bankLoan: 3600,
     description: 'Medical professional healing patients',
-    difficulty: 'hard'
-  }
+    difficulty: 'hard',
+  },
 ]

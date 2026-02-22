@@ -31,6 +31,7 @@ import SessionExpiredModal from '@/components/SessionExpiredModal'
 import ReconnectionHandler from '@/components/ReconnectionHandler'
 import { GameSocketProvider } from '@/components/GameSocketProvider'
 import { NotificationToast } from '@/components/NotificationToast'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { useAppSelector } from '@/hooks/redux'
 import { selectModalOpen } from '@/store/slices/uiSlice'
 
@@ -62,32 +63,203 @@ function App() {
         <Route path="/create" element={<CreateGameScreen />} />
         <Route path="/join" element={<JoinGameScreen />} />
 
-        {/* Game routes - all wrapped with GameSocketProvider for socket connection */}
-        <Route path={ROUTES.GAME_LOBBY} element={<GameSocketProvider><GameLobbyScreen /></GameSocketProvider>} />
-        <Route path={ROUTES.GAME_SETUP} element={<GameSocketProvider><PlayerSetupScreen /></GameSocketProvider>} />
-        <Route path={ROUTES.GAME_DASHBOARD} element={<GameSocketProvider><DashboardScreen /></GameSocketProvider>} />
-        <Route path="/game/:roomCode/players" element={<GameSocketProvider><PlayersOverviewScreen /></GameSocketProvider>} />
-        <Route path="/game/:roomCode/history" element={<GameSocketProvider><TransactionHistoryScreen /></GameSocketProvider>} />
+        {/* Game routes - all wrapped with ProtectedRoute and GameSocketProvider */}
+        <Route
+          path={ROUTES.GAME_LOBBY}
+          element={
+            <ProtectedRoute>
+              <GameSocketProvider>
+                <GameLobbyScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.GAME_SETUP}
+          element={
+            <ProtectedRoute>
+              <GameSocketProvider>
+                <PlayerSetupScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.GAME_DASHBOARD}
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <DashboardScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:roomCode/players"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <PlayersOverviewScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:roomCode/history"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <TransactionHistoryScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
 
         {/* Detail screens */}
-        <Route path="/game/:roomCode/income" element={<GameSocketProvider><IncomeDetailScreen /></GameSocketProvider>} />
-        <Route path="/game/:roomCode/expenses" element={<GameSocketProvider><ExpenseDetailScreen /></GameSocketProvider>} />
-        <Route path="/game/:roomCode/assets" element={<GameSocketProvider><AssetDetailScreen /></GameSocketProvider>} />
-        <Route path="/game/:roomCode/liabilities" element={<GameSocketProvider><LiabilityDetailScreen /></GameSocketProvider>} />
+        <Route
+          path="/game/:roomCode/income"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <IncomeDetailScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:roomCode/expenses"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <ExpenseDetailScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:roomCode/assets"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <AssetDetailScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:roomCode/liabilities"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <LiabilityDetailScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
 
         {/* Transaction routes */}
-        <Route path="/game/:roomCode/transaction/buy" element={<GameSocketProvider><BuyTransactionScreen /></GameSocketProvider>} />
-        <Route path="/game/:roomCode/transaction/sell" element={<GameSocketProvider><SellTransactionScreen /></GameSocketProvider>} />
-        <Route path="/game/:roomCode/transaction/loan" element={<GameSocketProvider><TakeLoanScreen /></GameSocketProvider>} />
-        <Route path="/game/:roomCode/transaction/payoff" element={<GameSocketProvider><PayOffLoanScreen /></GameSocketProvider>} />
-        <Route path="/game/:roomCode/transaction/market" element={<GameSocketProvider><MarketEventScreen /></GameSocketProvider>} />
-        <Route path="/game/:roomCode/transaction/collect" element={<GameSocketProvider><CollectScreen /></GameSocketProvider>} />
-        <Route path="/game/:roomCode/transaction/pay" element={<GameSocketProvider><PayTransactionScreen /></GameSocketProvider>} />
+        <Route
+          path="/game/:roomCode/transaction/buy"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <BuyTransactionScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:roomCode/transaction/sell"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <SellTransactionScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:roomCode/transaction/loan"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <TakeLoanScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:roomCode/transaction/payoff"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <PayOffLoanScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:roomCode/transaction/market"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <MarketEventScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:roomCode/transaction/collect"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <CollectScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:roomCode/transaction/pay"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <PayTransactionScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
 
         {/* Audit routes */}
-        <Route path="/game/:roomCode/audits" element={<GameSocketProvider><PendingAuditsScreen /></GameSocketProvider>} />
-        <Route path="/game/:roomCode/audit/:transactionId" element={<GameSocketProvider><AuditReviewScreen /></GameSocketProvider>} />
-        <Route path="/game/:roomCode/audit/handoff" element={<GameSocketProvider><HandoffAuditScreen /></GameSocketProvider>} />
+        <Route
+          path="/game/:roomCode/audits"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <PendingAuditsScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:roomCode/audit/:transactionId"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <AuditReviewScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:roomCode/audit/handoff"
+          element={
+            <ProtectedRoute requireSetup>
+              <GameSocketProvider>
+                <HandoffAuditScreen />
+              </GameSocketProvider>
+            </ProtectedRoute>
+          }
+        />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

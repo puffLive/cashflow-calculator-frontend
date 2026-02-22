@@ -8,8 +8,21 @@ export interface SocketEvents {
   'transaction:pending': { transactionId: string; playerId: string; type: string }
   'transaction:finalized': { transactionId: string; approved: boolean; playerData?: any }
   'transaction:rejected': { transactionId: string; note: string }
-  'payment:requested': { transactionId: string; collectorId: string; collectorName: string; amount: number; description: string }
-  'audit:requested': { transactionId: string; playerId: string; playerName: string; type: string; description: string; impact?: any }
+  'payment:requested': {
+    transactionId: string
+    collectorId: string
+    collectorName: string
+    amount: number
+    description: string
+  }
+  'audit:requested': {
+    transactionId: string
+    playerId: string
+    playerName: string
+    type: string
+    description: string
+    impact?: any
+  }
   'payday:collected': { playerId: string; amount: number }
   'player:updated': { playerId: string; data: any }
   'player:disconnected': { playerId: string }
@@ -77,7 +90,7 @@ class SocketService {
         console.error('[SOCKET] Error details:', {
           message: error.message,
           type: error.type,
-          description: error.description
+          description: error.description,
         })
         // Don't reject immediately on first error - let it retry
         // Only reject after all reconnection attempts fail
@@ -184,7 +197,10 @@ class SocketService {
       this.eventHandlers.set(eventName, new Set())
     }
     this.eventHandlers.get(eventName)?.add(callback)
-    console.log(`[SOCKET] Handler registered for: ${eventName}, total handlers:`, this.eventHandlers.get(eventName)?.size)
+    console.log(
+      `[SOCKET] Handler registered for: ${eventName}, total handlers:`,
+      this.eventHandlers.get(eventName)?.size
+    )
   }
 
   offEvent<K extends keyof SocketEvents>(

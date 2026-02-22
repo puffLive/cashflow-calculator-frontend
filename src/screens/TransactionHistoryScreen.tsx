@@ -2,7 +2,22 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useGetTransactionsQuery, useUndoTransactionMutation } from '@/services/transactionApi'
 import type { Transaction } from '@/services/transactionApi'
-import { ArrowLeft, ChevronDown, ChevronUp, Filter, RotateCcw, TrendingUp, TrendingDown, DollarSign, Building2, Zap, Check, X, Clock, AlertCircle } from 'lucide-react'
+import {
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp,
+  Filter,
+  RotateCcw,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Building2,
+  Zap,
+  Check,
+  X,
+  Clock,
+  AlertCircle,
+} from 'lucide-react'
 import BottomNavBar from '@/components/BottomNavBar'
 
 const TransactionHistoryScreen = () => {
@@ -25,34 +40,58 @@ const TransactionHistoryScreen = () => {
 
   const getTransactionIcon = (type: Transaction['type']) => {
     switch (type) {
-      case 'buy': return TrendingUp
-      case 'sell': return TrendingDown
-      case 'payday': return DollarSign
-      case 'loan': return Building2
-      case 'market_event': return Zap
-      default: return DollarSign
+      case 'buy':
+        return TrendingUp
+      case 'sell':
+        return TrendingDown
+      case 'payday':
+        return DollarSign
+      case 'loan':
+        return Building2
+      case 'market_event':
+        return Zap
+      default:
+        return DollarSign
     }
   }
 
   const getTransactionColor = (type: Transaction['type']) => {
     switch (type) {
-      case 'buy': return 'text-green-600 bg-green-50'
-      case 'sell': return 'text-blue-600 bg-blue-50'
-      case 'payday': return 'text-emerald-600 bg-emerald-50'
-      case 'loan': return 'text-red-600 bg-red-50'
-      case 'market_event': return 'text-amber-600 bg-amber-50'
-      default: return 'text-gray-600 bg-gray-50'
+      case 'buy':
+        return 'text-green-600 bg-green-50'
+      case 'sell':
+        return 'text-blue-600 bg-blue-50'
+      case 'payday':
+        return 'text-emerald-600 bg-emerald-50'
+      case 'loan':
+        return 'text-red-600 bg-red-50'
+      case 'market_event':
+        return 'text-amber-600 bg-amber-50'
+      default:
+        return 'text-gray-600 bg-gray-50'
     }
   }
 
   const getStatusBadge = (status: Transaction['status']) => {
     switch (status) {
       case 'approved':
-        return <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium inline-flex items-center gap-1"><Check className="h-3 w-3" /> Approved</span>
+        return (
+          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium inline-flex items-center gap-1">
+            <Check className="h-3 w-3" /> Approved
+          </span>
+        )
       case 'pending':
-        return <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-medium inline-flex items-center gap-1"><Clock className="h-3 w-3" /> Pending</span>
+        return (
+          <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-medium inline-flex items-center gap-1">
+            <Clock className="h-3 w-3" /> Pending
+          </span>
+        )
       case 'rejected':
-        return <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded font-medium inline-flex items-center gap-1"><X className="h-3 w-3" /> Rejected</span>
+        return (
+          <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded font-medium inline-flex items-center gap-1">
+            <X className="h-3 w-3" /> Rejected
+          </span>
+        )
     }
   }
 
@@ -72,18 +111,24 @@ const TransactionHistoryScreen = () => {
       day: 'numeric',
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
     })
   }
 
   const getTransactionDescription = (tx: Transaction) => {
     switch (tx.type) {
-      case 'buy': return `Bought ${tx.details.assetType || 'asset'}`
-      case 'sell': return `Sold ${tx.details.assetType || 'asset'}`
-      case 'payday': return 'Collected PAYDAY'
-      case 'loan': return tx.subType === 'payoff' ? 'Paid off loan' : 'Took a loan'
-      case 'market_event': return `${tx.subType?.replace('_', ' ') || 'Market event'}`
-      default: return tx.type
+      case 'buy':
+        return `Bought ${tx.details.assetType || 'asset'}`
+      case 'sell':
+        return `Sold ${tx.details.assetType || 'asset'}`
+      case 'payday':
+        return 'Collected PAYDAY'
+      case 'loan':
+        return tx.subType === 'payoff' ? 'Paid off loan' : 'Took a loan'
+      case 'market_event':
+        return `${tx.subType?.replace('_', ' ') || 'Market event'}`
+      default:
+        return tx.type
     }
   }
 
@@ -124,7 +169,10 @@ const TransactionHistoryScreen = () => {
             </button>
             <div className="flex-1">
               <h1 className="text-lg font-bold text-gray-900">Transaction History</h1>
-              <p className="text-sm text-gray-600">{filteredTransactions.length} transaction{filteredTransactions.length !== 1 ? 's' : ''}</p>
+              <p className="text-sm text-gray-600">
+                {filteredTransactions.length} transaction
+                {filteredTransactions.length !== 1 ? 's' : ''}
+              </p>
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -238,8 +286,11 @@ const TransactionHistoryScreen = () => {
                           <p className="text-xs text-gray-500">{formatTimestamp(tx.timestamp)}</p>
                         </div>
                         {cashDelta !== undefined && (
-                          <span className={`text-sm font-bold ${cashDelta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {cashDelta >= 0 ? '+' : ''}{formatCurrency(cashDelta)}
+                          <span
+                            className={`text-sm font-bold ${cashDelta >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                          >
+                            {cashDelta >= 0 ? '+' : ''}
+                            {formatCurrency(cashDelta)}
                           </span>
                         )}
                       </div>
@@ -259,18 +310,24 @@ const TransactionHistoryScreen = () => {
                 {/* Expanded Details */}
                 {isExpanded && tx.financialImpact && (
                   <div className="border-t border-gray-200 p-3 bg-gray-50 text-xs space-y-2">
-                    {tx.financialImpact.incomeDelta !== undefined && tx.financialImpact.incomeDelta !== 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Income Change:</span>
-                        <span className="font-medium text-green-600">+{formatCurrency(tx.financialImpact.incomeDelta)}</span>
-                      </div>
-                    )}
-                    {tx.financialImpact.expenseDelta !== undefined && tx.financialImpact.expenseDelta !== 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Expense Change:</span>
-                        <span className="font-medium text-red-600">+{formatCurrency(tx.financialImpact.expenseDelta)}</span>
-                      </div>
-                    )}
+                    {tx.financialImpact.incomeDelta !== undefined &&
+                      tx.financialImpact.incomeDelta !== 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Income Change:</span>
+                          <span className="font-medium text-green-600">
+                            +{formatCurrency(tx.financialImpact.incomeDelta)}
+                          </span>
+                        </div>
+                      )}
+                    {tx.financialImpact.expenseDelta !== undefined &&
+                      tx.financialImpact.expenseDelta !== 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Expense Change:</span>
+                          <span className="font-medium text-red-600">
+                            +{formatCurrency(tx.financialImpact.expenseDelta)}
+                          </span>
+                        </div>
+                      )}
                     {tx.auditorNote && (
                       <div className="pt-2 border-t border-gray-200">
                         <p className="text-gray-600 mb-1">Auditor Note:</p>
@@ -294,11 +351,16 @@ const TransactionHistoryScreen = () => {
               <p className="text-sm text-amber-900 mb-2">
                 <span className="font-semibold">This will reverse:</span>
               </p>
-              <p className="text-sm text-amber-800">{getTransactionDescription(lastApprovedTransaction)}</p>
-              <p className="text-xs text-amber-700 mt-1">{formatTimestamp(lastApprovedTransaction.timestamp)}</p>
+              <p className="text-sm text-amber-800">
+                {getTransactionDescription(lastApprovedTransaction)}
+              </p>
+              <p className="text-xs text-amber-700 mt-1">
+                {formatTimestamp(lastApprovedTransaction.timestamp)}
+              </p>
             </div>
             <p className="text-sm text-gray-600 mb-6">
-              This will reverse all financial changes and require auditor approval. This action cannot be undone.
+              This will reverse all financial changes and require auditor approval. This action
+              cannot be undone.
             </p>
             <div className="flex gap-3">
               <button

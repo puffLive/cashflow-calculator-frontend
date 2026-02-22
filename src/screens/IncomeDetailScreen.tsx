@@ -73,7 +73,9 @@ const IncomeDetailScreen = () => {
               <TrendingUp className="h-5 w-5 text-green-600" />
               <div>
                 <h1 className="text-lg font-bold text-gray-900">Income Details</h1>
-                <p className="text-sm text-gray-600">Total: {formatCurrency(player.totalIncome)}/mo</p>
+                <p className="text-sm text-gray-600">
+                  Total: {formatCurrency(player.totalIncome)}/mo
+                </p>
               </div>
             </div>
           </div>
@@ -89,7 +91,9 @@ const IncomeDetailScreen = () => {
           </div>
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Monthly Salary</span>
-            <span className="text-lg font-bold text-green-600">{formatCurrency(player.salary)}</span>
+            <span className="text-lg font-bold text-green-600">
+              {formatCurrency(player.salary)}
+            </span>
           </div>
         </div>
 
@@ -102,19 +106,28 @@ const IncomeDetailScreen = () => {
             </div>
             <div className="space-y-3">
               {player.income.map((source, index) => (
-                <div key={index} className="flex justify-between items-start py-2 border-b border-gray-100 last:border-0">
+                <div
+                  key={index}
+                  className="flex justify-between items-start py-2 border-b border-gray-100 last:border-0"
+                >
                   <div className="flex-1">
                     <p className="font-medium text-gray-900">{source.name || 'Income Source'}</p>
-                    <p className="text-xs text-gray-500 capitalize">{source.type?.replace('_', ' ')}</p>
+                    <p className="text-xs text-gray-500 capitalize">
+                      {source.type?.replace('_', ' ')}
+                    </p>
                   </div>
-                  <span className="font-bold text-green-600">{formatCurrency(source.amount)}/mo</span>
+                  <span className="font-bold text-green-600">
+                    {formatCurrency(source.amount)}/mo
+                  </span>
                 </div>
               ))}
             </div>
             <div className="mt-4 pt-4 border-t border-gray-200">
               <div className="flex justify-between items-center">
                 <span className="font-medium text-gray-700">Total Passive Income</span>
-                <span className="text-lg font-bold text-green-600">{formatCurrency(player.passiveIncome)}</span>
+                <span className="text-lg font-bold text-green-600">
+                  {formatCurrency(player.passiveIncome)}
+                </span>
               </div>
             </div>
           </div>

@@ -38,7 +38,7 @@ const HandoffAuditScreen = () => {
         roomCode,
         transactionId,
         auditorId,
-        action: 'approve'
+        action: 'approve',
       }).unwrap()
 
       navigate(`/game/${roomCode}/dashboard`)
@@ -56,7 +56,7 @@ const HandoffAuditScreen = () => {
         transactionId,
         auditorId,
         action: 'reject',
-        note: rejectionNote
+        note: rejectionNote,
       }).unwrap()
 
       navigate(`/game/${roomCode}/dashboard`)
@@ -94,7 +94,8 @@ const HandoffAuditScreen = () => {
           </div>
           <div className="bg-purple-800 bg-opacity-50 rounded-lg px-3 py-2">
             <p className="text-xs text-purple-100">
-              👤 You are now reviewing as the auditor. Carefully verify all details before approving.
+              👤 You are now reviewing as the auditor. Carefully verify all details before
+              approving.
             </p>
           </div>
         </div>
@@ -120,7 +121,9 @@ const HandoffAuditScreen = () => {
           <div className="space-y-2">
             {Object.entries(transactionDetails).map(([key, value]) => (
               <div key={key} className="flex justify-between text-sm">
-                <span className="text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
+                <span className="text-gray-600 capitalize">
+                  {key.replace(/([A-Z])/g, ' $1').trim()}:
+                </span>
                 <span className="font-medium text-gray-900">
                   {typeof value === 'number' ? formatCurrency(value) : String(value)}
                 </span>
@@ -132,8 +135,8 @@ const HandoffAuditScreen = () => {
         {/* Impact Summary Note */}
         <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-4">
           <p className="text-sm text-purple-900">
-            <span className="font-semibold">⚠️ Important:</span> This is same-device audit mode. After reviewing,
-            you can return the device to the player.
+            <span className="font-semibold">⚠️ Important:</span> This is same-device audit mode.
+            After reviewing, you can return the device to the player.
           </p>
         </div>
       </div>

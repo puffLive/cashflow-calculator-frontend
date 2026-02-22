@@ -21,10 +21,14 @@ const PlayerCard = ({ player, isCurrentPlayer = false }: PlayerCardProps) => {
 
   const getConnectionStatusIcon = () => {
     switch (player.connectionStatus) {
-      case 'connected': return <Wifi className="h-4 w-4 text-green-600" />
-      case 'disconnected': return <WifiOff className="h-4 w-4 text-amber-600" />
-      case 'removed': return <WifiOff className="h-4 w-4 text-gray-400" />
-      default: return null
+      case 'connected':
+        return <Wifi className="h-4 w-4 text-green-600" />
+      case 'disconnected':
+        return <WifiOff className="h-4 w-4 text-amber-600" />
+      case 'removed':
+        return <WifiOff className="h-4 w-4 text-gray-400" />
+      default:
+        return null
     }
   }
 
@@ -59,7 +63,9 @@ const PlayerCard = ({ player, isCurrentPlayer = false }: PlayerCardProps) => {
                   </span>
                 )}
               </div>
-              <p className="text-sm text-gray-600 truncate">{player.profession || 'Setting up...'}</p>
+              <p className="text-sm text-gray-600 truncate">
+                {player.profession || 'Setting up...'}
+              </p>
 
               {/* Status Badges */}
               <div className="flex items-center gap-2 mt-2">
@@ -79,9 +85,7 @@ const PlayerCard = ({ player, isCurrentPlayer = false }: PlayerCardProps) => {
 
           {/* Connection Status & Expand Icon */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="flex items-center gap-1">
-              {getConnectionStatusIcon()}
-            </div>
+            <div className="flex items-center gap-1">{getConnectionStatusIcon()}</div>
             {isExpanded ? (
               <ChevronUp className="h-5 w-5 text-gray-400" />
             ) : (
@@ -108,7 +112,9 @@ const PlayerCard = ({ player, isCurrentPlayer = false }: PlayerCardProps) => {
           </div>
           <div className="text-center">
             <p className="text-xs text-gray-500 mb-1">PAYDAY</p>
-            <p className="text-sm font-bold text-green-600">{formatCurrency(player.paydayAmount)}</p>
+            <p className="text-sm font-bold text-green-600">
+              {formatCurrency(player.paydayAmount)}
+            </p>
           </div>
         </div>
       </button>
@@ -119,11 +125,15 @@ const PlayerCard = ({ player, isCurrentPlayer = false }: PlayerCardProps) => {
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Passive Income:</span>
-              <span className="font-medium text-green-600">{formatCurrency(player.passiveIncome)}</span>
+              <span className="font-medium text-green-600">
+                {formatCurrency(player.passiveIncome)}
+              </span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Total Expenses:</span>
-              <span className="font-medium text-red-600">{formatCurrency(player.totalExpenses)}</span>
+              <span className="font-medium text-red-600">
+                {formatCurrency(player.totalExpenses)}
+              </span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Assets Owned:</span>
@@ -136,7 +146,8 @@ const PlayerCard = ({ player, isCurrentPlayer = false }: PlayerCardProps) => {
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-xs font-medium text-gray-700">Fast Track Progress</span>
                   <span className="text-xs text-gray-500">
-                    {Math.min(100, Math.round((player.passiveIncome / player.totalExpenses) * 100))}%
+                    {Math.min(100, Math.round((player.passiveIncome / player.totalExpenses) * 100))}
+                    %
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -157,7 +168,8 @@ const PlayerCard = ({ player, isCurrentPlayer = false }: PlayerCardProps) => {
               <div className="mt-3 pt-3 border-t border-gray-200">
                 <p className="text-xs text-gray-600">
                   {player.connectionStatus === 'disconnected' && '⚠️ Player disconnected'}
-                  {player.connectionStatus === 'removed' && '❌ Player removed (disconnected too long)'}
+                  {player.connectionStatus === 'removed' &&
+                    '❌ Player removed (disconnected too long)'}
                 </p>
               </div>
             )}

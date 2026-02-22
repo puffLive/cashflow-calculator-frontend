@@ -75,7 +75,9 @@ const ExpenseDetailScreen = () => {
               <TrendingDown className="h-5 w-5 text-red-600" />
               <div>
                 <h1 className="text-lg font-bold text-gray-900">Expense Details</h1>
-                <p className="text-sm text-gray-600">Total: {formatCurrency(player.totalExpenses)}/mo</p>
+                <p className="text-sm text-gray-600">
+                  Total: {formatCurrency(player.totalExpenses)}/mo
+                </p>
               </div>
             </div>
           </div>
@@ -88,7 +90,10 @@ const ExpenseDetailScreen = () => {
           <h2 className="font-bold text-gray-900 mb-4">Monthly Expenses</h2>
           <div className="space-y-3">
             {expenseItems.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+              <div
+                key={index}
+                className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0"
+              >
                 <span className="text-gray-700">{item.name}</span>
                 <span className="font-bold text-red-600">{formatCurrency(item.amount)}</span>
               </div>
@@ -128,7 +133,9 @@ const ExpenseDetailScreen = () => {
             <div className="w-full bg-blue-200 rounded-full h-2">
               <div
                 className="bg-blue-600 h-2 rounded-full transition-all"
-                style={{ width: `${Math.min(100, (player.passiveIncome / player.totalExpenses) * 100)}%` }}
+                style={{
+                  width: `${Math.min(100, (player.passiveIncome / player.totalExpenses) * 100)}%`,
+                }}
               />
             </div>
             <p className="text-xs text-blue-700 mt-1 text-center">

@@ -38,9 +38,10 @@ const ProfessionCard = ({ profession, isSelected, onSelect }: ProfessionCardProp
       onClick={onSelect}
       className={`
         cursor-pointer transition-all duration-200 rounded-lg p-4 border-2
-        ${isSelected
-          ? 'border-blue-500 bg-blue-50 shadow-lg transform scale-105'
-          : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
+        ${
+          isSelected
+            ? 'border-blue-500 bg-blue-50 shadow-lg transform scale-105'
+            : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
         }
       `}
     >
@@ -49,7 +50,9 @@ const ProfessionCard = ({ profession, isSelected, onSelect }: ProfessionCardProp
           <Briefcase className="w-5 h-5 text-gray-600" />
           <h3 className="font-semibold text-lg text-gray-800">{profession.title}</h3>
         </div>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${getDifficultyColor()}`}>
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${getDifficultyColor()}`}
+        >
           {profession.difficulty}
         </span>
       </div>
@@ -66,7 +69,9 @@ const ProfessionCard = ({ profession, isSelected, onSelect }: ProfessionCardProp
         <div className="flex items-center space-x-1">
           <TrendingUp className="w-4 h-4 text-blue-500" />
           <span className="text-gray-600">Cashflow:</span>
-          <span className={`font-medium ${monthlyCashflow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <span
+            className={`font-medium ${monthlyCashflow >= 0 ? 'text-green-600' : 'text-red-600'}`}
+          >
             ${monthlyCashflow.toLocaleString()}
           </span>
         </div>
@@ -74,7 +79,9 @@ const ProfessionCard = ({ profession, isSelected, onSelect }: ProfessionCardProp
         <div className="col-span-2 flex items-center space-x-1">
           <AlertCircle className="w-4 h-4 text-yellow-500" />
           <span className="text-gray-600">Passive Income Needed:</span>
-          <span className="font-medium text-yellow-600">${passiveIncomeNeeded.toLocaleString()}</span>
+          <span className="font-medium text-yellow-600">
+            ${passiveIncomeNeeded.toLocaleString()}
+          </span>
         </div>
       </div>
 

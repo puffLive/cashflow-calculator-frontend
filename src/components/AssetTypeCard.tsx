@@ -9,15 +9,22 @@ interface AssetTypeCardProps {
   onSelect: () => void
 }
 
-const AssetTypeCard = ({ title, description, icon: Icon, isSelected, onSelect }: AssetTypeCardProps) => {
+const AssetTypeCard = ({
+  title,
+  description,
+  icon: Icon,
+  isSelected,
+  onSelect,
+}: AssetTypeCardProps) => {
   return (
     <div
       onClick={onSelect}
       className={`
         cursor-pointer transition-all duration-200 rounded-lg p-4 border-2
-        ${isSelected
-          ? 'border-blue-500 bg-blue-50 shadow-lg transform scale-105'
-          : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
+        ${
+          isSelected
+            ? 'border-blue-500 bg-blue-50 shadow-lg transform scale-105'
+            : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
         }
       `}
     >

@@ -54,7 +54,7 @@ const TakeLoanScreen = () => {
       cashOnHand: { before: cashBefore, after: cashAfter },
       totalExpenses: { before: expensesBefore, after: expensesAfter },
       paydayAmount: { before: paydayBefore, after: paydayAfter },
-      cashflow: { before: cashflowBefore, after: cashflowAfter }
+      cashflow: { before: cashflowBefore, after: cashflowAfter },
     }
   }
 
@@ -68,26 +68,30 @@ const TakeLoanScreen = () => {
       await takeLoan({
         roomCode,
         playerId,
-        amountIn1000s: loanIncrements
+        amountIn1000s: loanIncrements,
       }).unwrap()
 
-      dispatch(addNotification({
-        id: Date.now().toString(),
-        type: 'success',
-        message: 'Loan submitted for audit',
-        duration: 3000
-      }))
+      dispatch(
+        addNotification({
+          id: Date.now().toString(),
+          type: 'success',
+          message: 'Loan submitted for audit',
+          duration: 3000,
+        })
+      )
 
       navigate(`/game/${roomCode}/dashboard`)
     } catch (err: any) {
       console.error('Failed to submit loan:', err)
 
-      dispatch(addNotification({
-        id: Date.now().toString(),
-        type: 'error',
-        message: err?.data?.message || 'Failed to submit loan',
-        duration: 5000
-      }))
+      dispatch(
+        addNotification({
+          id: Date.now().toString(),
+          type: 'error',
+          message: err?.data?.message || 'Failed to submit loan',
+          duration: 5000,
+        })
+      )
     }
   }
 
@@ -124,7 +128,9 @@ const TakeLoanScreen = () => {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">Select Loan Amount</h2>
-              <p className="text-gray-600">Choose how much you want to borrow in $1,000 increments</p>
+              <p className="text-gray-600">
+                Choose how much you want to borrow in $1,000 increments
+              </p>
             </div>
 
             <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
@@ -178,7 +184,9 @@ const TakeLoanScreen = () => {
               <div className="pt-4 border-t border-gray-200 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700">Monthly Payment:</span>
-                  <span className="text-2xl font-bold text-red-600">${monthlyPayment.toLocaleString()}</span>
+                  <span className="text-2xl font-bold text-red-600">
+                    ${monthlyPayment.toLocaleString()}
+                  </span>
                 </div>
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
@@ -198,7 +206,8 @@ const TakeLoanScreen = () => {
 
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                   <p className="text-xs text-yellow-800">
-                    <span className="font-semibold">Note:</span> Bank loans add ${monthlyPayment.toLocaleString()}/month to your expenses until paid off
+                    <span className="font-semibold">Note:</span> Bank loans add $
+                    {monthlyPayment.toLocaleString()}/month to your expenses until paid off
                   </p>
                 </div>
               </div>

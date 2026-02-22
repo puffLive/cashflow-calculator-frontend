@@ -96,14 +96,57 @@ export const gameApi = apiSlice.injectEndpoints({
           const expensesArray = []
           if ((data as any).expenses) {
             const exp = (data as any).expenses
-            if (exp.taxes) expensesArray.push({ id: 'taxes', name: 'Taxes', amount: exp.taxes, type: 'fixed' })
-            if (exp.mortgagePayment) expensesArray.push({ id: 'mortgage', name: 'Mortgage Payment', amount: exp.mortgagePayment, type: 'fixed' })
-            if (exp.schoolLoanPayment) expensesArray.push({ id: 'schoolLoan', name: 'School Loan Payment', amount: exp.schoolLoanPayment, type: 'fixed' })
-            if (exp.carLoanPayment) expensesArray.push({ id: 'carLoan', name: 'Car Loan Payment', amount: exp.carLoanPayment, type: 'fixed' })
-            if (exp.creditCardPayment) expensesArray.push({ id: 'creditCard', name: 'Credit Card Payment', amount: exp.creditCardPayment, type: 'fixed' })
-            if (exp.bankLoanPayment) expensesArray.push({ id: 'bankLoan', name: 'Bank Loan Payment', amount: exp.bankLoanPayment, type: 'fixed' })
-            if (exp.otherExpenses) expensesArray.push({ id: 'other', name: 'Other Expenses', amount: exp.otherExpenses, type: 'fixed' })
-            if (exp.childExpenses) expensesArray.push({ id: 'children', name: 'Child Expenses', amount: exp.childExpenses, type: 'variable' })
+            if (exp.taxes)
+              expensesArray.push({ id: 'taxes', name: 'Taxes', amount: exp.taxes, type: 'fixed' })
+            if (exp.mortgagePayment)
+              expensesArray.push({
+                id: 'mortgage',
+                name: 'Mortgage Payment',
+                amount: exp.mortgagePayment,
+                type: 'fixed',
+              })
+            if (exp.schoolLoanPayment)
+              expensesArray.push({
+                id: 'schoolLoan',
+                name: 'School Loan Payment',
+                amount: exp.schoolLoanPayment,
+                type: 'fixed',
+              })
+            if (exp.carLoanPayment)
+              expensesArray.push({
+                id: 'carLoan',
+                name: 'Car Loan Payment',
+                amount: exp.carLoanPayment,
+                type: 'fixed',
+              })
+            if (exp.creditCardPayment)
+              expensesArray.push({
+                id: 'creditCard',
+                name: 'Credit Card Payment',
+                amount: exp.creditCardPayment,
+                type: 'fixed',
+              })
+            if (exp.bankLoanPayment)
+              expensesArray.push({
+                id: 'bankLoan',
+                name: 'Bank Loan Payment',
+                amount: exp.bankLoanPayment,
+                type: 'fixed',
+              })
+            if (exp.otherExpenses)
+              expensesArray.push({
+                id: 'other',
+                name: 'Other Expenses',
+                amount: exp.otherExpenses,
+                type: 'fixed',
+              })
+            if (exp.childExpenses)
+              expensesArray.push({
+                id: 'children',
+                name: 'Child Expenses',
+                amount: exp.childExpenses,
+                type: 'variable',
+              })
           }
 
           // Calculate totalExpenses from the expenses object
@@ -112,7 +155,12 @@ export const gameApi = apiSlice.injectEndpoints({
           // Handle income structure (backend sends as object)
           const incomeArray = []
           if ((data as any).income?.salary) {
-            incomeArray.push({ id: 'salary', name: 'Salary', amount: (data as any).income.salary, type: 'salary' })
+            incomeArray.push({
+              id: 'salary',
+              name: 'Salary',
+              amount: (data as any).income.salary,
+              type: 'salary',
+            })
           }
           if ((data as any).income?.passiveIncomeItems) {
             incomeArray.push(...(data as any).income.passiveIncomeItems)
@@ -213,8 +261,21 @@ export const gameApi = apiSlice.injectEndpoints({
 
     // Market Event endpoint
     submitMarketEvent: builder.mutation<
-      { message: string; transactionId: string; status: string; requiresLoan: boolean; impact: any },
-      { roomCode: string; playerId: string; subType: string; amount?: number; fromPlayerId?: string; fromPlayerName?: string }
+      {
+        message: string
+        transactionId: string
+        status: string
+        requiresLoan: boolean
+        impact: any
+      },
+      {
+        roomCode: string
+        playerId: string
+        subType: string
+        amount?: number
+        fromPlayerId?: string
+        fromPlayerName?: string
+      }
     >({
       query: ({ roomCode, playerId, subType, amount, fromPlayerId, fromPlayerName }) => ({
         url: `/games/${roomCode}/players/${playerId}/market-event`,
@@ -224,11 +285,11 @@ export const gameApi = apiSlice.injectEndpoints({
           subType,
           amount,
           fromPlayerId,
-          fromPlayerName
+          fromPlayerName,
         },
       }),
       invalidatesTags: ['Player', 'AllPlayers'],
-      async onQueryStarted({ }, { dispatch, queryFulfilled }) {
+      async onQueryStarted({}, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled
           // Force refetch player data immediately
@@ -247,7 +308,7 @@ export const gameApi = apiSlice.injectEndpoints({
         method: 'POST',
         body: {
           type: 'loan_take',
-          amountIn1000s
+          amountIn1000s,
         },
       }),
       invalidatesTags: ['Player', 'AllPlayers'],

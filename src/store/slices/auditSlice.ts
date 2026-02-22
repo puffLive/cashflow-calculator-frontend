@@ -33,7 +33,7 @@ export const auditSlice = createSlice({
     addPendingReview: (state, action: PayloadAction<PendingAudit>) => {
       // Prevent duplicates - only add if this transactionId doesn't already exist
       const exists = state.pendingReviews.some(
-        review => review.transactionId === action.payload.transactionId
+        (review) => review.transactionId === action.payload.transactionId
       )
       if (!exists) {
         state.pendingReviews.push(action.payload)
@@ -42,7 +42,7 @@ export const auditSlice = createSlice({
     },
     removePendingReview: (state, action: PayloadAction<string>) => {
       state.pendingReviews = state.pendingReviews.filter(
-        review => review.transactionId !== action.payload
+        (review) => review.transactionId !== action.payload
       )
       state.pendingCount = state.pendingReviews.length
       if (state.currentReview?.transactionId === action.payload) {

@@ -38,9 +38,24 @@ const PayTransactionScreen = () => {
   const paymentTypes: PaymentTypeInfo[] = [
     { id: 'charity', title: 'Charity', description: 'Donate 10% of your income', icon: Heart },
     { id: 'downsized', title: 'Downsized', description: 'Pay expenses from savings', icon: Frown },
-    { id: 'lend_money', title: 'Lend Money', description: 'Lend money to another player', icon: DollarSign },
-    { id: 'pay_money', title: 'Pay Money', description: 'Pay money to another player', icon: HandCoins },
-    { id: 'payoff_loan', title: 'Pay Off Loan', description: 'Pay off a liability', icon: CreditCard }
+    {
+      id: 'lend_money',
+      title: 'Lend Money',
+      description: 'Lend money to another player',
+      icon: DollarSign,
+    },
+    {
+      id: 'pay_money',
+      title: 'Pay Money',
+      description: 'Pay money to another player',
+      icon: HandCoins,
+    },
+    {
+      id: 'payoff_loan',
+      title: 'Pay Off Loan',
+      description: 'Pay off a liability',
+      icon: CreditCard,
+    },
   ]
 
   const handleTypeSelect = (typeId: PaymentType) => {
@@ -90,9 +105,15 @@ const PayTransactionScreen = () => {
 
     return {
       cashOnHand: { before: cashBefore, after: cashAfter },
-      ...(liabilitiesAfter !== liabilitiesBefore && { totalLiabilities: { before: liabilitiesBefore, after: liabilitiesAfter } }),
-      ...(expensesAfter !== expensesBefore && { totalExpenses: { before: expensesBefore, after: expensesAfter } }),
-      ...(paydayAfter !== paydayBefore && { paydayAmount: { before: paydayBefore, after: paydayAfter } })
+      ...(liabilitiesAfter !== liabilitiesBefore && {
+        totalLiabilities: { before: liabilitiesBefore, after: liabilitiesAfter },
+      }),
+      ...(expensesAfter !== expensesBefore && {
+        totalExpenses: { before: expensesBefore, after: expensesAfter },
+      }),
+      ...(paydayAfter !== paydayBefore && {
+        paydayAmount: { before: paydayBefore, after: paydayAfter },
+      }),
     }
   }
 
@@ -107,7 +128,9 @@ const PayTransactionScreen = () => {
       case 'pay_money':
         return `Paying money: $${amount.toLocaleString()}`
       case 'payoff_loan':
-        return selectedLiability ? `Paying off ${selectedLiability.name}: $${selectedLiability.currentBalance.toLocaleString()}` : ''
+        return selectedLiability
+          ? `Paying off ${selectedLiability.name}: $${selectedLiability.currentBalance.toLocaleString()}`
+          : ''
       default:
         return ''
     }
@@ -126,28 +149,28 @@ const PayTransactionScreen = () => {
           roomCode,
           playerId,
           subType: 'charity',
-          amount
+          amount,
         }).unwrap()
       } else if (selectedType === 'downsized') {
         await submitMarketEvent({
           roomCode,
           playerId,
           subType: 'downsize',
-          amount
+          amount,
         }).unwrap()
       } else if (selectedType === 'lend_money') {
         await submitMarketEvent({
           roomCode,
           playerId,
           subType: 'lend',
-          amount
+          amount,
         }).unwrap()
       } else if (selectedType === 'pay_money') {
         await submitMarketEvent({
           roomCode,
           playerId,
           subType: 'doodad',
-          amount
+          amount,
         }).unwrap()
       } else if (selectedType === 'payoff_loan') {
         if (!selectedLiability) return
@@ -155,28 +178,32 @@ const PayTransactionScreen = () => {
           roomCode,
           playerId,
           liabilityId: selectedLiability.id,
-          payoffAmount: selectedLiability.currentBalance
+          payoffAmount: selectedLiability.currentBalance,
         }).unwrap()
       }
 
-      dispatch(addNotification({
-        id: Date.now().toString(),
-        type: 'success',
-        message: 'Payment submitted for audit',
-        duration: 3000
-      }))
+      dispatch(
+        addNotification({
+          id: Date.now().toString(),
+          type: 'success',
+          message: 'Payment submitted for audit',
+          duration: 3000,
+        })
+      )
 
       navigate(`/game/${roomCode}/dashboard`)
     } catch (err: any) {
       console.error('Failed to submit payment:', err)
       console.error('Error details:', err?.data)
 
-      dispatch(addNotification({
-        id: Date.now().toString(),
-        type: 'error',
-        message: err?.data?.message || 'Failed to submit payment',
-        duration: 5000
-      }))
+      dispatch(
+        addNotification({
+          id: Date.now().toString(),
+          type: 'error',
+          message: err?.data?.message || 'Failed to submit payment',
+          duration: 5000,
+        })
+      )
     }
   }
 
@@ -239,9 +266,11 @@ const PayTransactionScreen = () => {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                {paymentTypes.find(t => t.id === selectedType)?.title}
+                {paymentTypes.find((t) => t.id === selectedType)?.title}
               </h2>
-              <p className="text-gray-600">{paymentTypes.find(t => t.id === selectedType)?.description}</p>
+              <p className="text-gray-600">
+                {paymentTypes.find((t) => t.id === selectedType)?.description}
+              </p>
             </div>
 
             {/* Charity */}
@@ -249,7 +278,9 @@ const PayTransactionScreen = () => {
               <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <h3 className="font-semibold text-green-800 mb-2">Give to Charity</h3>
-                  <p className="text-sm text-green-700">Donate 10% of your total income to charity.</p>
+                  <p className="text-sm text-green-700">
+                    Donate 10% of your total income to charity.
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -259,7 +290,9 @@ const PayTransactionScreen = () => {
                   </div>
                   <div className="flex justify-between items-center text-lg">
                     <span className="font-medium text-gray-700">Donation (10%):</span>
-                    <span className="text-2xl font-bold text-green-600">${amount.toLocaleString()}</span>
+                    <span className="text-2xl font-bold text-green-600">
+                      ${amount.toLocaleString()}
+                    </span>
                   </div>
                 </div>
 
@@ -276,12 +309,16 @@ const PayTransactionScreen = () => {
               <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <h3 className="font-semibold text-red-800 mb-2">You've been downsized!</h3>
-                  <p className="text-sm text-red-700">You must pay your total monthly expenses from your savings.</p>
+                  <p className="text-sm text-red-700">
+                    You must pay your total monthly expenses from your savings.
+                  </p>
                 </div>
 
                 <div className="flex justify-between items-center text-lg">
                   <span className="font-medium text-gray-700">Total Expenses:</span>
-                  <span className="text-2xl font-bold text-red-600">${amount.toLocaleString()}</span>
+                  <span className="text-2xl font-bold text-red-600">
+                    ${amount.toLocaleString()}
+                  </span>
                 </div>
 
                 {hasInsufficientFunds && (
@@ -323,10 +360,16 @@ const PayTransactionScreen = () => {
                   />
                 </div>
 
-                <div className={`p-3 rounded-lg ${hasInsufficientFunds ? 'bg-red-50 border border-red-200' : 'bg-blue-50 border border-blue-200'}`}>
+                <div
+                  className={`p-3 rounded-lg ${hasInsufficientFunds ? 'bg-red-50 border border-red-200' : 'bg-blue-50 border border-blue-200'}`}
+                >
                   <div className="flex justify-between text-sm">
-                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-blue-700'}>Remaining Cash:</span>
-                    <span className={`font-medium ${hasInsufficientFunds ? 'text-red-800' : 'text-blue-800'}`}>
+                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-blue-700'}>
+                      Remaining Cash:
+                    </span>
+                    <span
+                      className={`font-medium ${hasInsufficientFunds ? 'text-red-800' : 'text-blue-800'}`}
+                    >
                       ${(player.cashOnHand - amount).toLocaleString()}
                     </span>
                   </div>
@@ -342,8 +385,12 @@ const PayTransactionScreen = () => {
             {selectedType === 'pay_money' && (
               <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                  <h3 className="font-semibold text-purple-800 mb-2">Pay Money to Another Player</h3>
-                  <p className="text-sm text-purple-700">Enter the amount you're paying (e.g., for buying an asset from them).</p>
+                  <h3 className="font-semibold text-purple-800 mb-2">
+                    Pay Money to Another Player
+                  </h3>
+                  <p className="text-sm text-purple-700">
+                    Enter the amount you're paying (e.g., for buying an asset from them).
+                  </p>
                 </div>
 
                 <div>
@@ -361,10 +408,16 @@ const PayTransactionScreen = () => {
                   />
                 </div>
 
-                <div className={`p-3 rounded-lg ${hasInsufficientFunds ? 'bg-red-50 border border-red-200' : 'bg-purple-50 border border-purple-200'}`}>
+                <div
+                  className={`p-3 rounded-lg ${hasInsufficientFunds ? 'bg-red-50 border border-red-200' : 'bg-purple-50 border border-purple-200'}`}
+                >
                   <div className="flex justify-between text-sm">
-                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-purple-700'}>Remaining Cash:</span>
-                    <span className={`font-medium ${hasInsufficientFunds ? 'text-red-800' : 'text-purple-800'}`}>
+                    <span className={hasInsufficientFunds ? 'text-red-700' : 'text-purple-700'}>
+                      Remaining Cash:
+                    </span>
+                    <span
+                      className={`font-medium ${hasInsufficientFunds ? 'text-red-800' : 'text-purple-800'}`}
+                    >
                       ${(player.cashOnHand - amount).toLocaleString()}
                     </span>
                   </div>
@@ -387,7 +440,8 @@ const PayTransactionScreen = () => {
                   <>
                     <div className="bg-white rounded-lg shadow-md p-4">
                       <p className="text-sm text-gray-700">
-                        Select a liability to pay off completely. This will remove the monthly payment from your expenses.
+                        Select a liability to pay off completely. This will remove the monthly
+                        payment from your expenses.
                       </p>
                     </div>
 
@@ -400,7 +454,7 @@ const PayTransactionScreen = () => {
                             name: liability.name,
                             type: liability.type as any,
                             costBasis: liability.currentBalance,
-                            quantity: 1
+                            quantity: 1,
                           }}
                           isSelected={selectedLiability?.id === liability.id}
                           onSelect={() => {
@@ -417,21 +471,32 @@ const PayTransactionScreen = () => {
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
                             <span className="text-gray-600">Liability Amount:</span>
-                            <span className="font-medium text-red-600">${selectedLiability.currentBalance.toLocaleString()}</span>
+                            <span className="font-medium text-red-600">
+                              ${selectedLiability.currentBalance.toLocaleString()}
+                            </span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-gray-600">Monthly Payment Removed:</span>
-                            <span className="font-medium text-green-600">${selectedLiability.monthlyPayment.toLocaleString()}</span>
+                            <span className="font-medium text-green-600">
+                              ${selectedLiability.monthlyPayment.toLocaleString()}
+                            </span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-gray-600">Cash After Payment:</span>
-                            <span className={`font-medium ${hasInsufficientFunds ? 'text-red-600' : 'text-blue-600'}`}>
-                              ${(player.cashOnHand - selectedLiability.currentBalance).toLocaleString()}
+                            <span
+                              className={`font-medium ${hasInsufficientFunds ? 'text-red-600' : 'text-blue-600'}`}
+                            >
+                              $
+                              {(
+                                player.cashOnHand - selectedLiability.currentBalance
+                              ).toLocaleString()}
                             </span>
                           </div>
                         </div>
                         {hasInsufficientFunds && (
-                          <p className="text-sm text-red-600 mt-3">⚠️ Insufficient funds to pay off this liability</p>
+                          <p className="text-sm text-red-600 mt-3">
+                            ⚠️ Insufficient funds to pay off this liability
+                          </p>
                         )}
                       </div>
                     )}

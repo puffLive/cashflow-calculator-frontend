@@ -8,6 +8,7 @@ import { selectHasPendingTransaction } from '@/store/slices/transactionSlice'
 import { resetUI } from '@/store/slices/uiSlice'
 import BottomNavBar from '@/components/BottomNavBar'
 import TransactionFAB from '@/components/TransactionFAB'
+import { PendingTransactionBanner } from '@/components/PendingTransactionBanner'
 import { Loader2, LogOut } from 'lucide-react'
 
 const DashboardScreen = () => {
@@ -83,7 +84,7 @@ const DashboardScreen = () => {
     if (!profession) return 'Professional'
     return profession
       .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
   }
 
@@ -125,7 +126,9 @@ const DashboardScreen = () => {
                 className={`h-2.5 rounded-full transition-all duration-500 ${
                   player.passiveIncome >= player.totalExpenses ? 'bg-green-600' : 'bg-blue-500'
                 }`}
-                style={{ width: `${Math.min(100, Math.max(0, (player.passiveIncome / player.totalExpenses) * 100))}%` }}
+                style={{
+                  width: `${Math.min(100, Math.max(0, (player.passiveIncome / player.totalExpenses) * 100))}%`,
+                }}
               />
             </div>
           </div>
@@ -134,6 +137,8 @@ const DashboardScreen = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        {/* Pending Transaction Banner */}
+        <PendingTransactionBanner />
         {/* Action Buttons Grid */}
         <div className="grid grid-cols-3 gap-3">
           {/* Row 1 */}
@@ -189,23 +194,33 @@ const DashboardScreen = () => {
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">Cash on Hand</span>
-              <span className="text-sm font-bold text-gray-800">${player.cashOnHand.toLocaleString()}</span>
+              <span className="text-sm font-bold text-gray-800">
+                ${player.cashOnHand.toLocaleString()}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">Passive Income</span>
-              <span className="text-sm font-bold text-purple-600">${player.passiveIncome.toLocaleString()}</span>
+              <span className="text-sm font-bold text-purple-600">
+                ${player.passiveIncome.toLocaleString()}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">Expenses</span>
-              <span className="text-sm font-bold text-red-600">${player.totalExpenses.toLocaleString()}</span>
+              <span className="text-sm font-bold text-red-600">
+                ${player.totalExpenses.toLocaleString()}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">Total Income</span>
-              <span className="text-sm font-bold text-green-600">${player.totalIncome.toLocaleString()}</span>
+              <span className="text-sm font-bold text-green-600">
+                ${player.totalIncome.toLocaleString()}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">PAYDAY</span>
-              <span className={`text-sm font-bold ${player.paydayAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <span
+                className={`text-sm font-bold ${player.paydayAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              >
                 ${player.paydayAmount.toLocaleString()}
               </span>
             </div>
@@ -226,11 +241,14 @@ const DashboardScreen = () => {
                 className={`h-3 rounded-full transition-all duration-500 ${
                   player.isOnFastTrack ? 'bg-green-600' : 'bg-yellow-500'
                 }`}
-                style={{ width: `${Math.min(100, (player.passiveIncome / player.totalExpenses) * 100)}%` }}
+                style={{
+                  width: `${Math.min(100, (player.passiveIncome / player.totalExpenses) * 100)}%`,
+                }}
               />
             </div>
             <p className="text-xs text-gray-600 mt-2">
-              Passive Income: ${player.passiveIncome.toLocaleString()} / Expenses: ${player.totalExpenses.toLocaleString()}
+              Passive Income: ${player.passiveIncome.toLocaleString()} / Expenses: $
+              {player.totalExpenses.toLocaleString()}
             </p>
           </div>
         )}
@@ -245,9 +263,7 @@ const DashboardScreen = () => {
               <p className="text-sm text-amber-900 font-medium">
                 🔔 You have pending transaction{pendingAuditCount !== 1 ? 's' : ''} to review
               </p>
-              <button className="text-amber-700 font-semibold text-sm underline">
-                Review Now
-              </button>
+              <button className="text-amber-700 font-semibold text-sm underline">Review Now</button>
             </div>
           </div>
         )}
@@ -277,7 +293,8 @@ const DashboardScreen = () => {
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-3">Start New Game?</h2>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to start a new game? This will end your current session and you'll lose all your progress.
+              Are you sure you want to start a new game? This will end your current session and
+              you'll lose all your progress.
             </p>
             <div className="flex gap-3">
               <button

@@ -14,13 +14,17 @@ interface TransactionImpactPreviewProps {
   liabilityDetails?: string
 }
 
-const TransactionImpactPreview = ({ impact, assetDetails, liabilityDetails }: TransactionImpactPreviewProps) => {
+const TransactionImpactPreview = ({
+  impact,
+  assetDetails,
+  liabilityDetails,
+}: TransactionImpactPreviewProps) => {
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount)
   }
 
@@ -41,12 +45,11 @@ const TransactionImpactPreview = ({ impact, assetDetails, liabilityDetails }: Tr
         <div className="flex items-center space-x-3">
           <span className="text-sm text-gray-600">{formatCurrency(before)}</span>
           <ArrowRight className="w-4 h-4 text-gray-400" />
-          <span className={`text-sm font-semibold ${deltaColor}`}>
-            {formatCurrency(after)}
-          </span>
+          <span className={`text-sm font-semibold ${deltaColor}`}>{formatCurrency(after)}</span>
           {delta !== 0 && (
             <span className={`text-xs ${deltaColor} min-w-[60px] text-right`}>
-              {delta > 0 ? '+' : ''}{formatCurrency(delta)}
+              {delta > 0 ? '+' : ''}
+              {formatCurrency(delta)}
             </span>
           )}
         </div>
@@ -61,13 +64,21 @@ const TransactionImpactPreview = ({ impact, assetDetails, liabilityDetails }: Tr
       <div className="space-y-2">
         {renderImpactRow('Cash on Hand', impact.cashOnHand.before, impact.cashOnHand.after)}
 
-        {impact.totalIncome && renderImpactRow('Total Income', impact.totalIncome.before, impact.totalIncome.after)}
+        {impact.totalIncome &&
+          renderImpactRow('Total Income', impact.totalIncome.before, impact.totalIncome.after)}
 
-        {impact.totalExpenses && renderImpactRow('Total Expenses', impact.totalExpenses.before, impact.totalExpenses.after)}
+        {impact.totalExpenses &&
+          renderImpactRow(
+            'Total Expenses',
+            impact.totalExpenses.before,
+            impact.totalExpenses.after
+          )}
 
-        {impact.paydayAmount && renderImpactRow('PAYDAY Amount', impact.paydayAmount.before, impact.paydayAmount.after)}
+        {impact.paydayAmount &&
+          renderImpactRow('PAYDAY Amount', impact.paydayAmount.before, impact.paydayAmount.after)}
 
-        {impact.cashflow && renderImpactRow('Monthly Cashflow', impact.cashflow.before, impact.cashflow.after)}
+        {impact.cashflow &&
+          renderImpactRow('Monthly Cashflow', impact.cashflow.before, impact.cashflow.after)}
       </div>
 
       {assetDetails && (

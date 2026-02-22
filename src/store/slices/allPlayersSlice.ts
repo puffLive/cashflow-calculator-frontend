@@ -34,13 +34,13 @@ export const allPlayersSlice = createSlice({
       state.players = action.payload
     },
     addPlayer: (state, action: PayloadAction<PlayerSummary>) => {
-      const exists = state.players.find(p => p.id === action.payload.id)
+      const exists = state.players.find((p) => p.id === action.payload.id)
       if (!exists) {
         state.players.push(action.payload)
       }
     },
     updatePlayer: (state, action: PayloadAction<Partial<PlayerSummary> & { id: string }>) => {
-      const index = state.players.findIndex(p => p.id === action.payload.id)
+      const index = state.players.findIndex((p) => p.id === action.payload.id)
       if (index !== -1) {
         state.players[index] = { ...state.players[index], ...action.payload }
       }
@@ -49,13 +49,13 @@ export const allPlayersSlice = createSlice({
       state,
       action: PayloadAction<{ playerId: string; status: PlayerSummary['connectionStatus'] }>
     ) => {
-      const player = state.players.find(p => p.id === action.payload.playerId)
+      const player = state.players.find((p) => p.id === action.payload.playerId)
       if (player) {
         player.connectionStatus = action.payload.status
       }
     },
     removePlayer: (state, action: PayloadAction<string>) => {
-      state.players = state.players.filter(p => p.id !== action.payload)
+      state.players = state.players.filter((p) => p.id !== action.payload)
     },
     resetAllPlayers: () => initialState,
   },
@@ -73,10 +73,10 @@ export const {
 // Selectors
 export const selectAllPlayers = (state: RootState) => state.allPlayers.players
 export const selectPlayerById = (playerId: string) => (state: RootState) =>
-  state.allPlayers.players.find(p => p.id === playerId)
+  state.allPlayers.players.find((p) => p.id === playerId)
 export const selectConnectedPlayers = (state: RootState) =>
-  state.allPlayers.players.filter(p => p.connectionStatus === 'connected')
+  state.allPlayers.players.filter((p) => p.connectionStatus === 'connected')
 export const selectReadyPlayers = (state: RootState) =>
-  state.allPlayers.players.filter(p => p.isReady)
+  state.allPlayers.players.filter((p) => p.isReady)
 
 export default allPlayersSlice.reducer

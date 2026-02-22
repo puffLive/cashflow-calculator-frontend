@@ -19,12 +19,14 @@ const CreateGameScreen = () => {
 
   const handleCreateGame = async () => {
     if (!playerName.trim()) {
-      dispatch(addNotification({
-        id: Date.now().toString(),
-        type: 'error',
-        message: 'Please enter your name',
-        duration: 3000
-      }))
+      dispatch(
+        addNotification({
+          id: Date.now().toString(),
+          type: 'error',
+          message: 'Please enter your name',
+          duration: 3000,
+        })
+      )
       return
     }
 
@@ -32,27 +34,31 @@ const CreateGameScreen = () => {
       // Create the game
       const createResult = await createGame({
         gameVersion: 'cashflow_101',
-        hostName: playerName.trim()
+        hostName: playerName.trim(),
       }).unwrap()
       const newRoomCode = createResult.roomCode
       const hostPlayerId = createResult.hostPlayerId
 
       // Update Redux state
-      dispatch(setGameSession({
-        roomCode: newRoomCode,
-        status: 'waiting',
-        hostPlayerId: hostPlayerId,
-        currentPlayerId: hostPlayerId,
-        playerCount: 1,
-        maxPlayers: 6,
-        gameVersion: 'cashflow_101'
-      }))
+      dispatch(
+        setGameSession({
+          roomCode: newRoomCode,
+          status: 'waiting',
+          hostPlayerId: hostPlayerId,
+          currentPlayerId: hostPlayerId,
+          playerCount: 1,
+          maxPlayers: 6,
+          gameVersion: 'cashflow_101',
+        })
+      )
 
-      dispatch(setPlayerData({
-        id: hostPlayerId,
-        name: playerName.trim(),
-        isReady: false
-      }))
+      dispatch(
+        setPlayerData({
+          id: hostPlayerId,
+          name: playerName.trim(),
+          isReady: false,
+        })
+      )
 
       setRoomCode(newRoomCode)
 
@@ -60,15 +66,16 @@ const CreateGameScreen = () => {
       sessionStorage.setItem('roomCode', newRoomCode)
       sessionStorage.setItem('playerId', hostPlayerId)
       sessionStorage.setItem('playerName', playerName.trim())
-
     } catch (error) {
       console.error('Failed to create game:', error)
-      dispatch(addNotification({
-        id: Date.now().toString(),
-        type: 'error',
-        message: 'Failed to create game. Please try again.',
-        duration: 5000
-      }))
+      dispatch(
+        addNotification({
+          id: Date.now().toString(),
+          type: 'error',
+          message: 'Failed to create game. Please try again.',
+          duration: 5000,
+        })
+      )
     }
   }
 
@@ -78,12 +85,14 @@ const CreateGameScreen = () => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
 
-      dispatch(addNotification({
-        id: Date.now().toString(),
-        type: 'success',
-        message: 'Room code copied to clipboard!',
-        duration: 2000
-      }))
+      dispatch(
+        addNotification({
+          id: Date.now().toString(),
+          type: 'success',
+          message: 'Room code copied to clipboard!',
+          duration: 2000,
+        })
+      )
     }
   }
 
@@ -93,7 +102,7 @@ const CreateGameScreen = () => {
         await navigator.share({
           title: 'Join my Cashflow game!',
           text: `Join my Cashflow game with room code: ${roomCode}`,
-          url: window.location.origin + `/join?code=${roomCode}`
+          url: window.location.origin + `/join?code=${roomCode}`,
         })
       } catch (error) {
         // User cancelled share or share failed
@@ -119,19 +128,13 @@ const CreateGameScreen = () => {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
                 <Check className="w-8 h-8 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                Game Created Successfully!
-              </h2>
-              <p className="text-gray-600">
-                Share this code with your friends
-              </p>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Game Created Successfully!</h2>
+              <p className="text-gray-600">Share this code with your friends</p>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-6 mb-6">
               <p className="text-sm text-gray-500 mb-2 text-center">Room Code</p>
-              <p className="text-4xl font-mono font-bold text-center text-gray-800">
-                {roomCode}
-              </p>
+              <p className="text-4xl font-mono font-bold text-center text-gray-800">{roomCode}</p>
             </div>
 
             <div className="flex gap-3 mb-6">
@@ -170,9 +173,7 @@ const CreateGameScreen = () => {
               Set Up Your Player
             </button>
 
-            <p className="text-center text-sm text-gray-500 mt-4">
-              Waiting for players to join...
-            </p>
+            <p className="text-center text-sm text-gray-500 mt-4">Waiting for players to join...</p>
           </div>
         </div>
       </div>
@@ -191,11 +192,15 @@ const CreateGameScreen = () => {
         </button>
 
         <div className="bg-white rounded-lg shadow-xl p-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            Create New Game
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Create New Game</h2>
 
-          <form onSubmit={(e) => { e.preventDefault(); handleCreateGame() }} className="space-y-6">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              handleCreateGame()
+            }}
+            className="space-y-6"
+          >
             <div>
               <label htmlFor="playerName" className="block text-sm font-medium text-gray-700 mb-2">
                 Your Name

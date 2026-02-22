@@ -36,11 +36,23 @@ const CollectScreen = () => {
   const [amount, setAmount] = useState(0)
 
   // Filter out current player from selection
-  const otherPlayers = allPlayers.filter(p => p.id !== player.id && p.connectionStatus === 'connected')
+  const otherPlayers = allPlayers.filter(
+    (p) => p.id !== player.id && p.connectionStatus === 'connected'
+  )
 
   const collectTypes: CollectTypeInfo[] = [
-    { id: 'payday', title: 'Collect PAYDAY', description: 'Collect your monthly PAYDAY', icon: DollarSign },
-    { id: 'money', title: 'Collect Money', description: 'Receive payment from another player', icon: Banknote }
+    {
+      id: 'payday',
+      title: 'Collect PAYDAY',
+      description: 'Collect your monthly PAYDAY',
+      icon: DollarSign,
+    },
+    {
+      id: 'money',
+      title: 'Collect Money',
+      description: 'Receive payment from another player',
+      icon: Banknote,
+    },
   ]
 
   const handleTypeSelect = (typeId: CollectType) => {
@@ -82,7 +94,7 @@ const CollectScreen = () => {
     }
 
     return {
-      cashOnHand: { before: cashBefore, after: cashAfter }
+      cashOnHand: { before: cashBefore, after: cashAfter },
     }
   }
 
@@ -90,7 +102,7 @@ const CollectScreen = () => {
     if (selectedType === 'payday') {
       return `Collecting PAYDAY: $${player.paydayAmount.toLocaleString()}`
     } else if (selectedType === 'money' && selectedPlayerId) {
-      const selectedPlayer = allPlayers.find(p => p.id === selectedPlayerId)
+      const selectedPlayer = allPlayers.find((p) => p.id === selectedPlayerId)
       return `Collecting $${amount.toLocaleString()} from ${selectedPlayer?.name || 'player'}`
     }
     return ''
@@ -106,30 +118,34 @@ const CollectScreen = () => {
       if (selectedType === 'payday') {
         // Directly collect payday
         await collectPayday({ roomCode, playerId }).unwrap()
-        dispatch(addNotification({
-          id: Date.now().toString(),
-          type: 'success',
-          message: `Collected PAYDAY: $${player.paydayAmount.toLocaleString()}`,
-          duration: 3000
-        }))
+        dispatch(
+          addNotification({
+            id: Date.now().toString(),
+            type: 'success',
+            message: `Collected PAYDAY: $${player.paydayAmount.toLocaleString()}`,
+            duration: 3000,
+          })
+        )
         navigate(`/game/${roomCode}/dashboard`)
       } else if (selectedType === 'money') {
         // Submit market event for collecting money (uses lend_collect with positive amount)
-        const selectedPlayer = allPlayers.find(p => p.id === selectedPlayerId)
+        const selectedPlayer = allPlayers.find((p) => p.id === selectedPlayerId)
         await submitMarketEvent({
           roomCode,
           playerId,
           subType: 'lend_collect',
-          amount: amount,  // Positive for collect, negative for lend
-          fromPlayerId: selectedPlayerId || undefined,  // The player being asked to pay
-          fromPlayerName: selectedPlayer?.name
+          amount: amount, // Positive for collect, negative for lend
+          fromPlayerId: selectedPlayerId || undefined, // The player being asked to pay
+          fromPlayerName: selectedPlayer?.name,
         }).unwrap()
-        dispatch(addNotification({
-          id: Date.now().toString(),
-          type: 'success',
-          message: `Collection request sent to ${selectedPlayer?.name}`,
-          duration: 3000
-        }))
+        dispatch(
+          addNotification({
+            id: Date.now().toString(),
+            type: 'success',
+            message: `Collection request sent to ${selectedPlayer?.name}`,
+            duration: 3000,
+          })
+        )
         navigate(`/game/${roomCode}/dashboard`)
       }
     } catch (err: any) {
@@ -137,26 +153,32 @@ const CollectScreen = () => {
 
       // Handle specific error cases
       if (err?.status === 409) {
-        dispatch(addNotification({
-          id: Date.now().toString(),
-          type: 'error',
-          message: 'You have a pending transaction. Please wait for audit approval.',
-          duration: 5000
-        }))
+        dispatch(
+          addNotification({
+            id: Date.now().toString(),
+            type: 'error',
+            message: 'You have a pending transaction. Please wait for audit approval.',
+            duration: 5000,
+          })
+        )
       } else if (err?.data?.message) {
-        dispatch(addNotification({
-          id: Date.now().toString(),
-          type: 'error',
-          message: err.data.message,
-          duration: 5000
-        }))
+        dispatch(
+          addNotification({
+            id: Date.now().toString(),
+            type: 'error',
+            message: err.data.message,
+            duration: 5000,
+          })
+        )
       } else {
-        dispatch(addNotification({
-          id: Date.now().toString(),
-          type: 'error',
-          message: 'Failed to collect. Please try again.',
-          duration: 5000
-        }))
+        dispatch(
+          addNotification({
+            id: Date.now().toString(),
+            type: 'error',
+            message: 'Failed to collect. Please try again.',
+            duration: 5000,
+          })
+        )
       }
     }
   }
@@ -181,7 +203,9 @@ const CollectScreen = () => {
               <span>Back</span>
             </button>
             <h1 className="text-xl font-bold text-gray-800">Collect</h1>
-            <div className="text-sm text-gray-500">Step {step}/{getTotalSteps()}</div>
+            <div className="text-sm text-gray-500">
+              Step {step}/{getTotalSteps()}
+            </div>
           </div>
         </div>
       </div>
@@ -191,7 +215,8 @@ const CollectScreen = () => {
         {hasPendingTransaction && (
           <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 mb-6">
             <p className="text-sm text-yellow-800 font-medium">
-              ⚠️ You have a pending transaction. You cannot collect PAYDAY until it's reviewed by your auditor.
+              ⚠️ You have a pending transaction. You cannot collect PAYDAY until it's reviewed by
+              your auditor.
             </p>
             <p className="text-xs text-yellow-700 mt-1">
               You can still collect money from other players.
@@ -242,7 +267,9 @@ const CollectScreen = () => {
             {otherPlayers.length === 0 ? (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
                 <p className="text-yellow-800 font-medium">No other players are connected</p>
-                <p className="text-sm text-yellow-700 mt-1">Wait for other players to join the game</p>
+                <p className="text-sm text-yellow-700 mt-1">
+                  Wait for other players to join the game
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -258,21 +285,29 @@ const CollectScreen = () => {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                          selectedPlayerId === otherPlayer.id ? 'bg-blue-500' : 'bg-gray-200'
-                        }`}>
-                          <User className={`w-6 h-6 ${
-                            selectedPlayerId === otherPlayer.id ? 'text-white' : 'text-gray-600'
-                          }`} />
+                        <div
+                          className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                            selectedPlayerId === otherPlayer.id ? 'bg-blue-500' : 'bg-gray-200'
+                          }`}
+                        >
+                          <User
+                            className={`w-6 h-6 ${
+                              selectedPlayerId === otherPlayer.id ? 'text-white' : 'text-gray-600'
+                            }`}
+                          />
                         </div>
                         <div className="text-left">
                           <p className="font-semibold text-gray-800">{otherPlayer.name}</p>
-                          <p className="text-sm text-gray-600">{otherPlayer.profession || 'No profession'}</p>
+                          <p className="text-sm text-gray-600">
+                            {otherPlayer.profession || 'No profession'}
+                          </p>
                         </div>
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-gray-600">Cash on Hand</p>
-                        <p className="font-semibold text-gray-800">${otherPlayer.cashOnHand.toLocaleString()}</p>
+                        <p className="font-semibold text-gray-800">
+                          ${otherPlayer.cashOnHand.toLocaleString()}
+                        </p>
                       </div>
                     </div>
                   </button>
@@ -303,28 +338,37 @@ const CollectScreen = () => {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                {collectTypes.find(t => t.id === selectedType)?.title}
+                {collectTypes.find((t) => t.id === selectedType)?.title}
               </h2>
-              <p className="text-gray-600">{collectTypes.find(t => t.id === selectedType)?.description}</p>
+              <p className="text-gray-600">
+                {collectTypes.find((t) => t.id === selectedType)?.description}
+              </p>
             </div>
 
             {/* Collect PAYDAY */}
             {selectedType === 'payday' && (
               <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <h3 className="font-semibold text-green-800 mb-2">Ready to collect your PAYDAY!</h3>
-                  <p className="text-sm text-green-700">Your monthly cashflow will be added to your cash on hand.</p>
+                  <h3 className="font-semibold text-green-800 mb-2">
+                    Ready to collect your PAYDAY!
+                  </h3>
+                  <p className="text-sm text-green-700">
+                    Your monthly cashflow will be added to your cash on hand.
+                  </p>
                 </div>
 
                 <div className="flex justify-between items-center text-lg">
                   <span className="font-medium text-gray-700">PAYDAY Amount:</span>
-                  <span className="text-2xl font-bold text-green-600">${player.paydayAmount.toLocaleString()}</span>
+                  <span className="text-2xl font-bold text-green-600">
+                    ${player.paydayAmount.toLocaleString()}
+                  </span>
                 </div>
 
                 {hasPendingTransaction && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <p className="text-sm text-yellow-800 font-medium">
-                      ⚠️ You have a pending transaction. You cannot collect PAYDAY until your auditor reviews it.
+                      ⚠️ You have a pending transaction. You cannot collect PAYDAY until your
+                      auditor reviews it.
                     </p>
                   </div>
                 )}
@@ -340,11 +384,15 @@ const CollectScreen = () => {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-blue-700">Current Cash:</span>
-                    <span className="font-medium text-blue-800">${player.cashOnHand.toLocaleString()}</span>
+                    <span className="font-medium text-blue-800">
+                      ${player.cashOnHand.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-blue-700">After Collection:</span>
-                    <span className="font-medium text-blue-800">${(player.cashOnHand + player.paydayAmount).toLocaleString()}</span>
+                    <span className="font-medium text-blue-800">
+                      ${(player.cashOnHand + player.paydayAmount).toLocaleString()}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -354,8 +402,13 @@ const CollectScreen = () => {
             {selectedType === 'money' && (
               <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h3 className="font-semibold text-blue-800 mb-2">Collect Money from {allPlayers.find(p => p.id === selectedPlayerId)?.name}</h3>
-                  <p className="text-sm text-blue-700">Enter the amount you're receiving. The selected player will be notified to confirm this payment.</p>
+                  <h3 className="font-semibold text-blue-800 mb-2">
+                    Collect Money from {allPlayers.find((p) => p.id === selectedPlayerId)?.name}
+                  </h3>
+                  <p className="text-sm text-blue-700">
+                    Enter the amount you're receiving. The selected player will be notified to
+                    confirm this payment.
+                  </p>
                 </div>
 
                 <div>
@@ -380,7 +433,9 @@ const CollectScreen = () => {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-green-700">New Cash on Hand:</span>
-                    <span className="font-medium text-green-800">${(player.cashOnHand + amount).toLocaleString()}</span>
+                    <span className="font-medium text-green-800">
+                      ${(player.cashOnHand + amount).toLocaleString()}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -403,12 +458,17 @@ const CollectScreen = () => {
                 onClick={handleSubmit}
                 disabled={
                   isLoading ||
-                  (selectedType === 'payday' && (player.paydayAmount <= 0 || hasPendingTransaction)) ||
+                  (selectedType === 'payday' &&
+                    (player.paydayAmount <= 0 || hasPendingTransaction)) ||
                   (selectedType === 'money' && (amount <= 0 || !selectedPlayerId))
                 }
                 className="flex-1 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
-                {isLoading ? 'Processing...' : selectedType === 'payday' ? 'Collect PAYDAY' : 'Send Request'}
+                {isLoading
+                  ? 'Processing...'
+                  : selectedType === 'payday'
+                    ? 'Collect PAYDAY'
+                    : 'Send Request'}
               </button>
             </div>
           </div>
