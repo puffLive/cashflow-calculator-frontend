@@ -1,4 +1,5 @@
 import { useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from './redux'
 import { socketService } from '@/services/socketService'
 import type { SocketEvents } from '@/services/socketService'
@@ -23,9 +24,11 @@ import {
   openModal,
 } from '@/store/slices/uiSlice'
 import { updateFinancials } from '@/store/slices/playerSlice'
+import { ROUTES } from '@/constants/routes'
 
 export const useSocketEvents = (roomCode: string | null) => {
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
   // Generate notification IDs
   const generateId = () => `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
@@ -72,8 +75,11 @@ export const useSocketEvents = (roomCode: string | null) => {
         duration: 5000,
       })
     )
-    // TODO: Navigate to dashboard
-  }, [dispatch])
+    // Navigate to dashboard when game starts
+    if (roomCode) {
+      navigate(ROUTES.GAME_DASHBOARD.replace(':roomCode', roomCode))
+    }
+  }, [dispatch, navigate, roomCode])
 
   const handleTransactionPending = useCallback(
     (data: SocketEvents['transaction:pending']) => {

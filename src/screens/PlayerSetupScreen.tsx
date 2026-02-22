@@ -77,6 +77,7 @@ const PlayerSetupScreen = () => {
 
       // Mark player as ready in session storage
       sessionStorage.setItem('isPlayerReady', 'true')
+      sessionStorage.setItem('playerSetupComplete', 'true')
 
       // Navigate back to lobby after successful setup
       navigate(`/game/${roomCode}/lobby`)
