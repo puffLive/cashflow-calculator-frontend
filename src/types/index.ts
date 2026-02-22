@@ -1,19 +1,33 @@
-// This file will be extended with local type definitions
-// Most types should come from the shared backend package
+// Re-export everything from the shared package
+export * from '@cashflow/shared'
 
-export interface Player {
+// Additional frontend-specific types that extend the shared types
+// These are UI-specific types not needed by the backend
+
+import type { IPlayer, IAsset as SharedAsset } from '@cashflow/shared'
+
+// Map shared types to frontend expectations
+// Frontend uses 'id' instead of '_id' and different field names
+
+export interface Asset {
   id: string
   name: string
-  roomCode: string
-  profession?: string
-  dream?: string
-  auditorPlayerId?: string
-  isHost: boolean
-  isReady: boolean
-  connectionStatus: 'connected' | 'disconnected' | 'removed'
-  financialData?: PlayerFinancialData
+  type: SharedAsset['type']
+  quantity: number
+  costBasis: number // maps to totalCost in shared
+  monthlyIncome?: number // maps to monthlyPassiveIncome in shared
 }
 
+export interface Liability {
+  id: string
+  name: string
+  type: string
+  originalAmount: number
+  currentBalance: number
+  monthlyPayment: number
+}
+
+// Frontend-specific financial data interface that matches what Redux expects
 export interface PlayerFinancialData {
   cashOnHand: number
   salary: number
@@ -30,6 +44,7 @@ export interface PlayerFinancialData {
   liabilities: Liability[]
 }
 
+// Income and Expense item types for frontend
 export interface IncomeItem {
   id: string
   name: string
@@ -44,31 +59,24 @@ export interface ExpenseItem {
   type: string
 }
 
-export interface Asset {
-  id: string
-  name: string
-  type: 'stock' | 'mutual_fund' | 'cd' | 'real_estate' | 'gold' | 'business'
-  quantity: number
-  costBasis: number
-  monthlyIncome?: number
+// Extended Player type for frontend with UI state
+export interface Player extends Omit<IPlayer, '_id' | 'income' | 'expenses' | 'assets' | 'liabilities'> {
+  id: string // Map _id to id for frontend
+  isReady: boolean // UI state for lobby
+  financialData?: PlayerFinancialData // Grouped financial data for UI
 }
 
-export interface Liability {
-  id: string
-  name: string
-  type: string
-  originalAmount: number
-  currentBalance: number
-  monthlyPayment: number
-}
-
+// Extended GameSession for frontend - don't extend since status types differ
 export interface GameSession {
   roomCode: string
-  status: 'waiting' | 'active' | 'completed' | 'expired'
+  status: 'waiting' | 'active' | 'completed' | 'expired' // Frontend status values
   hostPlayerId: string
-  playerCount: number
-  maxPlayers: number
-  players: Player[]
+  playerCount: number // Computed from players array
+  maxPlayers: number // Always 6 for now
+  players: Player[] // Our extended Player type
   createdAt: string
   expiresAt: string
 }
+
+// Re-export shared Asset type with original name for components that need it
+export type { IAsset, ILiability } from '@cashflow/shared'

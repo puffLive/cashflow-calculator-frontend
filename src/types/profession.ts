@@ -1,3 +1,5 @@
+// Frontend-specific Profession type
+// The shared package has IProfessionData, but the frontend needs different fields
 export interface Profession {
   id: string
   title: string
@@ -13,8 +15,17 @@ export interface Profession {
   description: string
   difficulty: 'easy' | 'medium' | 'hard'
   icon?: string
+
+  // Fields from shared package that we'll add when integrating
+  name?: string
+  savings?: number
+  retailPayment?: number
+  childExpensePerChild?: number
+  liabilities?: any[]
 }
 
+// Frontend-specific financial statement type for UI display
+// The shared package has the actual data models, this is for UI presentation
 export interface FinancialStatement {
   income: {
     salary: number

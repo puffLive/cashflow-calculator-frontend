@@ -89,12 +89,14 @@ export const ProtectedRoute = ({ children, requireSetup = false }: ProtectedRout
   // Game session found but status check
   if (session) {
     // Check if game hasn't started yet and user is trying to access game routes
-    if (session.status === 'waiting' && requireSetup) {
+    const isWaiting = session.status === 'waiting'
+    if (isWaiting && requireSetup) {
       return <Navigate to={ROUTES.GAME_LOBBY.replace(':roomCode', roomCode)} replace />
     }
 
     // Check if game has expired
-    if (session.status === 'expired') {
+    const isExpired = session.status === 'expired'
+    if (isExpired) {
       return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center">
           <div className="max-w-md mx-auto text-center bg-white rounded-lg shadow-lg p-8">
