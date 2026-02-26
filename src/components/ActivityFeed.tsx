@@ -88,16 +88,6 @@ const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
     }
   }
 
-  const getTransactionAmount = (tx: Transaction): { amount: number; label: string } | null => {
-    if (tx.financialImpact?.cashOnHandDelta !== undefined) {
-      return {
-        amount: tx.financialImpact.cashOnHandDelta,
-        label: tx.financialImpact.cashOnHandDelta >= 0 ? '+' : '',
-      }
-    }
-    return null
-  }
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -105,22 +95,6 @@ const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(Math.abs(value))
-  }
-
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffMins = Math.floor(diffMs / 60000)
-
-    if (diffMins < 1) return 'Just now'
-    if (diffMins < 60) return `${diffMins}m ago`
-    const diffHours = Math.floor(diffMins / 60)
-    if (diffHours < 24) return `${diffHours}h ago`
-    const diffDays = Math.floor(diffHours / 24)
-    if (diffDays === 1) return 'Yesterday'
-    if (diffDays < 7) return `${diffDays}d ago`
-    return date.toLocaleDateString()
   }
 
   if (isLoading) {
@@ -151,14 +125,18 @@ const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
 
   return (
     <div className="space-y-2">
-      {transactions.map((tx) => {
+      {transactions.map((tx, index) => {
         const Icon = getTransactionIcon(tx.type)
         const colorClass = getTransactionColor(tx.type)
-        const amountInfo = getTransactionAmount(tx)
         const isExpanded = expandedId === tx.id
 
+        // Calculate before/after if not provided
+        const cashDelta = tx.financialImpact?.cashOnHandDelta || 0
+        const cashBefore = tx.details?.cashBefore || tx.details?.previousCash || 0
+        const cashAfter = tx.details?.cashAfter || (cashBefore + cashDelta)
+
         return (
-          <div key={tx.id} className="bg-white rounded-lg border border-gray-200">
+          <div key={tx.id || `tx-${index}`} className="bg-white rounded-lg border border-gray-200">
             <button
               onClick={() => setExpandedId(isExpanded ? null : tx.id)}
               className="w-full p-3 text-left hover:bg-gray-50 transition-colors"
@@ -174,20 +152,18 @@ const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
                       <p className="text-sm font-medium text-gray-900 truncate">
                         {getTransactionDescription(tx)}
                       </p>
-                      <p className="text-xs text-gray-500">{formatTimestamp(tx.timestamp)}</p>
+                      {/* Display transaction amount clearly */}
+                      {tx.financialImpact?.cashOnHandDelta !== undefined && (
+                        <p className={`text-lg font-bold mt-1 ${
+                          tx.financialImpact.cashOnHandDelta >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {tx.financialImpact.cashOnHandDelta >= 0 ? '+' : ''}
+                          {formatCurrency(Math.abs(tx.financialImpact.cashOnHandDelta))}
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      {amountInfo && (
-                        <span
-                          className={`text-sm font-bold ${
-                            amountInfo.amount >= 0 ? 'text-green-600' : 'text-red-600'
-                          }`}
-                        >
-                          {amountInfo.label}
-                          {formatCurrency(amountInfo.amount)}
-                        </span>
-                      )}
                       {isExpanded ? (
                         <ChevronUp className="h-4 w-4 text-gray-400" />
                       ) : (
@@ -219,22 +195,37 @@ const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
             </button>
 
             {/* Expanded Details */}
-            {isExpanded && tx.financialImpact && (
-              <div className="border-t border-gray-200 p-3 bg-gray-50 text-xs space-y-2">
-                {tx.financialImpact.cashOnHandDelta !== undefined && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Cash Change:</span>
-                    <span
-                      className={`font-medium ${
-                        tx.financialImpact.cashOnHandDelta >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}
-                    >
-                      {tx.financialImpact.cashOnHandDelta >= 0 ? '+' : ''}
-                      {formatCurrency(tx.financialImpact.cashOnHandDelta)}
-                    </span>
+            {isExpanded && (
+              <div className="border-t border-gray-200 p-3 bg-gray-50 space-y-2">
+                {/* Before/After Cash Totals */}
+                {cashDelta !== 0 && (
+                  <div className="bg-white p-2 rounded border border-gray-200">
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">Before</p>
+                        <p className="font-medium">
+                          {formatCurrency(cashBefore)}
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500 mb-1">Change</p>
+                        <p className={`font-bold ${
+                          cashDelta >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {cashDelta >= 0 ? '+' : ''}
+                          {formatCurrency(cashDelta)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500 mb-1">After</p>
+                        <p className="font-medium">
+                          {formatCurrency(cashAfter)}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 )}
-                {tx.financialImpact.incomeDelta !== undefined &&
+                {tx.financialImpact?.incomeDelta !== undefined &&
                   tx.financialImpact.incomeDelta !== 0 && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">Income Change:</span>
@@ -243,7 +234,7 @@ const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
                       </span>
                     </div>
                   )}
-                {tx.financialImpact.expenseDelta !== undefined &&
+                {tx.financialImpact?.expenseDelta !== undefined &&
                   tx.financialImpact.expenseDelta !== 0 && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">Expense Change:</span>
