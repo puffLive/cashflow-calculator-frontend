@@ -20,10 +20,19 @@ interface ActivityFeedProps {
 const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
-  const { data: transactions = [], isLoading } = useGetTransactionsQuery(
+  const { data, isLoading, error } = useGetTransactionsQuery(
     { roomCode, limit },
     { pollingInterval: 10000 }
   )
+
+  // Debug logging in development
+  if (import.meta.env.DEV && data && !Array.isArray(data)) {
+    console.warn('[ActivityFeed] API response is not an array:', data)
+  }
+
+  // Ensure transactions is always an array
+  // Handle both direct array response and object wrapper response
+  const transactions: Transaction[] = Array.isArray(data) ? data : (data as any)?.transactions || []
 
   const getTransactionIcon = (type: Transaction['type']) => {
     switch (type) {
@@ -118,6 +127,14 @@ const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-sm text-red-600">Failed to load transactions</p>
       </div>
     )
   }

@@ -65,6 +65,23 @@ export const transactionApi = apiSlice.injectEndpoints({
         url: `/games/${roomCode}/transactions`,
         params,
       }),
+      transformResponse: (response: any) => {
+        // Handle different response formats from backend
+        if (Array.isArray(response)) {
+          return response
+        }
+        // If backend returns {transactions: [...]}
+        if (response?.transactions && Array.isArray(response.transactions)) {
+          return response.transactions
+        }
+        // If backend returns {data: [...]}
+        if (response?.data && Array.isArray(response.data)) {
+          return response.data
+        }
+        // Fallback to empty array if unexpected format
+        console.warn('[transactionApi] Unexpected response format:', response)
+        return []
+      },
       providesTags: ['Transactions'],
     }),
 
