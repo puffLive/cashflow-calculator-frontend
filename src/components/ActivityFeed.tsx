@@ -25,20 +25,47 @@ const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
     { pollingInterval: 10000 }
   )
 
-  // Ensure transactions is always an array
+  // Ensure transactions is always an array and map backend structure to frontend
   // Handle both direct array response and object wrapper response
-  const transactions: Transaction[] = Array.isArray(data) ? data : (data as any)?.transactions || []
+  const rawTransactions = Array.isArray(data) ? data : (data as any)?.transactions || []
 
-  // Debug logging in development
-  if (import.meta.env.DEV) {
-    if (data && !Array.isArray(data)) {
-      console.warn('[ActivityFeed] API response is not an array:', data)
+  // Map backend transaction structure to frontend expectations
+  const transactions: Transaction[] = rawTransactions.map((tx: any) => {
+    // Try to extract amount from description if needed (e.g., "PAYDAY collected: $1160")
+    let extractedAmount = 0
+    if (tx.description && typeof tx.description === 'string') {
+      const match = tx.description.match(/\$?([\d,]+)/);
+      if (match) {
+        extractedAmount = parseFloat(match[1].replace(/,/g, ''))
+        // For payday, this should be positive
+        if (tx.type === 'payday') extractedAmount = Math.abs(extractedAmount)
+      }
     }
-    // Log first transaction to see its structure
-    if (transactions.length > 0) {
-      console.log('[ActivityFeed] First transaction structure:', transactions[0])
+
+    // Determine the cash delta based on available data
+    const cashDelta =
+      tx.amountsChanged?.cashOnHand ??
+      tx.amountsChanged?.cash ??
+      tx.financialImpact?.cashOnHandDelta ??
+      extractedAmount ??
+      0
+
+    return {
+      ...tx,
+      id: tx._id || tx.id, // Map _id to id
+      financialImpact: tx.financialImpact || {
+        cashOnHandDelta: cashDelta,
+        incomeDelta: tx.amountsChanged?.income || 0,
+        expenseDelta: tx.amountsChanged?.expenses || 0,
+      },
+      details: {
+        ...tx.details,
+        amount: cashDelta,
+        cashBefore: tx.cashBefore || tx.details?.cashBefore,
+        cashAfter: tx.cashAfter || tx.details?.cashAfter,
+      },
     }
-  }
+  })
 
   const getTransactionIcon = (type: Transaction['type']) => {
     switch (type) {
@@ -75,6 +102,13 @@ const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
   }
 
   const getTransactionDescription = (tx: Transaction) => {
+    // Use backend's description if provided
+    if ((tx as any).description && typeof (tx as any).description === 'string') {
+      // Remove the dollar amount from description since we show it separately
+      return (tx as any).description.replace(/:\s*\$[\d,]+/, '')
+    }
+
+    // Fallback to generating description based on type
     switch (tx.type) {
       case 'buy':
         return `bought ${tx.details.assetType || 'asset'}`
