@@ -25,14 +25,20 @@ const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
     { pollingInterval: 10000 }
   )
 
-  // Debug logging in development
-  if (import.meta.env.DEV && data && !Array.isArray(data)) {
-    console.warn('[ActivityFeed] API response is not an array:', data)
-  }
-
   // Ensure transactions is always an array
   // Handle both direct array response and object wrapper response
   const transactions: Transaction[] = Array.isArray(data) ? data : (data as any)?.transactions || []
+
+  // Debug logging in development
+  if (import.meta.env.DEV) {
+    if (data && !Array.isArray(data)) {
+      console.warn('[ActivityFeed] API response is not an array:', data)
+    }
+    // Log first transaction to see its structure
+    if (transactions.length > 0) {
+      console.log('[ActivityFeed] First transaction structure:', transactions[0])
+    }
+  }
 
   const getTransactionIcon = (type: Transaction['type']) => {
     switch (type) {
@@ -152,15 +158,28 @@ const ActivityFeed = ({ roomCode, limit = 20 }: ActivityFeedProps) => {
                       <p className="text-sm font-medium text-gray-900 truncate">
                         {getTransactionDescription(tx)}
                       </p>
-                      {/* Display transaction amount clearly */}
-                      {tx.financialImpact?.cashOnHandDelta !== undefined && (
-                        <p className={`text-lg font-bold mt-1 ${
-                          tx.financialImpact.cashOnHandDelta >= 0 ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {tx.financialImpact.cashOnHandDelta >= 0 ? '+' : ''}
-                          {formatCurrency(Math.abs(tx.financialImpact.cashOnHandDelta))}
-                        </p>
-                      )}
+                      {/* Display transaction amount clearly - check multiple possible sources */}
+                      {(() => {
+                        // Try to get amount from various possible sources
+                        const amount =
+                          tx.financialImpact?.cashOnHandDelta ??
+                          tx.details?.amount ??
+                          tx.details?.totalAmount ??
+                          tx.details?.price ??
+                          cashDelta;
+
+                        if (amount !== undefined && amount !== 0) {
+                          return (
+                            <p className={`text-lg font-bold mt-1 ${
+                              amount >= 0 ? 'text-green-600' : 'text-red-600'
+                            }`}>
+                              {amount >= 0 ? '+' : '-'}
+                              {formatCurrency(Math.abs(amount))}
+                            </p>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
 
                     <div className="flex items-center gap-2 flex-shrink-0">
