@@ -45,11 +45,27 @@ const PlayerSetupScreen = () => {
     }
   }, [playerId, playerName, roomCode, navigate])
 
-  // Randomly assign a profession on mount
+  // Randomly assign a profession on mount (persist in session storage)
   useEffect(() => {
     if (PROFESSIONS.length > 0 && !randomProfession) {
+      // Check if we already have a profession assigned in session storage
+      const storedProfessionId = sessionStorage.getItem('assignedProfessionId')
+
+      if (storedProfessionId) {
+        // Restore the previously assigned profession
+        const profession = PROFESSIONS.find(p => p.id === storedProfessionId)
+        if (profession) {
+          setRandomProfession(profession)
+          return
+        }
+      }
+
+      // No stored profession, assign a new one
       const randomIndex = Math.floor(Math.random() * PROFESSIONS.length)
-      setRandomProfession(PROFESSIONS[randomIndex])
+      const selectedProfession = PROFESSIONS[randomIndex]
+      setRandomProfession(selectedProfession)
+      // Store the assigned profession ID in session storage
+      sessionStorage.setItem('assignedProfessionId', selectedProfession.id)
     }
   }, [randomProfession])
 
@@ -79,6 +95,9 @@ const PlayerSetupScreen = () => {
       sessionStorage.setItem('isPlayerReady', 'true')
       sessionStorage.setItem('playerSetupComplete', 'true')
 
+      // Clear the assigned profession so player gets a new one in future games
+      sessionStorage.removeItem('assignedProfessionId')
+
       // Navigate back to lobby after successful setup
       navigate(`/game/${roomCode}/lobby`)
     } catch (err: any) {
@@ -89,6 +108,13 @@ const PlayerSetupScreen = () => {
   }
 
   const handleBack = () => {
+    // Warn user they'll lose their setup progress if they haven't completed
+    if (!sessionStorage.getItem('isPlayerReady')) {
+      const confirmLeave = window.confirm(
+        'You haven\'t completed your setup yet. Going back will preserve your profession but you\'ll lose your dream and auditor selection. Continue?'
+      )
+      if (!confirmLeave) return
+    }
     navigate(`/game/${roomCode}/lobby`)
   }
 
@@ -186,7 +212,7 @@ const PlayerSetupScreen = () => {
         </div>
 
         {/* Dream Selection */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6">
           <div className="flex items-center space-x-2 mb-4">
             <Target className="w-6 h-6 text-purple-600" />
             <h3 className="text-lg font-bold text-gray-800">Select Your Dream</h3>
@@ -194,24 +220,45 @@ const PlayerSetupScreen = () => {
           <p className="text-sm text-gray-600 mb-4">
             Choose a financial goal you want to achieve in the game
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {DREAMS.map((dream) => (
               <button
                 key={dream.name}
                 onClick={() => setSelectedDream(dream)}
-                className={`p-4 rounded-lg border-2 text-left transition-all ${
+                className={`rounded-lg border-2 text-left transition-all min-h-[140px] flex flex-col ${
                   selectedDream?.name === dream.name
                     ? 'border-purple-500 bg-purple-50'
                     : 'border-gray-200 hover:border-purple-300 bg-white'
                 }`}
               >
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-bold text-gray-800">{dream.name}</h4>
-                  <span className="text-sm font-bold text-purple-600">
-                    ${dream.cost.toLocaleString()}
-                  </span>
+                {/* Title as header */}
+                <div className={`px-3 sm:px-4 py-2 sm:py-3 border-b relative ${
+                  selectedDream?.name === dream.name
+                    ? 'bg-purple-100 border-purple-200'
+                    : 'bg-gray-50 border-gray-200'
+                }`}>
+                  <h4 className="font-bold text-gray-900 text-sm sm:text-base leading-tight pr-6">
+                    {dream.name}
+                  </h4>
+                  {selectedDream?.name === dream.name && (
+                    <div className="absolute top-2 right-2">
+                      <CheckCircle className="w-5 h-5 text-purple-600" />
+                    </div>
+                  )}
                 </div>
-                <p className="text-xs text-gray-600">{dream.description}</p>
+
+                {/* Content area */}
+                <div className="flex-1 p-3 sm:p-4 flex flex-col justify-between">
+                  <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 sm:line-clamp-3 leading-relaxed mb-3">
+                    {dream.description}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">Goal Amount:</span>
+                    <span className="text-base sm:text-lg font-bold text-purple-600">
+                      ${dream.cost.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
               </button>
             ))}
           </div>

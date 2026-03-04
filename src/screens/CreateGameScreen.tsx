@@ -66,6 +66,11 @@ const CreateGameScreen = () => {
       sessionStorage.setItem('roomCode', newRoomCode)
       sessionStorage.setItem('playerId', hostPlayerId)
       sessionStorage.setItem('playerName', playerName.trim())
+
+      // Clear any previous game setup data
+      sessionStorage.removeItem('assignedProfessionId')
+      sessionStorage.removeItem('isPlayerReady')
+      sessionStorage.removeItem('playerSetupComplete')
     } catch (error) {
       console.error('Failed to create game:', error)
       dispatch(

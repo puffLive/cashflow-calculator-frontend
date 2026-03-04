@@ -81,6 +81,11 @@ const JoinGameScreen = () => {
       sessionStorage.setItem('playerId', result.playerId)
       sessionStorage.setItem('playerName', playerName.trim())
 
+      // Clear any previous game setup data
+      sessionStorage.removeItem('assignedProfessionId')
+      sessionStorage.removeItem('isPlayerReady')
+      sessionStorage.removeItem('playerSetupComplete')
+
       // Update Redux with minimal data (game session will be fetched in lobby)
       dispatch(
         setGameSession({

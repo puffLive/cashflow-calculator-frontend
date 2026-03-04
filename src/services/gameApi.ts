@@ -126,6 +126,13 @@ export const gameApi = apiSlice.injectEndpoints({
                 amount: exp.creditCardPayment,
                 type: 'fixed',
               })
+            if (exp.retailPayment)
+              expensesArray.push({
+                id: 'retail',
+                name: 'Retail Payment',
+                amount: exp.retailPayment,
+                type: 'fixed',
+              })
             if (exp.bankLoanPayment)
               expensesArray.push({
                 id: 'bankLoan',

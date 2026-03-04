@@ -43,6 +43,9 @@ const DashboardScreen = () => {
     sessionStorage.removeItem('playerId')
     sessionStorage.removeItem('playerName')
     sessionStorage.removeItem('roomCode')
+    sessionStorage.removeItem('assignedProfessionId')
+    sessionStorage.removeItem('isPlayerReady')
+    sessionStorage.removeItem('playerSetupComplete')
 
     // Reset UI state
     dispatch(resetUI())
