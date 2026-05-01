@@ -7,6 +7,17 @@
 
 ---
 
+## 📊 COMPLETION STATUS (last audited 2026-05-01)
+
+- ✅ **Features 1–13**: API client, Socket.io service, Redux state, all 22 screens, all transaction wizards, audit (remote + handoff), cross-player views, disconnection/reconnection UI, session expiry UI, transaction history & undo
+- ⚠️ **Feature 0.3.4**: Shared types not wired up — frontend uses hardcoded duplicates in `src/types/`
+- ⚠️ **Feature 10.3.4–10.3.7**: Pending-transaction polish (re-notify, FAB lockout, finalized-value animation, rejection pre-population)
+- ⚠️ **Feature 14**: Responsive audits not done; A11y partial (some aria/focus shipped, no contrast or screen-reader audits)
+- ⚠️ **Feature 15**: 2 of ~27 E2E specs written (`game-flow.spec.ts`, `transaction-audit-flow.spec.ts`); only 1 vitest unit test (`transactionSlice.test.ts`)
+- ⚠️ **Feature 16**: Post-Audit Follow-ups — see new section at the end
+
+---
+
 ## FEATURE 0: Project Setup & Configuration ✅
 
 ### 0.1 React Application Setup
@@ -66,12 +77,12 @@
 - [ ] **0.4.3** Handle invalid/expired room codes with a 404/error screen
 
 ### 0.5 Testing Setup
-- [ ] **0.5.1** Install and configure Playwright with Chromium, WebKit (Safari), and Firefox
-- [ ] **0.5.2** Create Playwright config file with base URL pointing to dev server
-- [ ] **0.5.3** Create E2E test directory structure: `e2e/`
-- [ ] **0.5.4** Create Playwright test helpers/fixtures: `createTestGame()`, `joinTestGame(roomCode)`, `completeSetup()`, `getApiClient()`
-- [ ] **0.5.5** Install and configure Vitest for component/hook unit tests
-- [ ] **0.5.6** Add test scripts: `test:unit`, `test:e2e`, `test:e2e:headed`
+- [x] **0.5.1** Install and configure Playwright with Chromium, WebKit (Safari), and Firefox
+- [x] **0.5.2** Create Playwright config file with base URL pointing to dev server (`playwright.config.ts`)
+- [x] **0.5.3** Create E2E test directory structure: `e2e/`
+- [ ] **0.5.4** Create Playwright test helpers/fixtures: `createTestGame()`, `joinTestGame(roomCode)`, `completeSetup()`, `getApiClient()` — partial; flesh out the full helper library
+- [x] **0.5.5** Install and configure Vitest for component/hook unit tests (`vitest.config.ts`)
+- [x] **0.5.6** Add test scripts: `test`, `test:ui`, `test:coverage`, `test:e2e`, `test:e2e:headed`, `test:e2e:ui`
 
 ---
 
@@ -590,6 +601,46 @@
 
 ---
 
+## FEATURE 16: Post-Audit Follow-ups ⚠️ OPEN
+> Items surfaced by the 2026-05-01 codebase audit that aren't fully captured by the existing feature tasks.
+
+### 16.1 Shared Package Integration (extends 0.3.4)
+- [ ] **16.1.1** Verify the backend's `/shared` package is publishable and consumable by this repo (workspace link, npm pack, or git submodule — pick one).
+- [ ] **16.1.2** Replace hardcoded type duplicates in `src/types/profession.ts` and `src/constants/` with imports from `@cashflow/shared`. Audit all `interface` and `type` declarations in `src/` for duplicates of shared types.
+- [ ] **16.1.3** Use the shared calculation engine for client-side impact previews (currently the wizards may be using local re-implementations). Confirm parity with backend output for at least one transaction per type.
+
+### 16.2 Pending-Transaction Polish (extends 10.3)
+The TODO in `src/components/PendingTransactionBanner.tsx` and the unchecked items 10.3.4–10.3.7 are the same gap. Closing 10.3.4–10.3.7 closes this.
+
+### 16.3 Frontend Unit Test Coverage
+Vitest is configured but only `transactionSlice.test.ts` exists. Add:
+- [ ] **16.3.1** Tests for the remaining Redux slices: `gameSessionSlice`, `playerSlice`, `allPlayersSlice`, `auditSlice`, `uiSlice` — reducers + selectors.
+- [ ] **16.3.2** Tests for `useSocketEvents` hook — verify each Socket.io event maps to the correct dispatch.
+- [ ] **16.3.3** Tests for `services/socketService.ts` — connect/disconnect/joinRoom/event subscription lifecycle.
+- [ ] **16.3.4** Tests for RTK Query endpoints in `services/gameApi.ts` and `services/transactionApi.ts` — request shape, cache tag invalidation.
+- [ ] **16.3.5** Tests for any pure helpers in `src/utils/`.
+
+### 16.4 E2E Test Implementation (executes Feature 15)
+Tasks 15.2.1–15.9.1 are defined but only 2 specs exist. Prioritize, in this order:
+- [ ] **16.4.1** Complete `e2e/game-flow.spec.ts` — covers 15.2.1–15.2.5.
+- [ ] **16.4.2** Player setup spec — covers 15.3.1–15.3.2.
+- [ ] **16.4.3** Dashboard + PAYDAY spec — covers 15.4.1–15.4.3.
+- [ ] **16.4.4** Transaction specs (one per asset type + audit approve/reject) — covers 15.5.1–15.5.6 and extends `transaction-audit-flow.spec.ts`.
+- [ ] **16.4.5** Auditor handoff spec — covers 15.6.1–15.6.2.
+- [ ] **16.4.6** Cross-player real-time spec — covers 15.7.1–15.7.2 (requires multi-context Playwright setup).
+- [ ] **16.4.7** Disconnection / session expiry specs — covers 15.8.1–15.8.3.
+- [ ] **16.4.8** Fast Track achievement spec — covers 15.9.1.
+
+### 16.5 Responsive & A11y Audits (executes Feature 14.1–14.3)
+The 14.x items already capture this work; track them here as the priority block.
+- [ ] **16.5.1** Run formal responsive pass at 360px / 428px / 768px / 1024px+ and capture findings (closes 14.1.1, 14.1.2, 14.1.5, 14.1.6, 14.2.1–14.2.4).
+- [ ] **16.5.2** Run axe / Lighthouse a11y audit; fix contrast violations (closes 14.3.1).
+- [ ] **16.5.3** Add `<label>` associations to every form input (closes 14.3.4).
+- [ ] **16.5.4** Verify Tab/Enter/Space keyboard navigation across all interactive elements (closes 14.3.5).
+- [ ] **16.5.5** VoiceOver pass on setup wizard, PAYDAY, buy transaction, audit review (closes 14.3.7, 14.3.8).
+
+---
+
 ## Implementation Order (Recommended)
 
 | Sprint | Features | Focus |
@@ -603,8 +654,9 @@
 | **7** | 11 (Players Overview + Feed), 13 (History/Undo) | Cross-player views + transaction history |
 | **8** | 12 (Disconnection UI), Feature 12.4 (Session Expiry UI) | Resilience UI |
 | **9** | 14 (Responsive/A11y), 15 (Playwright E2E) | Polish, accessibility audit, full E2E test suite |
+| **10** | 16 (Post-Audit Follow-ups) | Shared types, pending-tx polish, unit/E2E test coverage, formal a11y/responsive pass |
 
 ---
 
-*Total frontend tasks: ~260*
-*Generated from Cashflow Calculator PRD v2.2*
+*Total frontend tasks: 261/315 core complete + ~24 follow-ups in Feature 16*
+*Generated from Cashflow Calculator PRD v2.2 — last reviewed 2026-05-01*

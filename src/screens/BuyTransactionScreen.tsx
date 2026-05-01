@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, TrendingUp, Building2, Coins, Gem, Briefcase, PieChart } from 'lucide-react'
 import { useAppSelector } from '@/hooks/redux'
@@ -6,6 +6,7 @@ import { useSubmitTransactionMutation } from '@/services/transactionApi'
 import { selectCurrentPlayer } from '@/store/slices/playerSlice'
 import AssetTypeCard from '@/components/AssetTypeCard'
 import TransactionImpactPreview from '@/components/TransactionImpactPreview'
+import { AVAILABLE_STOCKS, getStockDisplayName } from '@/constants/stocks'
 
 type AssetType = 'stock' | 'mutual_fund' | 'cd' | 'real_estate' | 'gold' | 'business'
 
@@ -55,6 +56,23 @@ const BuyTransactionScreen = () => {
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [selectedAssetType, setSelectedAssetType] = useState<AssetType | null>(null)
   const [details, setDetails] = useState<TransactionDetails>({ name: '' })
+
+  // Restore state if returning from loan page
+  useEffect(() => {
+    const pendingPurchase = sessionStorage.getItem('pendingPurchase')
+    if (pendingPurchase) {
+      try {
+        const parsed = JSON.parse(pendingPurchase)
+        setSelectedAssetType(parsed.assetType)
+        setDetails(parsed.details)
+        setStep(parsed.step)
+        // Clear the pending purchase after restoring
+        sessionStorage.removeItem('pendingPurchase')
+      } catch (err) {
+        console.error('Failed to restore pending purchase:', err)
+      }
+    }
+  }, [])
 
   const assetTypes: AssetTypeInfo[] = [
     {
@@ -212,6 +230,21 @@ const BuyTransactionScreen = () => {
     const playerId = sessionStorage.getItem('playerId')
     if (!playerId) return
 
+    // Check if user has insufficient funds
+    if (hasInsufficientFunds) {
+      // Store the current transaction state in sessionStorage
+      sessionStorage.setItem('pendingPurchase', JSON.stringify({
+        assetType: selectedAssetType,
+        details: details,
+        step: step,
+        returnUrl: `/game/${roomCode}/transaction/buy`
+      }))
+
+      // Redirect to take loan page
+      navigate(`/game/${roomCode}/transaction/loan`)
+      return
+    }
+
     try {
       await submitTransaction({
         roomCode,
@@ -220,6 +253,9 @@ const BuyTransactionScreen = () => {
         subType: selectedAssetType,
         details: details as unknown as Record<string, unknown>,
       }).unwrap()
+
+      // Clear any pending purchase data
+      sessionStorage.removeItem('pendingPurchase')
 
       navigate(`/game/${roomCode}/dashboard`)
     } catch (err) {
@@ -295,17 +331,38 @@ const BuyTransactionScreen = () => {
             </div>
 
             <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
-              {/* Common: Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Asset Name *</label>
-                <input
-                  type="text"
-                  value={details.name}
-                  onChange={(e) => setDetails({ ...details, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter asset name"
-                />
-              </div>
+              {/* Stock: Dropdown selection */}
+              {selectedAssetType === 'stock' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Select Stock *</label>
+                  <select
+                    value={details.name}
+                    onChange={(e) => setDetails({ ...details, name: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Choose a stock...</option>
+                    {AVAILABLE_STOCKS.map((stock) => (
+                      <option key={stock.ticker} value={stock.ticker}>
+                        {getStockDisplayName(stock.ticker)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Other assets: Text input */}
+              {selectedAssetType !== 'stock' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Asset Name *</label>
+                  <input
+                    type="text"
+                    value={details.name}
+                    onChange={(e) => setDetails({ ...details, name: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter asset name"
+                  />
+                </div>
+              )}
 
               {/* Stock/Mutual Fund Fields */}
               {(selectedAssetType === 'stock' || selectedAssetType === 'mutual_fund') && (
@@ -625,9 +682,12 @@ const BuyTransactionScreen = () => {
             />
 
             {hasInsufficientFunds && (
-              <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
-                <p className="text-sm text-red-800 font-medium">
-                  ⚠️ Warning: This transaction will result in negative cash balance
+              <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
+                <p className="text-sm text-yellow-800 font-medium">
+                  ⚠️ You need ${Math.abs(remainingCash).toLocaleString()} more to complete this purchase.
+                </p>
+                <p className="text-xs text-yellow-700 mt-1">
+                  Click "Take a Loan" to secure funding, then return here to complete your purchase.
                 </p>
               </div>
             )}
@@ -642,9 +702,17 @@ const BuyTransactionScreen = () => {
               <button
                 onClick={handleSubmit}
                 disabled={isLoading}
-                className="flex-1 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className={`flex-1 py-3 font-medium rounded-lg ${
+                  hasInsufficientFunds
+                    ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                    : 'bg-green-600 text-white hover:bg-green-700'
+                } disabled:bg-gray-300 disabled:cursor-not-allowed`}
               >
-                {isLoading ? 'Submitting...' : 'Submit for Audit'}
+                {isLoading
+                  ? 'Processing...'
+                  : hasInsufficientFunds
+                    ? '💰 Take a Loan'
+                    : 'Submit for Audit'}
               </button>
             </div>
           </div>

@@ -80,7 +80,19 @@ const TakeLoanScreen = () => {
         })
       )
 
-      navigate(`/game/${roomCode}/dashboard`)
+      // Check if there's a pending purchase to return to
+      const pendingPurchase = sessionStorage.getItem('pendingPurchase')
+      if (pendingPurchase) {
+        try {
+          const parsed = JSON.parse(pendingPurchase)
+          // Don't remove pendingPurchase here - let the buy screen handle it
+          navigate(parsed.returnUrl || `/game/${roomCode}/transaction/buy`)
+        } catch {
+          navigate(`/game/${roomCode}/dashboard`)
+        }
+      } else {
+        navigate(`/game/${roomCode}/dashboard`)
+      }
     } catch (err: any) {
       console.error('Failed to submit loan:', err)
 
@@ -99,7 +111,18 @@ const TakeLoanScreen = () => {
     if (step > 1) {
       setStep(1)
     } else {
-      navigate(`/game/${roomCode}/dashboard`)
+      // Check if we came from a pending purchase
+      const pendingPurchase = sessionStorage.getItem('pendingPurchase')
+      if (pendingPurchase) {
+        try {
+          const parsed = JSON.parse(pendingPurchase)
+          navigate(parsed.returnUrl || `/game/${roomCode}/transaction/buy`)
+        } catch {
+          navigate(`/game/${roomCode}/dashboard`)
+        }
+      } else {
+        navigate(`/game/${roomCode}/dashboard`)
+      }
     }
   }
 
