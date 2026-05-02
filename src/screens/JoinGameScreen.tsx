@@ -7,6 +7,7 @@ import { setGameSession } from '@/store/slices/gameSessionSlice'
 import { setPlayerData } from '@/store/slices/playerSlice'
 import { addNotification } from '@/store/slices/uiSlice'
 import { buildRoute, ROUTES } from '@/constants/routes'
+import { setSessionCredentials } from '@/utils/sessionAuth'
 
 const JoinGameScreen = () => {
   const navigate = useNavigate()
@@ -76,10 +77,14 @@ const JoinGameScreen = () => {
         })
       )
 
-      // Store in session storage for reconnection
-      sessionStorage.setItem('roomCode', roomCode.toUpperCase())
-      sessionStorage.setItem('playerId', result.playerId)
-      sessionStorage.setItem('playerName', playerName.trim())
+      // Store in session storage for reconnection + the socket auth token
+      // the io.use middleware checks on every connect (16.2.3).
+      setSessionCredentials({
+        roomCode: roomCode.toUpperCase(),
+        playerId: result.playerId,
+        playerName: playerName.trim(),
+        socketAuthToken: result.socketAuthToken,
+      })
 
       // Clear any previous game setup data
       sessionStorage.removeItem('assignedProfessionId')

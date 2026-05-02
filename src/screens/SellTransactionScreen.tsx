@@ -7,6 +7,8 @@ import { selectCurrentPlayer } from '@/store/slices/playerSlice'
 import OwnedAssetCard from '@/components/OwnedAssetCard'
 import TransactionImpactPreview from '@/components/TransactionImpactPreview'
 import type { Asset } from '@/types'
+import { calculateSellAssetImpact } from '@cashflow/shared'
+import { previewSnapshotFromImpact, type PreviewSnapshot } from '@/utils/impactPreview'
 
 interface SaleDetails {
   pricePerUnit: number
@@ -52,40 +54,35 @@ const SellTransactionScreen = () => {
     return (saleDetails.pricePerUnit - costBasisPerUnit) * saleDetails.quantity
   }
 
-  const calculateImpact = () => {
+  // Delegate to the shared `calculateSellAssetImpact` — the same code path
+  // the backend uses on audit-approval. The frontend `Asset` type uses
+  // `id` / `costBasis` / `monthlyIncome`; the shared lib reads `_id` /
+  // `totalCost` / `monthlyPassiveIncome`. Build a synthetic single-asset
+  // state with renamed fields (the only entry the shared function reads).
+  const calculateImpact = (): PreviewSnapshot => {
     if (!selectedAsset) {
-      return {
-        cashOnHand: { before: player.cashOnHand, after: player.cashOnHand },
-      }
+      return { cashOnHand: { before: player.cashOnHand, after: player.cashOnHand } }
     }
 
-    const proceeds = calculateSaleProceeds()
-    const cashBefore = player.cashOnHand
-    const cashAfter = cashBefore + proceeds
-
-    // Calculate income reduction (if asset generates income)
-    const incomeReduction = selectedAsset.monthlyIncome || 0
-    const incomeBefore = player.totalIncome
-
-    // For partial sales, scale the income reduction
-    const isFull = saleDetails.quantity === selectedAsset.quantity
-    const actualIncomeReduction = isFull
-      ? incomeReduction
-      : (incomeReduction * saleDetails.quantity) / selectedAsset.quantity
-    const actualIncomeAfter = incomeBefore - actualIncomeReduction
-
-    const paydayBefore = player.paydayAmount
-    const paydayAfter = paydayBefore - actualIncomeReduction
-
-    const cashflowBefore = player.cashflow
-    const cashflowAfter = cashflowBefore - actualIncomeReduction
-
-    return {
-      cashOnHand: { before: cashBefore, after: cashAfter },
-      totalIncome: { before: incomeBefore, after: actualIncomeAfter },
-      paydayAmount: { before: paydayBefore, after: paydayAfter },
-      cashflow: { before: cashflowBefore, after: cashflowAfter },
+    const sharedAsset = {
+      _id: selectedAsset.id,
+      type: selectedAsset.type,
+      name: selectedAsset.name,
+      costPerUnit: selectedAsset.costBasis / selectedAsset.quantity,
+      quantity: selectedAsset.quantity,
+      totalCost: selectedAsset.costBasis,
+      monthlyPassiveIncome: selectedAsset.monthlyIncome ?? 0,
+      purchasedAt: new Date(),
     }
+    const sharedState = { ...player, assets: [sharedAsset] }
+
+    const impact = calculateSellAssetImpact(sharedState as any, {
+      assetId: selectedAsset.id,
+      salePrice: calculateSaleProceeds(),
+      quantity: saleDetails.quantity,
+    })
+
+    return previewSnapshotFromImpact(player, impact)
   }
 
   const getAssetDetails = (): string => {

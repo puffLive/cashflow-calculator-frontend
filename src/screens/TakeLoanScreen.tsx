@@ -6,6 +6,8 @@ import { useTakeLoanMutation } from '@/services/gameApi'
 import { selectCurrentPlayer } from '@/store/slices/playerSlice'
 import { addNotification } from '@/store/slices/uiSlice'
 import TransactionImpactPreview from '@/components/TransactionImpactPreview'
+import { calculateTakeLoanImpact } from '@cashflow/shared'
+import { previewSnapshotFromImpact } from '@/utils/impactPreview'
 
 const TakeLoanScreen = () => {
   const navigate = useNavigate()
@@ -37,25 +39,15 @@ const TakeLoanScreen = () => {
     }
   }
 
+  // Delegate the math to the shared calculation engine — the same code
+  // path the backend uses on audit-approval. Eliminates the chance of the
+  // frontend's preview drifting from what actually happens to the player's
+  // financials when the auditor approves.
   const calculateImpact = () => {
-    const cashBefore = player.cashOnHand
-    const cashAfter = cashBefore + loanAmount
-
-    const expensesBefore = player.totalExpenses
-    const expensesAfter = expensesBefore + monthlyPayment
-
-    const paydayBefore = player.paydayAmount
-    const paydayAfter = paydayBefore - monthlyPayment
-
-    const cashflowBefore = player.cashflow
-    const cashflowAfter = cashflowBefore - monthlyPayment
-
-    return {
-      cashOnHand: { before: cashBefore, after: cashAfter },
-      totalExpenses: { before: expensesBefore, after: expensesAfter },
-      paydayAmount: { before: paydayBefore, after: paydayAfter },
-      cashflow: { before: cashflowBefore, after: cashflowAfter },
-    }
+    const impact = calculateTakeLoanImpact(player as any, {
+      amountIn1000s: loanIncrements,
+    })
+    return previewSnapshotFromImpact(player, impact)
   }
 
   const handleSubmit = async () => {

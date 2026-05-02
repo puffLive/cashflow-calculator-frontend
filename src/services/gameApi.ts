@@ -1,10 +1,13 @@
 import { apiSlice } from './api'
 import type { GameSession, Player } from '@/types'
+import { devLog } from '@/utils/devLog'
 
 interface CreateGameResponse {
   roomCode: string
   hostPlayerId: string
   gameSessionId: string
+  /** Opaque token the Socket.io middleware checks on connect (16.2.3). */
+  socketAuthToken: string
 }
 
 interface JoinGameRequest {
@@ -18,6 +21,8 @@ interface JoinGameResponse {
   roomCode: string
   playerNumber: number
   avatarColor: string
+  /** Opaque token the Socket.io middleware checks on connect (16.2.3). */
+  socketAuthToken: string
 }
 
 interface SetupPlayerRequest {
@@ -86,7 +91,7 @@ export const gameApi = apiSlice.injectEndpoints({
       async onQueryStarted(_args, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log('Raw backend player data:', data)
+          devLog('Raw backend player data:', data)
 
           // Import setPlayerData dynamically to avoid circular dependency
           const { setPlayerData } = await import('@/store/slices/playerSlice')
@@ -195,7 +200,7 @@ export const gameApi = apiSlice.injectEndpoints({
             liabilities: (data as any).liabilities || [],
           }
 
-          console.log('Transformed player data:', playerData)
+          devLog('Transformed player data:', playerData)
           dispatch(setPlayerData(playerData))
         } catch (err) {
           console.error('Failed to update player in Redux store:', err)
@@ -246,10 +251,20 @@ export const gameApi = apiSlice.injectEndpoints({
       invalidatesTags: ['Player'],
     }),
 
-    reconnectPlayer: builder.mutation<PlayerResponse, { roomCode: string; playerId: string }>({
-      query: ({ roomCode, playerId }) => ({
+    reconnectPlayer: builder.mutation<
+      {
+        message: string
+        /** Rotated on every reconnect — always overwrite the cached value. */
+        socketAuthToken: string
+        player: any
+        gameState: any
+      },
+      { roomCode: string; playerId: string; socketId: string }
+    >({
+      query: ({ roomCode, playerId, socketId }) => ({
         url: `/games/${roomCode}/players/${playerId}/reconnect`,
         method: 'POST',
+        body: { socketId },
       }),
       invalidatesTags: ['Player', 'GameSession'],
     }),
@@ -272,7 +287,6 @@ export const gameApi = apiSlice.injectEndpoints({
         message: string
         transactionId: string
         status: string
-        requiresLoan: boolean
         impact: any
       },
       {

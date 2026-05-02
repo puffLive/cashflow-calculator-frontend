@@ -4,6 +4,8 @@ import { useAppDispatch } from '@/hooks/redux'
 import { setReconnecting } from '@/store/slices/uiSlice'
 import { useReconnectPlayerMutation } from '@/services/gameApi'
 import { Loader2, CheckCircle, XCircle } from 'lucide-react'
+import { clearSessionCredentials, setSocketAuthToken } from '@/utils/sessionAuth'
+import { socketService } from '@/services/socketService'
 
 const ReconnectionHandler = () => {
   const navigate = useNavigate()
@@ -47,7 +49,20 @@ const ReconnectionHandler = () => {
       dispatch(setReconnecting(true))
 
       try {
-        const response = await reconnectPlayer({ roomCode, playerId }).unwrap()
+        // The route validator requires a non-empty socketId on /reconnect.
+        // If the socket is already up, use its id; otherwise use a
+        // placeholder — the backend's `join:room` handler will overwrite
+        // `player.socketId` with the real id as soon as the next socket
+        // connection joins the room.
+        const socketId = socketService.getSocketId() || 'pending-reconnect'
+        const response = await reconnectPlayer({ roomCode, playerId, socketId }).unwrap()
+
+        // Persist the rotated socket auth token (16.2.3) — the backend
+        // generates a fresh one on every /reconnect call so a leaked old
+        // token stops working.
+        if (response.socketAuthToken) {
+          setSocketAuthToken(response.socketAuthToken)
+        }
 
         // Successful reconnection
         setStatus('success')
@@ -72,7 +87,7 @@ const ReconnectionHandler = () => {
 
         if (isExpired) {
           // Clear session and show expired message
-          sessionStorage.clear()
+          clearSessionCredentials()
           setTimeout(() => {
             dispatch(setReconnecting(false))
             setStatus(null)
@@ -146,7 +161,7 @@ const ReconnectionHandler = () => {
             </p>
             <button
               onClick={() => {
-                sessionStorage.clear()
+                clearSessionCredentials()
                 dispatch(setReconnecting(false))
                 navigate('/')
               }}

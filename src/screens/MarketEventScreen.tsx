@@ -47,6 +47,17 @@ const MarketEventScreen = () => {
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null)
   const [isLending, setIsLending] = useState(true) // true = lend (negative), false = collect (positive)
 
+  // Populated when the backend rejects a downsized with 409 because the
+  // player can't cover the month's expenses. Surfaces `suggestedLoan` so the
+  // UI can deep-link the user to the loan flow with the right amount, then
+  // come back and re-submit the downsized.
+  const [loanRequired, setLoanRequired] = useState<null | {
+    shortfall: number
+    suggestedLoan: number
+    totalExpenses: number
+    cashOnHand: number
+  }>(null)
+
   const eventTypes: EventTypeInfo[] = [
     {
       id: 'downsized',
@@ -218,8 +229,23 @@ const MarketEventScreen = () => {
         details,
       }).unwrap()
 
+      // Clear any prior loan-required prompt — submission succeeded.
+      setLoanRequired(null)
       navigate(`/game/${roomCode}/dashboard`)
-    } catch (err) {
+    } catch (err: any) {
+      // Backend returns 409 with `requiresLoan: true` for the downsized
+      // event when the player can't cover the month's expenses. Surface
+      // `suggestedLoan` to the UI so the user can take exactly the right
+      // amount, then re-submit.
+      if (err?.status === 409 && err?.data?.requiresLoan) {
+        setLoanRequired({
+          shortfall: err.data.shortfall,
+          suggestedLoan: err.data.suggestedLoan,
+          totalExpenses: err.data.totalExpenses,
+          cashOnHand: err.data.cashOnHand,
+        })
+        return
+      }
       console.error('Failed to submit transaction:', err)
     }
   }
@@ -315,17 +341,54 @@ const MarketEventScreen = () => {
                   </span>
                 </div>
 
-                {hasInsufficientFunds && (
+                {/*
+                  Loan-required gate. The backend now returns 409 with
+                  `suggestedLoan` (rounded up to the nearest $1,000 — the
+                  bank-loan validator's increment) when the player can't
+                  cover the month. We deep-link the user to the loan screen
+                  with that exact amount; they take the loan, get it
+                  audited, then come back here and re-submit. Falls back
+                  to the local cashOnHand check until the user clicks
+                  Confirm at least once.
+                */}
+                {(loanRequired || hasInsufficientFunds) && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <p className="text-sm text-yellow-800 font-medium mb-2">
-                      ⚠️ You don't have enough cash!
-                    </p>
-                    <button
-                      onClick={() => navigate(`/game/${roomCode}/transaction/loan`)}
-                      className="text-sm text-blue-600 hover:underline"
-                    >
-                      Take a bank loan →
-                    </button>
+                    {loanRequired ? (
+                      <>
+                        <p className="text-sm text-yellow-800 font-medium mb-2">
+                          ⚠️ You need a bank loan before you can complete this.
+                        </p>
+                        <p className="text-xs text-yellow-700 mb-3">
+                          Shortfall: ${loanRequired.shortfall.toLocaleString()} · Suggested loan:
+                          {' '}
+                          <span className="font-semibold">
+                            ${loanRequired.suggestedLoan.toLocaleString()}
+                          </span>
+                        </p>
+                        <button
+                          onClick={() =>
+                            navigate(
+                              `/game/${roomCode}/transaction/loan?suggested=${loanRequired.suggestedLoan}`
+                            )
+                          }
+                          className="text-sm font-medium text-white bg-blue-600 px-3 py-1.5 rounded hover:bg-blue-700"
+                        >
+                          Take ${loanRequired.suggestedLoan.toLocaleString()} loan →
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-sm text-yellow-800 font-medium mb-2">
+                          ⚠️ You don't have enough cash!
+                        </p>
+                        <button
+                          onClick={() => navigate(`/game/${roomCode}/transaction/loan`)}
+                          className="text-sm text-blue-600 hover:underline"
+                        >
+                          Take a bank loan →
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>

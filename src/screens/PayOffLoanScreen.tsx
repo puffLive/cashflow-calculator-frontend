@@ -6,6 +6,8 @@ import { useSubmitTransactionMutation } from '@/services/transactionApi'
 import { selectCurrentPlayer } from '@/store/slices/playerSlice'
 import TransactionImpactPreview from '@/components/TransactionImpactPreview'
 import type { Liability } from '@/types'
+import { calculatePayOffLoanImpact } from '@cashflow/shared'
+import { previewSnapshotFromImpact } from '@/utils/impactPreview'
 
 const PayOffLoanScreen = () => {
   const navigate = useNavigate()
@@ -52,39 +54,28 @@ const PayOffLoanScreen = () => {
     }
   }
 
+  // Delegate the math to the shared calculation engine. Frontend liabilities
+  // use `id`; the shared lib looks up by `_id` (string-normalized after the
+  // 16.5.1 backend fix). We build a synthetic state with a single _id-mapped
+  // liability so the lookup succeeds — that's the only entry the shared
+  // function actually reads.
   const calculateImpact = () => {
     if (!selectedLiability) {
       return {
         cashOnHand: { before: player.cashOnHand, after: player.cashOnHand },
       }
     }
-
-    const cashBefore = player.cashOnHand
-    const cashAfter = cashBefore - payoffAmount
-
-    // Calculate expense reduction based on payoff amount
-    const isFullPayoff = payoffAmount === selectedLiability.currentBalance
-    const expenseReduction = isFullPayoff
-      ? selectedLiability.monthlyPayment
-      : Math.round(
-          (selectedLiability.monthlyPayment * payoffAmount) / selectedLiability.currentBalance
-        )
-
-    const expensesBefore = player.totalExpenses
-    const expensesAfter = expensesBefore - expenseReduction
-
-    const paydayBefore = player.paydayAmount
-    const paydayAfter = paydayBefore + expenseReduction
-
-    const cashflowBefore = player.cashflow
-    const cashflowAfter = cashflowBefore + expenseReduction
-
-    return {
-      cashOnHand: { before: cashBefore, after: cashAfter },
-      totalExpenses: { before: expensesBefore, after: expensesAfter },
-      paydayAmount: { before: paydayBefore, after: paydayAfter },
-      cashflow: { before: cashflowBefore, after: cashflowAfter },
+    const sharedState = {
+      ...player,
+      liabilities: [
+        { ...selectedLiability, _id: selectedLiability.id },
+      ],
     }
+    const impact = calculatePayOffLoanImpact(sharedState as any, {
+      liabilityId: selectedLiability.id,
+      payoffAmount,
+    })
+    return previewSnapshotFromImpact(player, impact)
   }
 
   const getLiabilityDetails = (): string => {

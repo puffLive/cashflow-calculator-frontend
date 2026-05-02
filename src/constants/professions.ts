@@ -1,184 +1,114 @@
+import { professions as sharedProfessions } from '@cashflow/shared'
 import type { Profession } from '@/types/profession'
 
-export const PROFESSIONS: Profession[] = [
-  {
-    id: 'janitor',
-    title: 'Janitor',
-    salary: 1600,
-    taxes: 280,
-    mortgage: 200,
-    schoolLoan: 0,
-    carLoan: 60,
-    creditCard: 60,
-    otherExpenses: 300,
-    perChildExpense: 70,
-    bankLoan: 700,
+/**
+ * UI-flavor fields that don't live in the shared package — display copy,
+ * difficulty rating, and the legacy `bankLoan` aggregate the dashboard
+ * preview shows on setup. Keyed by the same lowercase profession id the
+ * shared `professions` map uses, so any future profession the backend adds
+ * just needs an entry here to surface in the UI.
+ *
+ * Financial values (salary, taxes, mortgage, schoolLoan, carLoan,
+ * creditCard, otherExpenses, perChildExpense) are pulled directly from
+ * `@cashflow/shared` — keeping the two sources in sync was the single
+ * largest drift surface in the frontend; the adapter eliminates it.
+ */
+const UI_FLAVOR: Record<
+  string,
+  Pick<Profession, 'description' | 'difficulty' | 'bankLoan'>
+> = {
+  janitor: {
     description: 'Building maintenance professional with stable income',
     difficulty: 'easy',
+    bankLoan: 700,
   },
-  {
-    id: 'secretary',
-    title: 'Secretary',
-    salary: 2500,
-    taxes: 460,
-    mortgage: 400,
-    schoolLoan: 0,
-    carLoan: 80,
-    creditCard: 60,
-    otherExpenses: 570,
-    perChildExpense: 140,
-    bankLoan: 930,
+  secretary: {
     description: 'Administrative professional with organizational expertise',
     difficulty: 'easy',
-  },
-  {
-    id: 'truck_driver',
-    title: 'Truck Driver',
-    salary: 2500,
-    taxes: 460,
-    mortgage: 400,
-    schoolLoan: 0,
-    carLoan: 80,
-    creditCard: 60,
-    otherExpenses: 570,
-    perChildExpense: 140,
     bankLoan: 930,
+  },
+  truck_driver: {
     description: 'Transportation professional on the open road',
     difficulty: 'easy',
+    bankLoan: 930,
   },
-  {
-    id: 'mechanic',
-    title: 'Mechanic',
-    salary: 2000,
-    taxes: 360,
-    mortgage: 300,
-    schoolLoan: 0,
-    carLoan: 60,
-    creditCard: 60,
-    otherExpenses: 450,
-    perChildExpense: 110,
-    bankLoan: 770,
+  mechanic: {
     description: 'Skilled technician keeping vehicles running',
     difficulty: 'easy',
+    bankLoan: 770,
   },
-  {
-    id: 'police_officer',
-    title: 'Police Officer',
-    salary: 3000,
-    taxes: 580,
-    mortgage: 400,
-    schoolLoan: 0,
-    carLoan: 100,
-    creditCard: 60,
-    otherExpenses: 690,
-    perChildExpense: 160,
-    bankLoan: 1170,
+  police_officer: {
     description: 'Law enforcement professional serving the community',
     difficulty: 'medium',
-  },
-  {
-    id: 'nurse',
-    title: 'Nurse',
-    salary: 3100,
-    taxes: 600,
-    mortgage: 400,
-    schoolLoan: 30,
-    carLoan: 100,
-    creditCard: 90,
-    otherExpenses: 710,
-    perChildExpense: 170,
     bankLoan: 1170,
+  },
+  nurse: {
     description: 'Healthcare professional caring for patients',
     difficulty: 'medium',
+    bankLoan: 1170,
   },
-  {
-    id: 'teacher',
-    title: 'Teacher (K-12)',
-    salary: 3300,
-    taxes: 630,
-    mortgage: 500,
-    schoolLoan: 60,
-    carLoan: 100,
-    creditCard: 90,
-    otherExpenses: 760,
-    perChildExpense: 180,
-    bankLoan: 1160,
+  teacher: {
     description: 'Educator shaping young minds',
     difficulty: 'medium',
+    bankLoan: 1160,
   },
-  {
-    id: 'engineer',
-    title: 'Engineer',
-    salary: 4900,
-    taxes: 1050,
-    mortgage: 700,
-    schoolLoan: 60,
-    carLoan: 140,
-    creditCard: 120,
-    otherExpenses: 1090,
-    perChildExpense: 250,
-    bankLoan: 1740,
+  engineer: {
     description: 'Technical professional solving complex problems',
     difficulty: 'medium',
+    bankLoan: 1740,
   },
-  {
-    id: 'business_manager',
-    title: 'Business Manager',
-    salary: 4600,
-    taxes: 910,
-    mortgage: 700,
-    schoolLoan: 60,
-    carLoan: 120,
-    creditCard: 90,
-    otherExpenses: 1000,
-    perChildExpense: 240,
-    bankLoan: 1720,
+  business_manager: {
     description: 'Corporate professional managing teams',
     difficulty: 'medium',
+    bankLoan: 1720,
   },
-  {
-    id: 'airline_pilot',
-    title: 'Airline Pilot',
-    salary: 9500,
-    taxes: 2350,
-    mortgage: 1330,
-    schoolLoan: 0,
-    carLoan: 300,
-    creditCard: 660,
-    otherExpenses: 2210,
-    perChildExpense: 480,
-    bankLoan: 2650,
+  airline_pilot: {
     description: 'Aviation professional flying the skies',
     difficulty: 'hard',
+    bankLoan: 2650,
   },
-  {
-    id: 'lawyer',
-    title: 'Lawyer',
-    salary: 7500,
-    taxes: 1830,
-    mortgage: 1100,
-    schoolLoan: 390,
-    carLoan: 220,
-    creditCard: 180,
-    otherExpenses: 1650,
-    perChildExpense: 380,
-    bankLoan: 2130,
+  lawyer: {
     description: 'Legal professional advocating for clients',
     difficulty: 'hard',
+    bankLoan: 2130,
   },
-  {
-    id: 'doctor',
-    title: 'Doctor',
-    salary: 13200,
-    taxes: 3420,
-    mortgage: 1900,
-    schoolLoan: 750,
-    carLoan: 380,
-    creditCard: 270,
-    otherExpenses: 2880,
-    perChildExpense: 640,
-    bankLoan: 3600,
+  doctor: {
     description: 'Medical professional healing patients',
     difficulty: 'hard',
+    bankLoan: 3600,
   },
-]
+}
+
+// Map shared profession data → frontend Profession shape, merging UI-only
+// fields from the local lookup. Any profession the backend adds without a
+// matching UI_FLAVOR entry falls back to default copy.
+export const PROFESSIONS: Profession[] = Object.entries(sharedProfessions).map(
+  ([id, data]) => {
+    const flavor = UI_FLAVOR[id] ?? {
+      description: data.name,
+      difficulty: 'medium' as const,
+      bankLoan: 0,
+    }
+    return {
+      id,
+      title: data.name,
+      salary: data.salary,
+      taxes: data.taxes,
+      mortgage: data.mortgage,
+      schoolLoan: data.schoolLoan,
+      carLoan: data.carLoan,
+      creditCard: data.creditCard,
+      otherExpenses: data.otherExpenses,
+      perChildExpense: data.childExpensePerChild,
+      bankLoan: flavor.bankLoan,
+      description: flavor.description,
+      difficulty: flavor.difficulty,
+      // Pass-through fields from shared
+      name: data.name,
+      savings: data.savings,
+      retailPayment: data.retailPayment,
+      childExpensePerChild: data.childExpensePerChild,
+      liabilities: data.liabilities,
+    }
+  },
+)

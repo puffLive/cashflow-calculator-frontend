@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from './redux'
 import { socketService } from '@/services/socketService'
 import type { SocketEvents } from '@/services/socketService'
+import { devLog } from '@/utils/devLog'
 import { apiSlice } from '@/services/api'
 import {
   setGameStatus,
@@ -83,7 +84,7 @@ export const useSocketEvents = (roomCode: string | null) => {
 
   const handleTransactionPending = useCallback(
     (data: SocketEvents['transaction:pending']) => {
-      console.log('[FRONTEND] Received transaction:pending (room-wide notification):', data)
+      devLog('[FRONTEND] Received transaction:pending (room-wide notification):', data)
       // This is just a room-wide notification that a transaction was created
       // The actual audit request comes via 'audit:requested' event
       // We don't add to audit queue here - that's handled by audit:requested
@@ -93,7 +94,7 @@ export const useSocketEvents = (roomCode: string | null) => {
 
   const handlePaymentRequested = useCallback(
     (data: SocketEvents['payment:requested']) => {
-      console.log('[FRONTEND] ✅ Received payment:requested event:', data)
+      devLog('[FRONTEND] ✅ Received payment:requested event:', data)
 
       // Show notification to the payer
       dispatch(
@@ -112,8 +113,8 @@ export const useSocketEvents = (roomCode: string | null) => {
 
   const handleAuditRequested = useCallback(
     (data: SocketEvents['audit:requested']) => {
-      console.log('[FRONTEND] ✅ Received audit:requested event:', data)
-      console.log('[FRONTEND] Adding to audit queue for transaction:', data.transactionId)
+      devLog('[FRONTEND] ✅ Received audit:requested event:', data)
+      devLog('[FRONTEND] Adding to audit queue for transaction:', data.transactionId)
 
       const auditPayload = {
         transactionId: data.transactionId,
@@ -126,11 +127,11 @@ export const useSocketEvents = (roomCode: string | null) => {
         },
         submittedAt: new Date().toISOString(),
       }
-      console.log('[FRONTEND] Audit payload:', auditPayload)
+      devLog('[FRONTEND] Audit payload:', auditPayload)
 
       // Add to audit queue for the auditor
       dispatch(addPendingReview(auditPayload))
-      console.log('[FRONTEND] ✅ Added to pending reviews')
+      devLog('[FRONTEND] ✅ Added to pending reviews')
 
       const notificationId = generateId()
       const notification = {
@@ -141,10 +142,10 @@ export const useSocketEvents = (roomCode: string | null) => {
         actionLabel: 'Review Now',
         actionPath: roomCode ? `/game/${roomCode}/audits` : undefined,
       }
-      console.log('[FRONTEND] Notification payload:', notification)
+      devLog('[FRONTEND] Notification payload:', notification)
 
       dispatch(addNotification(notification))
-      console.log('[FRONTEND] ✅ Notification dispatched')
+      devLog('[FRONTEND] ✅ Notification dispatched')
     },
     [dispatch, roomCode]
   )
@@ -204,10 +205,16 @@ export const useSocketEvents = (roomCode: string | null) => {
 
   const handlePaydayCollected = useCallback(
     (data: SocketEvents['payday:collected']) => {
+      // Use the post-credit total (`newCashOnHand`) the backend already
+      // computed — not the PAYDAY amount itself. The previous code wrote
+      // `data.amount` here, which silently replaced cashOnHand with just
+      // the PAYDAY value (e.g. $7,400 → $2,400) on every other player's
+      // overview. The collecting player's own dashboard re-fetched and
+      // hid the bug.
       dispatch(
         updatePlayer({
           id: data.playerId,
-          cashOnHand: data.amount, // This should be incremented, not set
+          cashOnHand: data.newCashOnHand,
         })
       )
       dispatch(apiSlice.util.invalidateTags(['AllPlayers']))
@@ -321,11 +328,11 @@ export const useSocketEvents = (roomCode: string | null) => {
 
     const connectAndSetup = async () => {
       try {
-        console.log('[SOCKET EVENTS] Connecting to socket...')
+        devLog('[SOCKET EVENTS] Connecting to socket...')
         dispatch(setReconnecting(true))
 
         // FIRST: Clear any existing handlers to prevent duplicates (React Strict Mode)
-        console.log('[SOCKET EVENTS] Clearing existing handlers')
+        devLog('[SOCKET EVENTS] Clearing existing handlers')
         socketService.offEvent('player:joined')
         socketService.offEvent('game:started')
         socketService.offEvent('transaction:pending')
@@ -343,7 +350,7 @@ export const useSocketEvents = (roomCode: string | null) => {
         socketService.offEvent('session:expired')
 
         // SECOND: Register all event handlers BEFORE connecting
-        console.log('[SOCKET EVENTS] Registering all event handlers for room:', roomCode)
+        devLog('[SOCKET EVENTS] Registering all event handlers for room:', roomCode)
         socketService.onEvent('player:joined', handlePlayerJoined)
         socketService.onEvent('game:started', handleGameStarted)
         socketService.onEvent('transaction:pending', handleTransactionPending)
@@ -359,18 +366,18 @@ export const useSocketEvents = (roomCode: string | null) => {
         socketService.onEvent('fasttrack:achieved', handleFastTrackAchieved)
         socketService.onEvent('session:expiry_warning', handleSessionExpiryWarning)
         socketService.onEvent('session:expired', handleSessionExpired)
-        console.log('[SOCKET EVENTS] ✅ All event handlers registered')
+        devLog('[SOCKET EVENTS] ✅ All event handlers registered')
 
         // THIRD: Connect to socket
         await socketService.connect()
 
         // FOURTH: Join room
         const playerId = sessionStorage.getItem('playerId')
-        console.log('[SOCKET EVENTS] About to join room with playerId:', playerId)
+        devLog('[SOCKET EVENTS] About to join room with playerId:', playerId)
         socketService.joinRoom(roomCode, playerId || undefined)
 
         dispatch(setReconnecting(false))
-        console.log('[SOCKET EVENTS] ✅ Connected and joined room successfully')
+        devLog('[SOCKET EVENTS] ✅ Connected and joined room successfully')
       } catch (error) {
         console.error('[SOCKET EVENTS] ❌ Failed to connect to socket:', error)
         dispatch(setReconnecting(false))
@@ -389,7 +396,7 @@ export const useSocketEvents = (roomCode: string | null) => {
 
     // Cleanup on unmount
     return () => {
-      console.log('[SOCKET EVENTS] Cleaning up - leaving room and removing handlers')
+      devLog('[SOCKET EVENTS] Cleaning up - leaving room and removing handlers')
       socketService.leaveRoom()
       socketService.offEvent('player:joined', handlePlayerJoined)
       socketService.offEvent('game:started', handleGameStarted)

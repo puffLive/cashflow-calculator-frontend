@@ -1,4 +1,6 @@
 import { io, Socket } from 'socket.io-client'
+import { getSocketAuth } from '@/utils/sessionAuth'
+import { devLog } from '@/utils/devLog'
 
 // Socket event types
 export interface SocketEvents {
@@ -23,7 +25,7 @@ export interface SocketEvents {
     description: string
     impact?: any
   }
-  'payday:collected': { playerId: string; amount: number }
+  'payday:collected': { playerId: string; amount: number; newCashOnHand: number }
   'player:updated': { playerId: string; data: any }
   'player:disconnected': { playerId: string }
   'player:reconnected': { playerId: string }
@@ -52,7 +54,7 @@ class SocketService {
 
   async connect(serverUrl?: string): Promise<void> {
     if (this.socket?.connected) {
-      console.log('Socket already connected')
+      devLog('Socket already connected')
       return
     }
 
@@ -62,6 +64,11 @@ class SocketService {
 
     this.connectionPromise = new Promise((resolve, reject) => {
       const url = serverUrl || this.serverUrl
+
+      // Read the credentials issued by createGame / joinGame / reconnect
+      // out of sessionStorage. The backend's `io.use` auth middleware
+      // rejects any connection without a matching token.
+      const { playerId, socketAuthToken } = getSocketAuth()
 
       this.socket = io(url, {
         // Start with polling first, then upgrade to websocket if available
@@ -76,11 +83,16 @@ class SocketService {
         forceNew: false,
         // Allow upgrade from polling to websocket
         upgrade: true,
+        // Connection-time auth (Feature 16.2.3 — socket authentication)
+        auth: {
+          playerId: playerId ?? undefined,
+          socketAuthToken: socketAuthToken ?? undefined,
+        },
       })
 
       this.socket.on('connect', () => {
-        console.log('[SOCKET] Socket connected with ID:', this.socket?.id)
-        console.log('[SOCKET] Transport type:', this.socket?.io.engine.transport.name)
+        devLog('[SOCKET] Socket connected with ID:', this.socket?.id)
+        devLog('[SOCKET] Transport type:', this.socket?.io.engine.transport.name)
         resolve()
         this.connectionPromise = null
       })
@@ -92,8 +104,15 @@ class SocketService {
           type: error.type,
           description: error.description,
         })
-        // Don't reject immediately on first error - let it retry
-        // Only reject after all reconnection attempts fail
+        // Auth failures are terminal — Socket.io won't retry past them, so
+        // surface them to the awaiting caller rather than hanging on the
+        // reconnect loop.
+        if (error?.message === 'Unauthorized') {
+          this.socket?.disconnect()
+          reject(new Error('Unauthorized: missing or invalid socketAuthToken'))
+          this.connectionPromise = null
+        }
+        // Otherwise: don't reject immediately, let reconnect logic retry.
       })
 
       this.socket.on('reconnect_failed', () => {
@@ -103,11 +122,11 @@ class SocketService {
       })
 
       this.socket.on('disconnect', (reason) => {
-        console.log('Socket disconnected:', reason)
+        devLog('Socket disconnected:', reason)
       })
 
       this.socket.on('reconnect', (attemptNumber) => {
-        console.log('Socket reconnected after', attemptNumber, 'attempts')
+        devLog('Socket reconnected after', attemptNumber, 'attempts')
         // Rejoin room if we were in one
         if (this.currentRoom) {
           this.joinRoom(this.currentRoom)
@@ -145,9 +164,9 @@ class SocketService {
 
     events.forEach((event) => {
       this.socket?.on(event, (data: any) => {
-        console.log(`[SOCKET] Received event: ${event}`, data)
+        devLog(`[SOCKET] Received event: ${event}`, data)
         const handlers = this.eventHandlers.get(event)
-        console.log(`[SOCKET] Handlers registered for ${event}:`, handlers?.size || 0)
+        devLog(`[SOCKET] Handlers registered for ${event}:`, handlers?.size || 0)
         if (handlers) {
           handlers.forEach((handler) => handler(data))
         }
@@ -156,10 +175,10 @@ class SocketService {
 
     // Listen for socket registration confirmation
     this.socket?.on('socket:registered', (data: any) => {
-      console.log('[SOCKET] ✅ Socket registered with backend:', data)
-      console.log('[SOCKET]   PlayerId:', data.playerId)
-      console.log('[SOCKET]   PlayerName:', data.playerName)
-      console.log('[SOCKET]   SocketId:', data.socketId)
+      devLog('[SOCKET] ✅ Socket registered with backend:', data)
+      devLog('[SOCKET]   PlayerId:', data.playerId)
+      devLog('[SOCKET]   PlayerName:', data.playerName)
+      devLog('[SOCKET]   SocketId:', data.socketId)
     })
   }
 
@@ -176,7 +195,7 @@ class SocketService {
 
     this.socket.emit('join:room', payload)
     this.currentRoom = roomCode
-    console.log('[SOCKET] Joined room:', roomCode, 'Player:', playerId, 'SocketID:', this.socket.id)
+    devLog('[SOCKET] Joined room:', roomCode, 'Player:', playerId, 'SocketID:', this.socket.id)
   }
 
   leaveRoom(): void {
@@ -185,7 +204,7 @@ class SocketService {
     }
 
     this.socket.emit('leave:room', { roomCode: this.currentRoom })
-    console.log('Left room:', this.currentRoom)
+    devLog('Left room:', this.currentRoom)
     this.currentRoom = null
   }
 
@@ -197,7 +216,7 @@ class SocketService {
       this.eventHandlers.set(eventName, new Set())
     }
     this.eventHandlers.get(eventName)?.add(callback)
-    console.log(
+    devLog(
       `[SOCKET] Handler registered for: ${eventName}, total handlers:`,
       this.eventHandlers.get(eventName)?.size
     )
@@ -222,7 +241,7 @@ class SocketService {
       this.socket.disconnect()
       this.socket = null
       this.eventHandlers.clear()
-      console.log('Socket disconnected')
+      devLog('Socket disconnected')
     }
   }
 

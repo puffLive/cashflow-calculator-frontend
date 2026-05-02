@@ -7,6 +7,16 @@ import { selectCurrentPlayer } from '@/store/slices/playerSlice'
 import AssetTypeCard from '@/components/AssetTypeCard'
 import TransactionImpactPreview from '@/components/TransactionImpactPreview'
 import { AVAILABLE_STOCKS, getStockDisplayName } from '@/constants/stocks'
+import {
+  calculateBuyStockImpact,
+  calculateBuyMutualFundImpact,
+  calculateBuyCDImpact,
+  calculateBuyRealEstateImpact,
+  calculateBuyGoldImpact,
+  calculateBuyBusinessImpact,
+  type TransactionImpact,
+} from '@cashflow/shared'
+import { previewSnapshotFromImpact, type PreviewSnapshot } from '@/utils/impactPreview'
 
 type AssetType = 'stock' | 'mutual_fund' | 'cd' | 'real_estate' | 'gold' | 'business'
 
@@ -133,45 +143,79 @@ const BuyTransactionScreen = () => {
     }
   }
 
-  const calculateImpact = () => {
-    const cost = calculateTotalCost()
-    const cashBefore = player.cashOnHand
-    const cashAfter = cashBefore - cost
-
-    let incomeIncrease = 0
-    let expenseIncrease = 0
-
-    if (selectedAssetType === 'stock' || selectedAssetType === 'mutual_fund') {
-      incomeIncrease = (details.dividendPerShare || 0) * (details.numberOfShares || 0)
-    } else if (selectedAssetType === 'cd') {
-      incomeIncrease = ((details.cdValue || 0) * (details.interestRate || 0)) / 100 / 12
-    } else if (selectedAssetType === 'real_estate') {
-      incomeIncrease = details.monthlyCashflow || 0
-      expenseIncrease =
-        (details.mortgageAmount || 0) > 0 ? ((details.mortgageAmount || 0) * 0.1) / 12 : 0
-    } else if (selectedAssetType === 'business') {
-      incomeIncrease = details.businessCashflow || 0
+  // Delegate to the shared `calculateBuy*Impact` functions — the same code
+  // path the backend uses on audit-approval. Eliminates the chance of the
+  // frontend's preview math drifting from what actually happens to the
+  // player on approval. Real-estate's monthly mortgage payment is derived
+  // here at 10%/year (preserving prior local behavior); the shared lib
+  // reads it from `params.mortgagePayment`.
+  const calculateImpact = (): PreviewSnapshot => {
+    if (!selectedAssetType) {
+      return { cashOnHand: { before: player.cashOnHand, after: player.cashOnHand } }
     }
 
-    const incomeBefore = player.totalIncome
-    const incomeAfter = incomeBefore + incomeIncrease
-
-    const expensesBefore = player.totalExpenses
-    const expensesAfter = expensesBefore + expenseIncrease
-
-    const paydayBefore = player.paydayAmount
-    const paydayAfter = paydayBefore + incomeIncrease - expenseIncrease
-
-    const cashflowBefore = player.cashflow
-    const cashflowAfter = cashflowBefore + incomeIncrease - expenseIncrease
-
-    return {
-      cashOnHand: { before: cashBefore, after: cashAfter },
-      totalIncome: { before: incomeBefore, after: incomeAfter },
-      totalExpenses: { before: expensesBefore, after: expensesAfter },
-      paydayAmount: { before: paydayBefore, after: paydayAfter },
-      cashflow: { before: cashflowBefore, after: cashflowAfter },
+    let impact: TransactionImpact
+    switch (selectedAssetType) {
+      case 'stock':
+        impact = calculateBuyStockImpact(player as any, {
+          stockName: details.name,
+          pricePerShare: details.pricePerShare || 0,
+          numShares: details.numberOfShares || 0,
+          dividendPerShare: details.dividendPerShare,
+        })
+        break
+      case 'mutual_fund':
+        impact = calculateBuyMutualFundImpact(player as any, {
+          fundName: details.name,
+          pricePerShare: details.pricePerShare || 0,
+          numShares: details.numberOfShares || 0,
+          dividendPerShare: details.dividendPerShare,
+        })
+        break
+      case 'cd':
+        impact = calculateBuyCDImpact(player as any, {
+          cdValue: details.cdValue || 0,
+          interestRate: details.interestRate || 0,
+        })
+        break
+      case 'real_estate': {
+        const mortgageAmount = details.mortgageAmount || 0
+        const mortgagePayment = mortgageAmount > 0 ? (mortgageAmount * 0.1) / 12 : 0
+        impact = calculateBuyRealEstateImpact(player as any, {
+          name: details.name,
+          cost: details.totalCost || 0,
+          downPayment: details.downPayment || 0,
+          mortgageAmount,
+          mortgagePayment,
+          monthlyCashflow: details.monthlyCashflow || 0,
+        })
+        break
+      }
+      case 'gold':
+        impact = calculateBuyGoldImpact(player as any, {
+          type: details.name,
+          costPerUnit: details.costPerUnit || 0,
+          quantity: details.quantity || 0,
+        })
+        break
+      case 'business': {
+        const cost = details.businessCost || 0
+        const downPayment = details.businessDownPayment || 0
+        const loanAmount = Math.max(0, cost - downPayment)
+        impact = calculateBuyBusinessImpact(player as any, {
+          name: details.name,
+          cost,
+          downPayment,
+          loanAmount,
+          monthlyCashflow: details.businessCashflow || 0,
+        })
+        break
+      }
+      default:
+        return { cashOnHand: { before: player.cashOnHand, after: player.cashOnHand } }
     }
+
+    return previewSnapshotFromImpact(player, impact)
   }
 
   const getAssetDetails = (): string => {
