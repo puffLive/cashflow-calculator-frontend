@@ -28,12 +28,17 @@ import LiabilityDetailScreen from '@/screens/LiabilityDetailScreen'
 // Import global components
 import SessionExpiryWarning from '@/components/SessionExpiryWarning'
 import SessionExpiredModal from '@/components/SessionExpiredModal'
+import { TransactionRejectedModal } from '@/components/TransactionRejectedModal'
 import ReconnectionHandler from '@/components/ReconnectionHandler'
 import { GameSocketProvider } from '@/components/GameSocketProvider'
 import { NotificationToast } from '@/components/NotificationToast'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
-import { useAppSelector } from '@/hooks/redux'
-import { selectModalOpen } from '@/store/slices/uiSlice'
+import { useAppDispatch, useAppSelector } from '@/hooks/redux'
+import { closeModal, selectModalOpen } from '@/store/slices/uiSlice'
+import {
+  clearPendingTransaction,
+  selectPendingTransaction,
+} from '@/store/slices/transactionSlice'
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation'
 import { AccessibilityProvider } from '@/components/AccessibilityProvider'
 import { MobileOptimizations } from '@/components/MobileOptimizations'
@@ -52,7 +57,18 @@ const NotFound = () => (
 // App content with all providers
 const AppContent = () => {
   const modalOpen = useAppSelector(selectModalOpen)
+  const pendingTransaction = useAppSelector(selectPendingTransaction)
+  const dispatch = useAppDispatch()
   useKeyboardNavigation()
+
+  // Closing the rejection modal also clears the pending-transaction record so
+  // the FAB unlocks and the next attempt starts fresh. The "Edit Transaction"
+  // button on the modal handles its own navigation; we just need to tear
+  // down the modal state here.
+  const handleRejectionClose = () => {
+    dispatch(closeModal())
+    dispatch(clearPendingTransaction())
+  }
 
   return (
     <>
@@ -63,6 +79,20 @@ const AppContent = () => {
       {/* Global UI Components */}
       <SessionExpiryWarning />
       <SessionExpiredModal isOpen={modalOpen === 'session_expired'} />
+      <TransactionRejectedModal
+        isOpen={modalOpen === 'transaction_rejected'}
+        onClose={handleRejectionClose}
+        rejectionNote={pendingTransaction?.auditorNote ?? ''}
+        transactionType={pendingTransaction?.type ?? 'buy'}
+        transactionData={
+          pendingTransaction
+            ? {
+                subType: pendingTransaction.subType,
+                details: pendingTransaction.details,
+              }
+            : undefined
+        }
+      />
       <ReconnectionHandler />
       <NotificationToast />
 
@@ -76,7 +106,7 @@ const AppContent = () => {
         <Route
           path={ROUTES.GAME_LOBBY}
           element={
-            <ProtectedRoute>
+            <ProtectedRoute redirectIfStarted>
               <GameSocketProvider>
                 <GameLobbyScreen />
               </GameSocketProvider>
@@ -86,7 +116,7 @@ const AppContent = () => {
         <Route
           path={ROUTES.GAME_SETUP}
           element={
-            <ProtectedRoute>
+            <ProtectedRoute redirectIfSetupComplete>
               <GameSocketProvider>
                 <PlayerSetupScreen />
               </GameSocketProvider>

@@ -6,18 +6,45 @@ import { ROUTES } from '@/constants/routes'
 
 interface ProtectedRouteProps {
   children: ReactNode
+  /** Gameplay routes require the player to have completed setup. */
   requireSetup?: boolean
+  /**
+   * Lobby route guard: when the game has already started (status === 'active'),
+   * bounce the user forward to the dashboard rather than letting them stay
+   * on the lobby waiting for a "Start" button that already fired.
+   */
+  redirectIfStarted?: boolean
+  /**
+   * Setup route guard: when the player has already finished setup, bounce
+   * them to the dashboard (or lobby if the game hasn't started yet).
+   * Prevents re-entering the setup wizard from a stale URL.
+   */
+  redirectIfSetupComplete?: boolean
 }
+
+const ROOM_CODE_PATTERN = /^[A-Z0-9]{6}$/
 
 /**
  * ProtectedRoute component for game routes
- * - Validates room code exists
- * - Validates game session status
- * - Optionally redirects to setup if player not ready
+ * - Validates room code exists + matches the 6-char alphanumeric format
+ * - Validates game session status (404 / 410 / expired surfaces)
+ * - Optionally redirects to setup if player not ready (`requireSetup`)
+ * - Optionally bounces forward when the user lands on a stale phase route
+ *   (`redirectIfStarted`, `redirectIfSetupComplete`)
  */
-export const ProtectedRoute = ({ children, requireSetup = false }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({
+  children,
+  requireSetup = false,
+  redirectIfStarted = false,
+  redirectIfSetupComplete = false,
+}: ProtectedRouteProps) => {
   const { roomCode } = useParams<{ roomCode: string }>()
   const [shouldNavigate, setShouldNavigate] = useState(false)
+
+  // Skip the API call entirely if the URL's room code is malformed —
+  // hitting the server with a known-bad value just to get a 400 burns a
+  // round-trip and produces a worse error UI.
+  const malformedRoomCode = !roomCode || !ROOM_CODE_PATTERN.test(roomCode)
 
   // Fetch game session to validate
   const {
@@ -26,7 +53,7 @@ export const ProtectedRoute = ({ children, requireSetup = false }: ProtectedRout
     isError,
     error,
   } = useGetGameSessionQuery(roomCode || '', {
-    skip: !roomCode,
+    skip: !roomCode || malformedRoomCode,
   })
 
   useEffect(() => {
@@ -37,8 +64,10 @@ export const ProtectedRoute = ({ children, requireSetup = false }: ProtectedRout
     }
   }, [isLoading, session, isError])
 
-  // No room code in URL
-  if (!roomCode) {
+  // No room code in URL, or room code doesn't match the expected format —
+  // bounce to landing rather than rendering an inline error for what is
+  // almost certainly a bookmark to a dead URL.
+  if (!roomCode || malformedRoomCode) {
     return <Navigate to={ROUTES.LANDING} replace />
   }
 
@@ -90,8 +119,22 @@ export const ProtectedRoute = ({ children, requireSetup = false }: ProtectedRout
   if (session) {
     // Check if game hasn't started yet and user is trying to access game routes
     const isWaiting = session.status === 'waiting'
+    const isActive = session.status === 'active'
     if (isWaiting && requireSetup) {
       return <Navigate to={ROUTES.GAME_LOBBY.replace(':roomCode', roomCode)} replace />
+    }
+
+    // Inverse: user landed on a stale phase URL after the game advanced.
+    // (a) On the lobby route once the game has started → forward to dashboard.
+    // (b) On the setup route once setup is complete → forward to dashboard
+    //     (or lobby if the game hasn't started yet).
+    const playerSetupCompleteFlag = sessionStorage.getItem('playerSetupComplete') === 'true'
+    if (redirectIfStarted && isActive) {
+      return <Navigate to={ROUTES.GAME_DASHBOARD.replace(':roomCode', roomCode)} replace />
+    }
+    if (redirectIfSetupComplete && playerSetupCompleteFlag) {
+      const target = isActive ? ROUTES.GAME_DASHBOARD : ROUTES.GAME_LOBBY
+      return <Navigate to={target.replace(':roomCode', roomCode)} replace />
     }
 
     // Check if game has expired

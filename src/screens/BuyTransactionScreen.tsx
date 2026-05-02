@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, TrendingUp, Building2, Coins, Gem, Briefcase, PieChart } from 'lucide-react'
 import { useAppSelector } from '@/hooks/redux'
 import { useSubmitTransactionMutation } from '@/services/transactionApi'
@@ -58,6 +58,7 @@ interface TransactionDetails {
 
 const BuyTransactionScreen = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { roomCode } = useParams<{ roomCode: string }>()
   const player = useAppSelector(selectCurrentPlayer)
 
@@ -82,6 +83,28 @@ const BuyTransactionScreen = () => {
         console.error('Failed to restore pending purchase:', err)
       }
     }
+  }, [])
+
+  // 10.3.7 — pre-populate the form when navigated here from the
+  // TransactionRejectedModal's "Edit Transaction" button. The modal calls
+  // `navigate(... { state: { rejectedData } })` with the original
+  // submission's details and (optionally) subType so the user can correct
+  // and re-submit without re-entering everything.
+  useEffect(() => {
+    const rejectedData = (location.state as { rejectedData?: any } | null)?.rejectedData
+    if (!rejectedData) return
+    if (rejectedData.subType) {
+      setSelectedAssetType(rejectedData.subType as AssetType)
+      // Skip Step 1 (asset type already chosen); land on the input form
+      setStep(2)
+    }
+    if (rejectedData.details) {
+      setDetails(rejectedData.details as TransactionDetails)
+    }
+    // Clear the location state so a refresh doesn't re-pre-fill from a
+    // stale rejection.
+    navigate(location.pathname, { replace: true, state: null })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const assetTypes: AssetTypeInfo[] = [
