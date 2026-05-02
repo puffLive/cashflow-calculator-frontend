@@ -2,9 +2,11 @@ import { describe, it, expect } from 'vitest'
 import transactionReducer, {
   setPendingTransaction,
   enableRenotify,
+  markRenotified,
   clearPendingTransaction,
   selectHasPendingTransaction,
   selectCanRenotify,
+  selectLastRenotifiedAt,
 } from '@/store/slices/transactionSlice'
 import type { Transaction } from '@/services/transactionApi'
 
@@ -27,6 +29,7 @@ describe('transactionSlice', () => {
       lastError: null,
       pendingSubmittedAt: null,
       canRenotify: false,
+      lastRenotifiedAt: null,
     })
   })
 
@@ -95,5 +98,46 @@ describe('transactionSlice', () => {
     } as any
 
     expect(selectHasPendingTransaction(state)).toBe(false)
+  })
+
+  // ────────────────────────────────────────────────────────────────────
+  // Re-notify (10.3.4)
+  // ────────────────────────────────────────────────────────────────────
+
+  describe('re-notify cooldown (10.3.4)', () => {
+    it('markRenotified flips canRenotify to false and stamps lastRenotifiedAt', () => {
+      const before = Date.now()
+      let state = transactionReducer(undefined, setPendingTransaction(mockTransaction))
+      state = transactionReducer(state, enableRenotify())
+      expect(state.canRenotify).toBe(true)
+
+      state = transactionReducer(state, markRenotified())
+      expect(state.canRenotify).toBe(false)
+      expect(state.lastRenotifiedAt).toBeGreaterThanOrEqual(before)
+    })
+
+    it('selectLastRenotifiedAt reads the stamp', () => {
+      const stamped = transactionReducer(
+        { ...transactionReducer(undefined, { type: '@@INIT' }) },
+        markRenotified(),
+      )
+      const state = { transaction: stamped } as any
+      expect(selectLastRenotifiedAt(state)).toBeTypeOf('number')
+    })
+
+    it('clearPendingTransaction resets lastRenotifiedAt', () => {
+      let state = transactionReducer(undefined, setPendingTransaction(mockTransaction))
+      state = transactionReducer(state, markRenotified())
+      state = transactionReducer(state, clearPendingTransaction())
+      expect(state.lastRenotifiedAt).toBeNull()
+    })
+
+    it('setPendingTransaction (new submission) resets lastRenotifiedAt', () => {
+      let state = transactionReducer(undefined, setPendingTransaction(mockTransaction))
+      state = transactionReducer(state, markRenotified())
+      // New submission overwrites the prior one
+      state = transactionReducer(state, setPendingTransaction({ ...mockTransaction, id: 'tx-456' }))
+      expect(state.lastRenotifiedAt).toBeNull()
+    })
   })
 })

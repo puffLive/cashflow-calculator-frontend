@@ -100,6 +100,30 @@ export const transactionApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Transactions', 'Player'],
     }),
+
+    /**
+     * Re-notify the auditor about a still-pending transaction (Feature 10.3.4).
+     * Backend route: POST /:roomCode/transactions/:transactionId/renotify?playerId=…
+     * Returns `{ message, transactionId, auditorPlayerId, auditorReachable }`
+     * — `auditorReachable: false` means the auditor was offline at re-notify
+     * time; the room broadcast still fires so any active client gets the bump.
+     */
+    renotifyTransaction: builder.mutation<
+      {
+        message: string
+        transactionId: string
+        auditorPlayerId: string
+        auditorReachable: boolean
+      },
+      { roomCode: string; transactionId: string; playerId: string }
+    >({
+      query: ({ roomCode, transactionId, playerId }) => ({
+        url: `/games/${roomCode}/transactions/${transactionId}/renotify?playerId=${encodeURIComponent(playerId)}`,
+        method: 'POST',
+      }),
+      // No tag invalidation — re-notify doesn't change cached data, just
+      // re-emits a socket event.
+    }),
   }),
 })
 
@@ -108,4 +132,5 @@ export const {
   useGetTransactionsQuery,
   useAuditTransactionMutation,
   useUndoTransactionMutation,
+  useRenotifyTransactionMutation,
 } = transactionApi

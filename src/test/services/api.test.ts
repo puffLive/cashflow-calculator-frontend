@@ -322,6 +322,30 @@ describe('apiSlice + endpoints — request shapes', () => {
       expect(captures[0].body).toEqual({ action: 'approve' })
     })
 
+    it('renotifyTransaction: POST /transactions/:id/renotify?playerId=…', async () => {
+      installFetchStub(() => ({
+        status: 200,
+        body: {
+          message: 'Auditor re-notified',
+          transactionId: 't1',
+          auditorPlayerId: 'p2',
+          auditorReachable: true,
+        },
+      }))
+
+      const result = await store.dispatch(
+        transactionApi.endpoints.renotifyTransaction.initiate({
+          roomCode: 'ABCDEF',
+          transactionId: 't1',
+          playerId: 'p1',
+        }),
+      )
+
+      expect(captures[0].method).toBe('POST')
+      expect(captures[0].url).toMatch(/\/transactions\/t1\/renotify\?playerId=p1$/)
+      expect(result.data?.auditorReachable).toBe(true)
+    })
+
     it('undoTransaction: POST /players/:id/undo (no body)', async () => {
       installFetchStub(() => ({ status: 201, body: { transaction: { id: 'u1' } } }))
 

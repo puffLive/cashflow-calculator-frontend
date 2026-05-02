@@ -1,24 +1,37 @@
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { Clock, AlertCircle } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '@/hooks/redux'
 import {
   selectPendingTransaction,
   selectPendingSubmittedAt,
   selectCanRenotify,
+  selectLastRenotifiedAt,
   enableRenotify,
+  markRenotified,
 } from '@/store/slices/transactionSlice'
+import { addNotification } from '@/store/slices/uiSlice'
+import { useRenotifyTransactionMutation } from '@/services/transactionApi'
 
 const RENOTIFY_DELAY_MS = 5 * 60 * 1000 // 5 minutes
 
 export const PendingTransactionBanner = () => {
   const dispatch = useAppDispatch()
+  const { roomCode } = useParams<{ roomCode: string }>()
   const pendingTransaction = useAppSelector(selectPendingTransaction)
   const submittedAt = useAppSelector(selectPendingSubmittedAt)
+  const lastRenotifiedAt = useAppSelector(selectLastRenotifiedAt)
   const canRenotify = useAppSelector(selectCanRenotify)
   const [elapsedTime, setElapsedTime] = useState('')
+  const [renotify, { isLoading: isRenotifying }] = useRenotifyTransactionMutation()
 
   useEffect(() => {
     if (!submittedAt || !pendingTransaction) return
+
+    // The 5-min cooldown anchor is the most recent of (submission, last
+    // re-notify). After a re-notify lands, the timer restarts so the user
+    // can't spam the auditor every second.
+    const anchor = Math.max(submittedAt, lastRenotifiedAt ?? 0)
 
     // Update elapsed time every second
     const interval = setInterval(() => {
@@ -30,20 +43,53 @@ export const PendingTransactionBanner = () => {
 
       setElapsedTime(`${minutes}:${remainingSeconds.toString().padStart(2, '0')}`)
 
-      // Enable re-notify after 5 minutes
-      if (elapsed >= RENOTIFY_DELAY_MS && !canRenotify) {
+      // Enable re-notify after 5 minutes since the cooldown anchor
+      if (now - anchor >= RENOTIFY_DELAY_MS && !canRenotify) {
         dispatch(enableRenotify())
       }
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [submittedAt, pendingTransaction, canRenotify, dispatch])
+  }, [submittedAt, lastRenotifiedAt, pendingTransaction, canRenotify, dispatch])
 
-  const handleRenotify = () => {
-    // TODO: Implement re-notify API call
-    console.log('Re-notifying auditor...')
-    // For now, just reset the timer
-    dispatch(enableRenotify())
+  const handleRenotify = async () => {
+    if (!roomCode || !pendingTransaction) return
+    const playerId = sessionStorage.getItem('playerId')
+    if (!playerId) return
+
+    try {
+      const result = await renotify({
+        roomCode,
+        transactionId: pendingTransaction.id,
+        playerId,
+      }).unwrap()
+
+      dispatch(
+        addNotification({
+          id: `renotify-${Date.now()}`,
+          type: result.auditorReachable ? 'success' : 'warning',
+          message: result.auditorReachable
+            ? 'Auditor re-notified'
+            : 'Auditor is offline — they’ll see the request when they reconnect',
+          duration: 4000,
+        }),
+      )
+      // Hide the button + restart the 5-min cooldown anchor. The
+      // elapsed-time effect re-enables `canRenotify` once another 5 min
+      // passes (relative to `lastRenotifiedAt`).
+      dispatch(markRenotified())
+    } catch (err: any) {
+      const message =
+        err?.data?.message ?? err?.data?.error ?? 'Failed to re-notify auditor'
+      dispatch(
+        addNotification({
+          id: `renotify-err-${Date.now()}`,
+          type: 'error',
+          message,
+          duration: 5000,
+        }),
+      )
+    }
   }
 
   if (!pendingTransaction || pendingTransaction.status !== 'pending') {
@@ -64,10 +110,11 @@ export const PendingTransactionBanner = () => {
             {canRenotify && (
               <button
                 onClick={handleRenotify}
-                className="text-xs text-amber-700 underline hover:text-amber-900 flex items-center gap-1"
+                disabled={isRenotifying}
+                className="text-xs text-amber-700 underline hover:text-amber-900 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
               >
                 <AlertCircle className="w-3 h-3" />
-                Re-notify Auditor
+                {isRenotifying ? 'Re-notifying...' : 'Re-notify Auditor'}
               </button>
             )}
           </div>
