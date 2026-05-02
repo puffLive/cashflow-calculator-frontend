@@ -27,6 +27,12 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      // Match vite.config.ts — resolve to shared src for native ESM named
+      // exports. Without this, vitest would load the CJS dist and break.
+      '@cashflow/shared': path.resolve(
+        __dirname,
+        '../cash-flow-backend/shared/src',
+      ),
       '@': path.resolve(__dirname, './src'),
     },
   },
