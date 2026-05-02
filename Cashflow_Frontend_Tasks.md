@@ -654,6 +654,35 @@ Tasks 15.2.1–15.9.1 are defined but only 2 specs exist. Prioritize, in this or
 
 **Playwright spec total**: **12 files / 32 specs / 96 tests** across the 3 device projects (chromium, Mobile Chrome, Mobile Safari). Of these, 1 spec runs without a backend (`session-expiry.spec.ts` via route injection); the rest are scaffolds awaiting CI backend integration. All parse cleanly via `npx playwright test --list`.
 
+### 16.9 Buy submission contract fix (user-reported, 2026-05-02)
+- [x] User reported: after taking a bank loan to cover a stock purchase, hitting "Submit for Audit" produced `400 Validation failed` with `[{field: "unknown", message: "Stock name is required"}, {field: "unknown", message: "Price per share must be positive"}, {field: "unknown", message: "Number of shares must be positive"}]`. **Root cause** — two compounding contract mismatches:
+  1. `submitTransaction` mutation sent `body: { type, subType, details: {...} }`, but the backend's route validators read fields directly off `req.body` (e.g. `body('stockName')`). Every per-subType field landed under `details.*` and was therefore `undefined` to the validator.
+  2. The wizard collects generic field names (`name`, `numberOfShares`, `costPerUnit`, …) for ergonomics; the backend uses type-specific names (`stockName` / `fundName` / `cdName`, `numShares` / `numCoins`, `pricePerCoin`, …). Even after flattening, the names wouldn't have matched.
+- **Fix**:
+  - `src/services/transactionApi.ts`: changed `submitTransaction` body to `{ type, subType, ...details }` so callers fully own the per-subType field shape.
+  - `src/utils/buyTransactionPayload.ts` (new): `buildBuySubmitDetails(subType, details)` does the rename per asset type, plus two derivations the wizard never collected explicitly:
+    - real_estate: `monthlyMortgage = round(mortgageAmount × 0.10 / 12)` — matches the wizard's local impact preview.
+    - business: `loanAmount = max(0, businessCost − businessDownPayment)`, `monthlyLoanPayment = round(loanAmount × 0.10 / 12)`.
+  - `src/screens/BuyTransactionScreen.tsx`: `handleSubmit` now calls `buildBuySubmitDetails(selectedAssetType, details)` and passes the result as `details`.
+- **Tests** — 14 new in `src/test/utils/buyTransactionPayload.test.ts` cover all 6 buy subtypes, the `dividendPerShare` conditional spread (omits when undefined, doesn't send a 0), default-to-0 behavior for missing numerics, the `monthlyMortgage` derivation (incl. 0 when `mortgageAmount` missing), the business-loan clamp (down payment ≥ cost → loan 0), and the `Unknown buy subType` exhaustiveness throw. Frontend test count: 165 → **179**.
+
+### 16.8 Self-player socket updates fixed (user-reported, 2026-05-02)
+- [x] User reported: after the auditor approves a take-loan, the dashboard's `cashOnHand` never updates. **Root cause** — two pre-existing bugs in `src/hooks/useSocketEvents.ts`:
+  1. `handlePlayerUpdated` typed the payload as `{ playerId, data: any }` and did `dispatch(updatePlayer({ id: playerId, ...data.data }))`. But the backend emits fields **at the top level** (`{ playerId, cashOnHand, totalIncome, ... }`), so `data.data` was `undefined` and the spread did nothing — **even the all-players overview was only getting the playerId, no financial fields**.
+  2. The handler only ever wrote to `allPlayersSlice`. The current user's `playerSlice` (which the dashboard's metric cards read via `selectCurrentPlayer`) was only refreshable through the `apiSlice.util.invalidateTags(['Player'])` call in `handleTransactionFinalized`. That refetch only fires if `useGetPlayerQuery` is currently subscribed — i.e. the user has to be on the dashboard at the exact moment the auditor approves. If they're on the buy / loan / lobby screen waiting, the refetch never fires and the dashboard shows stale numbers.
+- **Fixes**:
+  - Corrected the `SocketEvents['player:updated']` and `SocketEvents['transaction:finalized']` type definitions in `src/services/socketService.ts` to match what the backend actually sends.
+  - `handlePlayerUpdated` now destructures `{ playerId, ...fields }` from the top level, dispatches `updatePlayer({ id: playerId, ...fields })` to the all-players slice, AND when `playerId === currentPlayerId`, mirrors the financial fields onto `playerSlice` via `updateFinancials`. Reads `currentPlayerId` from `gameSession` slice.
+  - `handlePaydayCollected` now also dispatches `updateCashOnHand` to `playerSlice` when the PAYDAY is for the current user.
+  - Removed the dead `if (data.playerData) dispatch(updateFinancials(data.playerData))` branch from `handleTransactionFinalized` — the backend never sent that field; the actual financial deltas flow through the companion `player:updated` event.
+- **Tests** — 5 new in `src/test/hooks/useSocketEvents.test.tsx`:
+  - take-loan approval round-trip: backend's `player:updated` payload (cashOnHand 5000→8000, totalExpenses 2710→3010 after a $3K loan) updates BOTH `playerSlice` (dashboard) AND `allPlayersSlice` (overview); derived fields (paydayAmount, cashflow) recompute correctly via the slice's `updateFinancials` reducer
+  - `player:updated` for another player does NOT touch `playerSlice` (current user's wallet stays put)
+  - `payday:collected` for the current user updates `playerSlice.cashOnHand`
+  - `payday:collected` for another player does NOT touch `playerSlice`
+  - Sparse `player:updated` payload (e.g. just `auditorPlayerId`) leaves financial fields intact
+- Also updated the existing `player:updated` test to use the corrected top-level fields shape. Frontend test count: 160 → **165**.
+
 ### 16.7 Buy → Loan deep-link with suggested amount (user-reported, 2026-05-02)
 - [x] User reported: when a buy transaction's cost exceeds cash on hand, the transaction silently fails with no clear path forward. Fix: extended the existing buy → loan handoff to include a suggested amount and pre-fill the loan stepper.
   - `src/screens/BuyTransactionScreen.tsx`: extracted `handleTakeLoanForPurchase` that computes the shortfall, rounds up to the nearest $1,000 (the bank-loan validator's increment), saves the in-progress purchase to `sessionStorage.pendingPurchase` (the existing restore effect on mount replays the form when the user comes back), and navigates to `/transaction/loan?suggested=<amount>`. Replaced the bare "Insufficient funds" warning on Step 2 with a yellow gate banner that includes a "Take $X,XXX loan →" button. Step 3's submit button now shows the exact suggested amount in its label ("💰 Take $3,000 loan" instead of "💰 Take a Loan").

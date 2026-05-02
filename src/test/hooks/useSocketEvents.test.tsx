@@ -79,6 +79,35 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
   beforeEach(() => {
     handlers.clear()
     store = buildStore()
+    // Seed gameSession with the current user's id — needed so the hook's
+    // self-vs-other-player branching can compare against it.
+    store.dispatch({
+      type: 'gameSession/setGameSession',
+      payload: {
+        roomCode: 'TESTAB',
+        currentPlayerId: 'p1',
+        hostPlayerId: 'p1',
+        status: 'active',
+      },
+    })
+    // Seed the player slice as if the current user (p1) had completed setup
+    // with engineer defaults. Lets the self-update tests assert deltas
+    // against a known starting state.
+    store.dispatch({
+      type: 'player/setPlayerData',
+      payload: {
+        id: 'p1',
+        name: 'Alice',
+        cashOnHand: 5000,
+        salary: 4900,
+        passiveIncome: 0,
+        totalIncome: 4900,
+        totalExpenses: 2710,
+        cashflow: -2710,
+        paydayAmount: 2190,
+        isOnFastTrack: false,
+      },
+    })
     // Seed two players so the update-by-id handlers have something to mutate
     store.dispatch({
       type: 'allPlayers/addPlayer',
@@ -95,6 +124,23 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
         connectionStatus: 'connected',
         isReady: false,
         isHost: true,
+      },
+    })
+    store.dispatch({
+      type: 'allPlayers/addPlayer',
+      payload: {
+        id: 'p2',
+        name: 'Bob',
+        cashOnHand: 5000,
+        cashflow: 0,
+        paydayAmount: 0,
+        passiveIncome: 0,
+        totalExpenses: 0,
+        assetCount: 0,
+        isOnFastTrack: false,
+        connectionStatus: 'connected',
+        isReady: false,
+        isHost: false,
       },
     })
     renderEventsHook(store)
@@ -120,15 +166,16 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
   })
 
   // ────────────────────────────────────────────────────────────────────
-  // player:updated — generic per-player merge.
+  // player:updated — fields land at the top level (NOT under `data`).
   // ────────────────────────────────────────────────────────────────────
-  it('player:updated merges fields onto the existing player record', () => {
+  it('player:updated merges top-level fields onto the existing player record', () => {
     const fire = handlers.get('player:updated')
     expect(fire).toBeDefined()
 
     fire!({
       playerId: 'p1',
-      data: { cashOnHand: 9999, cashflow: 200 },
+      cashOnHand: 9999,
+      cashflow: 200,
     })
 
     const player = store
@@ -220,16 +267,115 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
   // player:joined — adds the new player and bumps playerCount.
   // ────────────────────────────────────────────────────────────────────
   it('player:joined appends the new player to allPlayers and bumps playerCount', () => {
+    // p2 already exists from the beforeEach seeding; firing player:joined
+    // for a NEW id (p3) should append.
     const before = store.getState().allPlayers.players.length
 
     handlers.get('player:joined')!({
-      playerId: 'p2',
-      playerName: 'Bob',
+      playerId: 'p3',
+      playerName: 'Charlie',
       roomCode: 'TESTAB',
     })
 
     const after = store.getState().allPlayers.players
     expect(after.length).toBe(before + 1)
-    expect(after.find((p: any) => p.id === 'p2')?.name).toBe('Bob')
+    expect(after.find((p: any) => p.id === 'p3')?.name).toBe('Charlie')
+  })
+
+  // ────────────────────────────────────────────────────────────────────
+  // Self-update behavior — regression tests for the user-reported bug
+  // where the dashboard cash never updated after the auditor approved a
+  // take-loan transaction. Root cause: the previous handler only updated
+  // `allPlayersSlice` (other players' cards) and never `playerSlice`
+  // (the current user's wallet). The dashboard's only refresh path was an
+  // RTK Query refetch via `invalidateTags(['Player'])`, which only fires
+  // if `useGetPlayerQuery` is currently subscribed.
+  // ────────────────────────────────────────────────────────────────────
+
+  describe('self-update — playerSlice mirrors player:updated for the current user', () => {
+    it('take-loan approval: cashOnHand + totalExpenses on playerSlice update for the submitter', () => {
+      // Backend payload after auditor approves a $3K loan for player p1:
+      // cashOnHand 5000 → 8000, totalExpenses 2710 → 3010.
+      handlers.get('player:updated')!({
+        playerId: 'p1',
+        playerName: 'Alice',
+        cashOnHand: 8000,
+        totalIncome: 4900,
+        totalExpenses: 3010,
+        cashflow: -3010,
+        passiveIncome: 0,
+        isOnFastTrack: false,
+      })
+
+      const player = store.getState().player
+      expect(player.cashOnHand).toBe(8000)
+      expect(player.totalExpenses).toBe(3010)
+      // playerSlice's `updateFinancials` recomputes the derived fields
+      expect(player.paydayAmount).toBe(4900 - 3010) // = 1890
+      expect(player.cashflow).toBe(0 - 3010) // passive - expenses
+
+      // And the all-players overview also reflects it
+      const overview = store
+        .getState()
+        .allPlayers.players.find((p: any) => p.id === 'p1')
+      expect(overview?.cashOnHand).toBe(8000)
+    })
+
+    it('player:updated for ANOTHER player does NOT touch playerSlice', () => {
+      const before = store.getState().player.cashOnHand
+      handlers.get('player:updated')!({
+        playerId: 'p2', // Bob, not the current user
+        cashOnHand: 9999,
+      })
+
+      const player = store.getState().player
+      expect(player.cashOnHand).toBe(before) // unchanged
+      // But the all-players overview for Bob does reflect it
+      const overview = store
+        .getState()
+        .allPlayers.players.find((p: any) => p.id === 'p2')
+      expect(overview?.cashOnHand).toBe(9999)
+    })
+
+    it('payday:collected for the current user updates playerSlice cashOnHand', () => {
+      handlers.get('payday:collected')!({
+        playerId: 'p1',
+        amount: 2190,
+        newCashOnHand: 7190,
+      })
+
+      expect(store.getState().player.cashOnHand).toBe(7190)
+    })
+
+    it('payday:collected for ANOTHER player does NOT touch playerSlice', () => {
+      const before = store.getState().player.cashOnHand
+      handlers.get('payday:collected')!({
+        playerId: 'p2',
+        amount: 2190,
+        newCashOnHand: 7190,
+      })
+
+      expect(store.getState().player.cashOnHand).toBe(before)
+      // But Bob's overview does update
+      const bob = store
+        .getState()
+        .allPlayers.players.find((p: any) => p.id === 'p2')
+      expect(bob?.cashOnHand).toBe(7190)
+    })
+
+    it('player:updated with only some fields leaves the rest of playerSlice intact', () => {
+      // Auditor reassignment scenario — backend emits player:updated with
+      // just `auditorPlayerId`. Financial fields shouldn't be touched.
+      const before = store.getState().player
+      handlers.get('player:updated')!({
+        playerId: 'p1',
+        auditorPlayerId: 'p2',
+      })
+
+      const after = store.getState().player
+      expect(after.cashOnHand).toBe(before.cashOnHand)
+      expect(after.totalExpenses).toBe(before.totalExpenses)
+      expect(after.paydayAmount).toBe(before.paydayAmount)
+    })
   })
 })

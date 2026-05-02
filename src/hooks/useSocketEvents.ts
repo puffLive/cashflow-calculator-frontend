@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppDispatch } from './redux'
+import { useAppDispatch, useAppSelector } from './redux'
 import { socketService } from '@/services/socketService'
 import type { SocketEvents } from '@/services/socketService'
 import { devLog } from '@/utils/devLog'
@@ -9,6 +9,7 @@ import {
   setGameStatus,
   incrementPlayerCount,
   decrementPlayerCount,
+  selectCurrentPlayerId,
 } from '@/store/slices/gameSessionSlice'
 import {
   addPlayer,
@@ -24,12 +25,20 @@ import {
   setReconnecting,
   openModal,
 } from '@/store/slices/uiSlice'
-import { updateFinancials } from '@/store/slices/playerSlice'
+import { updateCashOnHand, updateFinancials } from '@/store/slices/playerSlice'
 import { ROUTES } from '@/constants/routes'
 
 export const useSocketEvents = (roomCode: string | null) => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  // The current user's playerId is stored in the gameSession slice on
+  // create/join. We compare against it on every cross-player socket event
+  // so the user's own dashboard (`playerSlice`) updates alongside the
+  // all-players overview (`allPlayersSlice`) — without it, the dashboard
+  // only refreshed via `apiSlice.util.invalidateTags(['Player'])`, which
+  // requires `useGetPlayerQuery` to currently be subscribed (i.e. the
+  // user has to be on the dashboard at the moment the event fires).
+  const currentPlayerId = useAppSelector(selectCurrentPlayerId)
 
   // Generate notification IDs
   const generateId = () => `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
@@ -154,9 +163,12 @@ export const useSocketEvents = (roomCode: string | null) => {
     (data: SocketEvents['transaction:finalized']) => {
       if (data.approved) {
         dispatch(clearPendingTransaction())
-        if (data.playerData) {
-          dispatch(updateFinancials(data.playerData))
-        }
+        // The actual financial deltas land via the companion `player:updated`
+        // event the backend emits immediately after this one — see
+        // `handlePlayerUpdated`. The previous `data.playerData` branch was
+        // dead code (the backend never sent that field, the type was wrong,
+        // and the dashboard relied on `invalidateTags` to refetch which
+        // only worked when the dashboard was actively subscribed).
         dispatch(
           updateTransaction({
             id: data.transactionId,
@@ -173,7 +185,8 @@ export const useSocketEvents = (roomCode: string | null) => {
         )
       }
       dispatch(removePendingReview(data.transactionId))
-      // Invalidate player data cache to refetch
+      // Invalidate the dashboard query — covers active subscribers; the
+      // `player:updated` event covers the unsubscribed case.
       dispatch(apiSlice.util.invalidateTags(['Player', 'AllPlayers']))
     },
     [dispatch]
@@ -217,21 +230,50 @@ export const useSocketEvents = (roomCode: string | null) => {
           cashOnHand: data.newCashOnHand,
         })
       )
+      // When the PAYDAY is the current user's, also write to `playerSlice`
+      // so the dashboard's metric cards update without waiting for an RTK
+      // Query refetch (which only fires if the dashboard is currently
+      // subscribed).
+      if (data.playerId === currentPlayerId) {
+        dispatch(updateCashOnHand(data.newCashOnHand))
+      }
       dispatch(apiSlice.util.invalidateTags(['AllPlayers']))
     },
-    [dispatch]
+    [dispatch, currentPlayerId]
   )
 
   const handlePlayerUpdated = useCallback(
     (data: SocketEvents['player:updated']) => {
-      dispatch(
-        updatePlayer({
-          id: data.playerId,
-          ...data.data,
-        })
-      )
+      // Backend emits fields at the top level. The previous `...data.data`
+      // spread did nothing because `data.data` was undefined.
+      const { playerId, ...fields } = data
+      dispatch(updatePlayer({ id: playerId, ...fields }))
+
+      // When the event is for the current user, mirror the financial
+      // fields onto `playerSlice` so the dashboard re-renders even if
+      // its RTK Query isn't currently subscribed (the user might be on
+      // the loan / buy / lobby screen waiting for their auditor's
+      // approval).
+      if (playerId === currentPlayerId) {
+        const financialFields: Record<string, unknown> = {}
+        if (fields.cashOnHand !== undefined)
+          financialFields.cashOnHand = fields.cashOnHand
+        if (fields.totalIncome !== undefined)
+          financialFields.totalIncome = fields.totalIncome
+        if (fields.totalExpenses !== undefined)
+          financialFields.totalExpenses = fields.totalExpenses
+        if (fields.cashflow !== undefined)
+          financialFields.cashflow = fields.cashflow
+        if (fields.passiveIncome !== undefined)
+          financialFields.passiveIncome = fields.passiveIncome
+        if (fields.isOnFastTrack !== undefined)
+          financialFields.isOnFastTrack = fields.isOnFastTrack
+        if (Object.keys(financialFields).length > 0) {
+          dispatch(updateFinancials(financialFields as any))
+        }
+      }
     },
-    [dispatch]
+    [dispatch, currentPlayerId]
   )
 
   const handlePlayerDisconnected = useCallback(

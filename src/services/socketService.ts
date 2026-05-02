@@ -8,7 +8,21 @@ export interface SocketEvents {
   'player:joined': { playerId: string; playerName: string; roomCode: string }
   'game:started': { roomCode: string }
   'transaction:pending': { transactionId: string; playerId: string; type: string }
-  'transaction:finalized': { transactionId: string; approved: boolean; playerData?: any }
+  /**
+   * Backend payload (auditController.processAudit on approve) — `playerData`
+   * is never sent; financial updates flow via the companion `player:updated`
+   * event that fires immediately after.
+   */
+  'transaction:finalized': {
+    transactionId: string
+    approved: boolean
+    playerId: string
+    playerName: string
+    type: string
+    subType?: string
+    description?: string
+    auditorNote?: string
+  }
   'transaction:rejected': { transactionId: string; note: string }
   'payment:requested': {
     transactionId: string
@@ -26,7 +40,26 @@ export interface SocketEvents {
     impact?: any
   }
   'payday:collected': { playerId: string; amount: number; newCashOnHand: number }
-  'player:updated': { playerId: string; data: any }
+  /**
+   * Backend payload — fields are at the top level (NOT nested under `data`).
+   * Emitted after every audit approval, every PAYDAY, every reassignment.
+   * All financial fields are optional because some emit sites (e.g. auditor
+   * reassignment) only send a subset.
+   */
+  'player:updated': {
+    playerId: string
+    playerName?: string
+    cashOnHand?: number
+    totalIncome?: number
+    totalExpenses?: number
+    cashflow?: number
+    passiveIncome?: number
+    isOnFastTrack?: boolean
+    auditorPlayerId?: string | null
+    profession?: string
+    hasCompletedSetup?: boolean
+    dream?: { name: string; cost: number }
+  }
   'player:disconnected': { playerId: string }
   'player:reconnected': { playerId: string }
   'player:removed': { playerId: string; reason: string }

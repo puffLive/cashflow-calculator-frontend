@@ -17,6 +17,7 @@ import {
   type TransactionImpact,
 } from '@cashflow/shared'
 import { previewSnapshotFromImpact, type PreviewSnapshot } from '@/utils/impactPreview'
+import { buildBuySubmitDetails } from '@/utils/buyTransactionPayload'
 
 type AssetType = 'stock' | 'mutual_fund' | 'cd' | 'real_estate' | 'gold' | 'business'
 
@@ -334,7 +335,7 @@ const BuyTransactionScreen = () => {
         playerId,
         type: 'buy',
         subType: selectedAssetType,
-        details: details as unknown as Record<string, unknown>,
+        details: buildBuySubmitDetails(selectedAssetType, details),
       }).unwrap()
 
       // Clear any pending purchase data

@@ -52,10 +52,18 @@ interface TransactionResponse {
 export const transactionApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     submitTransaction: builder.mutation<TransactionResponse, SubmitTransactionRequest>({
-      query: ({ roomCode, playerId, ...data }) => ({
+      query: ({ roomCode, playerId, type, subType, details }) => ({
         url: `/games/${roomCode}/players/${playerId}/transactions`,
         method: 'POST',
-        body: data,
+        // Flatten `details` at the top level. The backend's route validators
+        // and controllers read fields directly off `req.body` (e.g.
+        // `body('stockName')`, `transactionData.numShares`); the previous
+        // shape `body: { type, subType, details: { ... } }` left them all
+        // undefined and produced a 400 "Validation failed". The screen-level
+        // submit code is responsible for putting the per-subType field
+        // names the backend expects into `details` (see
+        // `BuyTransactionScreen::buildBuySubmitDetails`).
+        body: { type, subType, ...details },
       }),
       invalidatesTags: ['Transactions'],
     }),
