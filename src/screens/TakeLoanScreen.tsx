@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Plus, Minus } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '@/hooks/redux'
 import { useTakeLoanMutation } from '@/services/gameApi'
@@ -13,16 +13,41 @@ const TakeLoanScreen = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { roomCode } = useParams<{ roomCode: string }>()
+  const [searchParams] = useSearchParams()
   const player = useAppSelector(selectCurrentPlayer)
 
   const [takeLoan, { isLoading }] = useTakeLoanMutation()
 
-  const [step, setStep] = useState<1 | 2>(1)
-  const [loanIncrements, setLoanIncrements] = useState(1) // Number of $1,000 increments
-  const MAX_INCREMENTS = 50 // Max $50,000
-
   const LOAN_INCREMENT = 1000
+  const MAX_INCREMENTS = 50 // Max $50,000
   const MONTHLY_PAYMENT_RATE = 0.1 // 10% of loan per month
+
+  // If we were deep-linked here from a buy/downsized screen with a
+  // ?suggested=<dollars> param, pre-fill the stepper to that amount so the
+  // user doesn't have to guess. Clamped to [1, MAX_INCREMENTS].
+  const initialIncrements = (() => {
+    const raw = searchParams.get('suggested')
+    const parsed = raw ? parseInt(raw, 10) : NaN
+    if (!Number.isFinite(parsed) || parsed <= 0) return 1
+    const increments = Math.max(1, Math.round(parsed / LOAN_INCREMENT))
+    return Math.min(increments, MAX_INCREMENTS)
+  })()
+
+  const [step, setStep] = useState<1 | 2>(1)
+  const [loanIncrements, setLoanIncrements] = useState(initialIncrements)
+
+  // If the URL changes to a different ?suggested= mid-session, re-pin.
+  useEffect(() => {
+    const raw = searchParams.get('suggested')
+    if (!raw) return
+    const parsed = parseInt(raw, 10)
+    if (!Number.isFinite(parsed) || parsed <= 0) return
+    const increments = Math.max(
+      1,
+      Math.min(MAX_INCREMENTS, Math.round(parsed / LOAN_INCREMENT)),
+    )
+    setLoanIncrements(increments)
+  }, [searchParams])
 
   const loanAmount = loanIncrements * LOAN_INCREMENT
   const monthlyPayment = Math.round(loanAmount * MONTHLY_PAYMENT_RATE)
@@ -152,7 +177,12 @@ const TakeLoanScreen = () => {
               {/* Loan Amount Display */}
               <div className="text-center">
                 <p className="text-sm text-gray-600 mb-2">Loan Amount</p>
-                <p className="text-5xl font-bold text-blue-600">${loanAmount.toLocaleString()}</p>
+                <p
+                  className="text-5xl font-bold text-blue-600"
+                  data-testid="loan-amount"
+                >
+                  ${loanAmount.toLocaleString()}
+                </p>
               </div>
 
               {/* Increment Controls */}

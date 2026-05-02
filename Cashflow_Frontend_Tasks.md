@@ -654,6 +654,13 @@ Tasks 15.2.1–15.9.1 are defined but only 2 specs exist. Prioritize, in this or
 
 **Playwright spec total**: **12 files / 32 specs / 96 tests** across the 3 device projects (chromium, Mobile Chrome, Mobile Safari). Of these, 1 spec runs without a backend (`session-expiry.spec.ts` via route injection); the rest are scaffolds awaiting CI backend integration. All parse cleanly via `npx playwright test --list`.
 
+### 16.7 Buy → Loan deep-link with suggested amount (user-reported, 2026-05-02)
+- [x] User reported: when a buy transaction's cost exceeds cash on hand, the transaction silently fails with no clear path forward. Fix: extended the existing buy → loan handoff to include a suggested amount and pre-fill the loan stepper.
+  - `src/screens/BuyTransactionScreen.tsx`: extracted `handleTakeLoanForPurchase` that computes the shortfall, rounds up to the nearest $1,000 (the bank-loan validator's increment), saves the in-progress purchase to `sessionStorage.pendingPurchase` (the existing restore effect on mount replays the form when the user comes back), and navigates to `/transaction/loan?suggested=<amount>`. Replaced the bare "Insufficient funds" warning on Step 2 with a yellow gate banner that includes a "Take $X,XXX loan →" button. Step 3's submit button now shows the exact suggested amount in its label ("💰 Take $3,000 loan" instead of "💰 Take a Loan").
+  - `src/screens/TakeLoanScreen.tsx`: added a `useSearchParams()` reader that parses `?suggested=<dollars>` on mount (and on URL change) and pre-fills `loanIncrements`. Defaults to 1 increment when missing or invalid. Clamps to `[1, 50]` (the existing MAX_INCREMENTS).
+  - Added `data-testid="loan-amount"` to the big loan-amount display so tests can target it without ambiguity.
+  - 7 new unit tests in `src/test/screens/TakeLoanScreen-suggested.test.tsx` cover the deep-link param: no param → default $1,000; exact match $3,000; rounding ($2,500 → $3,000); under-min ($999 → $1,000); over-cap ($999,999 → $50,000); non-numeric → default; zero → default. Frontend test count: 153 → **160**.
+
 ### 16.6 Backend Contract Sync — Three Blockers Landed (added 2026-05-01)
 The backend's recent overhaul shifted three contracts the frontend was either ignoring or actively reading wrong. All three have been fixed:
 

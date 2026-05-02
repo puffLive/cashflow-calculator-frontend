@@ -291,6 +291,31 @@ const BuyTransactionScreen = () => {
     }
   }
 
+  /**
+   * Save the in-progress purchase to sessionStorage and deep-link the user
+   * to the loan screen with a suggested loan amount (rounded up to the
+   * nearest $1,000 — the bank-loan validator's increment). When the loan
+   * is approved and the user comes back, the `pendingPurchase` restore
+   * effect at the top of the screen replays their form.
+   */
+  const handleTakeLoanForPurchase = () => {
+    if (!roomCode || !selectedAssetType) return
+    const shortfall = Math.abs(remainingCash)
+    const suggestedLoan = Math.ceil(shortfall / 1000) * 1000
+
+    sessionStorage.setItem(
+      'pendingPurchase',
+      JSON.stringify({
+        assetType: selectedAssetType,
+        details,
+        step,
+        returnUrl: `/game/${roomCode}/transaction/buy`,
+      }),
+    )
+
+    navigate(`/game/${roomCode}/transaction/loan?suggested=${suggestedLoan}`)
+  }
+
   const handleSubmit = async () => {
     if (!roomCode || !selectedAssetType) return
 
@@ -299,16 +324,7 @@ const BuyTransactionScreen = () => {
 
     // Check if user has insufficient funds
     if (hasInsufficientFunds) {
-      // Store the current transaction state in sessionStorage
-      sessionStorage.setItem('pendingPurchase', JSON.stringify({
-        assetType: selectedAssetType,
-        details: details,
-        step: step,
-        returnUrl: `/game/${roomCode}/transaction/buy`
-      }))
-
-      // Redirect to take loan page
-      navigate(`/game/${roomCode}/transaction/loan`)
+      handleTakeLoanForPurchase()
       return
     }
 
@@ -709,9 +725,21 @@ const BuyTransactionScreen = () => {
                   </div>
                 </div>
                 {hasInsufficientFunds && (
-                  <p className="text-sm text-red-600 mt-2">
-                    ⚠️ Insufficient funds for this purchase
-                  </p>
+                  <div className="mt-2 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <p className="text-sm text-yellow-800 font-medium mb-2">
+                      ⚠️ You're ${Math.abs(remainingCash).toLocaleString()} short of cash for this purchase.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleTakeLoanForPurchase}
+                      className="text-sm font-medium text-white bg-blue-600 px-3 py-1.5 rounded hover:bg-blue-700"
+                    >
+                      Take ${(Math.ceil(Math.abs(remainingCash) / 1000) * 1000).toLocaleString()} loan →
+                    </button>
+                    <p className="text-xs text-yellow-700 mt-1.5">
+                      Rounded up to the nearest $1,000 (bank loan increment). You'll come back here after audit approval.
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
@@ -754,7 +782,8 @@ const BuyTransactionScreen = () => {
                   ⚠️ You need ${Math.abs(remainingCash).toLocaleString()} more to complete this purchase.
                 </p>
                 <p className="text-xs text-yellow-700 mt-1">
-                  Click "Take a Loan" to secure funding, then return here to complete your purchase.
+                  Take a ${(Math.ceil(Math.abs(remainingCash) / 1000) * 1000).toLocaleString()} bank loan
+                  (rounded up to the nearest $1,000), then we'll bring you back here after audit approval to finish the buy.
                 </p>
               </div>
             )}
@@ -778,7 +807,7 @@ const BuyTransactionScreen = () => {
                 {isLoading
                   ? 'Processing...'
                   : hasInsufficientFunds
-                    ? '💰 Take a Loan'
+                    ? `💰 Take $${(Math.ceil(Math.abs(remainingCash) / 1000) * 1000).toLocaleString()} loan`
                     : 'Submit for Audit'}
               </button>
             </div>
