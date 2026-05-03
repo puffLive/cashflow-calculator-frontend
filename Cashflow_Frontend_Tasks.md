@@ -654,6 +654,20 @@ Tasks 15.2.1–15.9.1 are defined but only 2 specs exist. Prioritize, in this or
 
 **Playwright spec total**: **12 files / 32 specs / 96 tests** across the 3 device projects (chromium, Mobile Chrome, Mobile Safari). Of these, 1 spec runs without a backend (`session-expiry.spec.ts` via route injection); the rest are scaffolds awaiting CI backend integration. All parse cleanly via `npx playwright test --list`.
 
+### 16.11 Missing 2BIG stock added (user-reported, 2026-05-02)
+- [x] User reported: the canonical `Assets.xlsx` lists 5 Cashflow 101 stocks (`OK4U`, `ON2U`, `GRO4US`, `MYT4U`, `2BIG`), but `cash-flow-backend/shared/src/data/stocks.ts` only had the first 4 — `2BIG Power` (yield 0.10) was missing. Since `src/constants/stocks.ts` re-exports the shared list as `AVAILABLE_STOCKS`, the buy wizard's stock dropdown was missing the only dividend-bearing stock.
+- **Fix**:
+  - `cash-flow-backend/shared/src/data/stocks.ts`: appended the `{ ticker: '2BIG', fullName: '2BIG Power', yieldOrROI: 0.1 }` entry. Rebuilt the shared `dist/` so the file-linked frontend / server packages pick it up.
+  - `cash-flow-backend/shared/__tests__/unit/data/stocks.test.ts`: count assertion 4 → 5; added `2BIG` to the expected-tickers and `isValidStock` cases; relaxed the "all yields are 0" test to "all yields are non-negative" since `2BIG` is the first dividend-bearing stock; new dedicated test pinning `2BIG`'s 10% yield.
+- **Tests** — shared 8 files / 214 tests pass; frontend 19 files / 182 tests pass; backend unit tests 2 files / 10 tests pass. (Backend integration tests showed pre-existing MongoDB Atlas connection timeouts and socket.io test infra failures unrelated to this change.) No frontend test count change since `AVAILABLE_STOCKS` length isn't pinned in any frontend test.
+
+### 16.10 Real-estate dropdown (user-reported, 2026-05-02)
+- [x] User reported: the "Asset Name" field on the buy wizard's real-estate path was a free-text input — should be a dropdown of the canonical Cashflow 101 properties from `Assets.xlsx`.
+- **Fix**:
+  - `src/constants/realEstate.ts` (new): `AVAILABLE_REAL_ESTATE` lists all 8 properties from the Assets sheet — Condo - 2Br/1Ba, House - 3Br/2Ba, Duplex, 4-Plex, 8-Plex, Apartment - 12 units, Apartment - 24 units, Apartment - 60 units. The three Apartment rows differ only by unit count, so the labels embed the unit count to keep them uniquely selectable. Backend doesn't validate `propertyName`, so this is display-only and we send the label straight through.
+  - `src/screens/BuyTransactionScreen.tsx`: added a "Select Property" `<select>` for `selectedAssetType === 'real_estate'`; tightened the text-input fallback to `selectedAssetType !== 'stock' && selectedAssetType !== 'real_estate'`.
+- **Tests** — 3 new in `src/test/constants/realEstate.test.ts`: 8-property count, label uniqueness, unit-count parity with the source sheet. Frontend test count: 179 → **182**.
+
 ### 16.9 Buy submission contract fix (user-reported, 2026-05-02)
 - [x] User reported: after taking a bank loan to cover a stock purchase, hitting "Submit for Audit" produced `400 Validation failed` with `[{field: "unknown", message: "Stock name is required"}, {field: "unknown", message: "Price per share must be positive"}, {field: "unknown", message: "Number of shares must be positive"}]`. **Root cause** — two compounding contract mismatches:
   1. `submitTransaction` mutation sent `body: { type, subType, details: {...} }`, but the backend's route validators read fields directly off `req.body` (e.g. `body('stockName')`). Every per-subType field landed under `details.*` and was therefore `undefined` to the validator.
