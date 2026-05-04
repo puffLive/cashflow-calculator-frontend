@@ -27,6 +27,7 @@ import {
 } from '@/store/slices/uiSlice'
 import { updateCashOnHand, updateFinancials } from '@/store/slices/playerSlice'
 import { ROUTES } from '@/constants/routes'
+import { mapBackendAssets, mapBackendLiabilities } from '@/utils/assetMapping'
 
 export const useSocketEvents = (roomCode: string | null) => {
   const dispatch = useAppDispatch()
@@ -268,6 +269,14 @@ export const useSocketEvents = (roomCode: string | null) => {
           financialFields.passiveIncome = fields.passiveIncome
         if (fields.isOnFastTrack !== undefined)
           financialFields.isOnFastTrack = fields.isOnFastTrack
+        // Audit-approval emits include the post-approval portfolio so screens
+        // that read `selectCurrentPlayer().assets` (AssetDetailScreen,
+        // LiabilityDetailScreen) reflect the new state without depending on
+        // useGetPlayerQuery being subscribed at the moment the audit lands.
+        if (fields.assets !== undefined)
+          financialFields.assets = mapBackendAssets(fields.assets)
+        if (fields.liabilities !== undefined)
+          financialFields.liabilities = mapBackendLiabilities(fields.liabilities)
         if (Object.keys(financialFields).length > 0) {
           dispatch(updateFinancials(financialFields as any))
         }

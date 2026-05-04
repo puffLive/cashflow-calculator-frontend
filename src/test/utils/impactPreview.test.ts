@@ -138,22 +138,24 @@ describe('previewSnapshotFromImpact', () => {
     expect(preview.passiveIncome?.after).toBe((impact.passiveIncomeDelta ?? 0))
   })
 
-  it('BUY REAL ESTATE: down payment + new mortgage expense', () => {
+  it('BUY REAL ESTATE: down payment, NET cashflow as passive income, mortgage liability only', () => {
+    // Per Cashflow 101 rules (post-16.5.16), `monthlyCashflow` IS the NET
+    // cashflow (rent − mortgage) and becomes the asset's passive income
+    // directly. The mortgage stays a liability — no income-statement
+    // expense line, so totalExpenses is unchanged.
     const impact = calculateBuyRealEstateImpact(basePlayer as any, {
       name: '3/2 Rental',
       cost: 50000,
       downPayment: 4000,
       mortgageAmount: 46000,
       mortgagePayment: 230,
-      monthlyCashflow: 350,
+      monthlyCashflow: 120,
     })
     const preview = previewSnapshotFromImpact(basePlayer, impact)
 
     expect(preview.cashOnHand).toEqual({ before: 5000, after: 1000 })
-    // Shared lib applies expenseDelta = mortgagePayment; preview reflects that
-    expect(preview.totalExpenses?.after).toBe(2710 + 230)
-    // Cashflow = monthlyCashflow → +350 passiveIncome, then -230 expenseDelta
-    expect(preview.passiveIncome).toBeDefined()
+    expect(preview.totalExpenses).toBeUndefined()
+    expect(preview.passiveIncome?.after).toBe(120)
   })
 
   it('BUY GOLD: 4 coins @ $250 → cash −1000, no passive income', () => {

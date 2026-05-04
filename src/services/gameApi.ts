@@ -1,6 +1,7 @@
 import { apiSlice } from './api'
 import type { GameSession, Player } from '@/types'
 import { devLog } from '@/utils/devLog'
+import { mapBackendAssets, mapBackendLiabilities } from '@/utils/assetMapping'
 
 interface CreateGameResponse {
   roomCode: string
@@ -196,8 +197,8 @@ export const gameApi = apiSlice.injectEndpoints({
             numberOfChildren: (data as any).numberOfChildren || 0,
             income: incomeArray,
             expenses: expensesArray,
-            assets: (data as any).assets || [],
-            liabilities: (data as any).liabilities || [],
+            assets: mapBackendAssets((data as any).assets),
+            liabilities: mapBackendLiabilities((data as any).liabilities),
           }
 
           devLog('Transformed player data:', playerData)

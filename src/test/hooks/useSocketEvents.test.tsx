@@ -185,6 +185,23 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
     expect(player?.cashflow).toBe(200)
   })
 
+  it('player:updated mirrors assetCount onto the cross-player overview row', () => {
+    // Backend's audit-approval emit carries assetCount so the cross-player
+    // overview's per-player counter updates without depending on whether the
+    // viewer is currently subscribed to getAllPlayers.
+    handlers.get('player:updated')!({
+      playerId: 'p1',
+      cashOnHand: 4500,
+      assetCount: 3,
+    })
+
+    const player = store
+      .getState()
+      .allPlayers.players.find((p: any) => p.id === 'p1')
+    expect(player?.assetCount).toBe(3)
+    expect(player?.cashOnHand).toBe(4500)
+  })
+
   // ────────────────────────────────────────────────────────────────────
   // player:disconnected / player:reconnected — connectionStatus toggle.
   // ────────────────────────────────────────────────────────────────────
@@ -319,6 +336,60 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
         .getState()
         .allPlayers.players.find((p: any) => p.id === 'p1')
       expect(overview?.cashOnHand).toBe(8000)
+    })
+
+    it('audit-approval payload mirrors assets/liabilities onto playerSlice for the buyer', () => {
+      // Audit-approval emit carries the post-approval `assets` and
+      // `liabilities` arrays so AssetDetailScreen / LiabilityDetailScreen
+      // (which read playerSlice via selectCurrentPlayer) reflect the new
+      // state without depending on useGetPlayerQuery being subscribed.
+      handlers.get('player:updated')!({
+        playerId: 'p1',
+        cashOnHand: 4500,
+        assetCount: 1,
+        assets: [
+          {
+            _id: 'a1',
+            type: 'stock',
+            name: 'OK4U',
+            costPerUnit: 50,
+            quantity: 10,
+            totalCost: 500,
+            monthlyPassiveIncome: 0,
+          },
+        ],
+        liabilities: [],
+      })
+
+      // The handler runs the raw IAsset shape through `mapBackendAssets`
+      // before writing to playerSlice, so the slice carries the canonical
+      // frontend Asset shape (`id` / `costBasis` / `monthlyIncome`) and
+      // every screen (AssetDetailScreen, SellTransactionScreen, etc.)
+      // reads it consistently.
+      const player = store.getState().player
+      expect(player.assets).toHaveLength(1)
+      expect(player.assets[0]).toMatchObject({
+        id: 'a1',
+        name: 'OK4U',
+        quantity: 10,
+        costBasis: 50,
+        monthlyIncome: 0,
+      })
+      expect(player.liabilities).toHaveLength(0)
+    })
+
+    it('audit-approval assets/liabilities do NOT leak onto another player', () => {
+      const beforeAssets = store.getState().player.assets
+      handlers.get('player:updated')!({
+        playerId: 'p2', // Bob, not the current user
+        cashOnHand: 9999,
+        assetCount: 1,
+        assets: [{ _id: 'a99', name: 'Krugerrand' }],
+        liabilities: [],
+      })
+
+      // Current user's portfolio is untouched
+      expect(store.getState().player.assets).toBe(beforeAssets)
     })
 
     it('player:updated for ANOTHER player does NOT touch playerSlice', () => {

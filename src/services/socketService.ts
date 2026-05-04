@@ -55,6 +55,23 @@ export interface SocketEvents {
     cashflow?: number
     passiveIncome?: number
     isOnFastTrack?: boolean
+    /**
+     * Post-approval portfolio size. Emitted by `auditController.processAudit`
+     * so the cross-player overview's per-player asset counter stays in sync
+     * with buy/sell approvals even when the viewer isn't currently
+     * subscribed to `getAllPlayers`. Optional because reassignment / setup
+     * emits don't include it.
+     */
+    assetCount?: number
+    /**
+     * Full assets/liabilities arrays — emitted only by audit-approval. The
+     * buyer's own dashboard mirrors them onto `playerSlice` so AssetDetail /
+     * LiabilityDetail screens reflect the new state without waiting for an
+     * RTK Query refetch (which only fires if useGetPlayerQuery is currently
+     * subscribed).
+     */
+    assets?: unknown[]
+    liabilities?: unknown[]
     auditorPlayerId?: string | null
     profession?: string
     hasCompletedSetup?: boolean
