@@ -50,8 +50,8 @@ const SellTransactionScreen = () => {
 
   const calculateCapitalGain = (): number => {
     if (!selectedAsset) return 0
-    const costBasisPerUnit = selectedAsset.costBasis / selectedAsset.quantity
-    return (saleDetails.pricePerUnit - costBasisPerUnit) * saleDetails.quantity
+    // Asset.costBasis is already PER-UNIT (see utils/assetMapping.ts).
+    return (saleDetails.pricePerUnit - selectedAsset.costBasis) * saleDetails.quantity
   }
 
   // Delegate to the shared `calculateSellAssetImpact` — the same code path
@@ -68,9 +68,11 @@ const SellTransactionScreen = () => {
       _id: selectedAsset.id,
       type: selectedAsset.type,
       name: selectedAsset.name,
-      costPerUnit: selectedAsset.costBasis / selectedAsset.quantity,
+      // Asset.costBasis is PER-UNIT; the shared lib wants per-unit in
+      // `costPerUnit` and the aggregate in `totalCost`.
+      costPerUnit: selectedAsset.costBasis,
       quantity: selectedAsset.quantity,
-      totalCost: selectedAsset.costBasis,
+      totalCost: selectedAsset.costBasis * selectedAsset.quantity,
       monthlyPassiveIncome: selectedAsset.monthlyIncome ?? 0,
       purchasedAt: new Date(),
     }

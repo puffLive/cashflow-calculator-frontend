@@ -383,17 +383,46 @@ describe('apiSlice + endpoints — request shapes', () => {
       expect(captures[0].url).toContain('limit=10')
     })
 
-    it('getTransactions transformResponse unwraps the {transactions: [...]} envelope', async () => {
+    it('getTransactions transformResponse unwraps the envelope and normalizes backend documents', async () => {
+      // The wire shape has _id / playerId-object / auditStatus / createdAt
+      // and NO details/status/timestamp — normalizeTransaction maps it to
+      // the screen-facing Transaction shape.
       installFetchStub(() => ({
         status: 200,
-        body: { transactions: [{ id: 't1' }, { id: 't2' }] },
+        body: {
+          transactions: [
+            {
+              _id: 't1',
+              playerId: { _id: 'p1', playerName: 'Alice' },
+              type: 'loan_take',
+              description: 'Took bank loan of $2,000',
+              auditStatus: 'pending',
+              amountsChanged: { cashOnHand: { before: 500, after: 2500 } },
+              createdAt: '2026-08-26T00:00:00.000Z',
+            },
+            { _id: 't2', type: 'payday', auditStatus: 'not_required' },
+          ],
+        },
       }))
 
       const result = await store.dispatch(
         transactionApi.endpoints.getTransactions.initiate({ roomCode: 'ABCDEF' }),
       )
 
-      expect(result.data).toEqual([{ id: 't1' }, { id: 't2' }])
+      expect(result.data).toHaveLength(2)
+      const [loan, payday] = result.data!
+      expect(loan.id).toBe('t1')
+      expect(loan.playerId).toBe('p1')
+      expect(loan.playerName).toBe('Alice')
+      expect(loan.type).toBe('loan') // loan_take → loan + subType 'take'
+      expect(loan.subType).toBe('take')
+      expect(loan.status).toBe('pending')
+      expect(loan.timestamp).toBe('2026-08-26T00:00:00.000Z')
+      expect(loan.financialImpact?.cashOnHandDelta).toBe(2000)
+
+      expect(payday.id).toBe('t2')
+      // not_required renders like an approved entry
+      expect(payday.status).toBe('approved')
     })
   })
 

@@ -6,23 +6,26 @@ interface FinancialSheetPreviewProps {
 }
 
 const FinancialSheetPreview = ({ profession }: FinancialSheetPreviewProps) => {
+  // Mirror exactly what the backend creates at setup
+  // (initializePlayerFromProfession): players start with NO bank loan, and
+  // retail debt payments are part of monthly expenses.
   const totalExpenses =
     profession.taxes +
     profession.mortgage +
     profession.schoolLoan +
     profession.carLoan +
     profession.creditCard +
-    profession.otherExpenses +
-    profession.bankLoan
+    (profession.retailPayment ?? 0) +
+    profession.otherExpenses
 
   const monthlyCashflow = profession.salary - totalExpenses
 
-  const totalLiabilities =
-    profession.mortgage * 150 + // Rough estimate: mortgage principal
-    profession.schoolLoan * 60 + // School loan principal
-    profession.carLoan * 12 + // Car loan principal
-    profession.creditCard * 10 + // Credit card debt
-    profession.bankLoan
+  // Real principals from the shared profession data — not estimates.
+  const totalLiabilities = (profession.liabilities ?? []).reduce(
+    (sum: number, liability: { originalAmount?: number }) =>
+      sum + (liability.originalAmount ?? 0),
+    0,
+  )
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
@@ -66,8 +69,8 @@ const FinancialSheetPreview = ({ profession }: FinancialSheetPreviewProps) => {
             { label: 'School Loan Payment', value: profession.schoolLoan },
             { label: 'Car Loan Payment', value: profession.carLoan },
             { label: 'Credit Card Payment', value: profession.creditCard },
+            { label: 'Retail Payment', value: profession.retailPayment ?? 0 },
             { label: 'Other Expenses', value: profession.otherExpenses },
-            { label: 'Bank Loan Payment', value: profession.bankLoan },
           ].map(
             ({ label, value }) =>
               value > 0 && (
@@ -110,7 +113,7 @@ const FinancialSheetPreview = ({ profession }: FinancialSheetPreviewProps) => {
         <div className="space-y-1 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-600">Starting Cash</span>
-            <span className="font-medium">${monthlyCashflow.toLocaleString()}</span>
+            <span className="font-medium">${(profession.savings ?? 0).toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Total Liabilities</span>

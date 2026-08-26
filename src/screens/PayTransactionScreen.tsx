@@ -155,22 +155,26 @@ const PayTransactionScreen = () => {
         await submitMarketEvent({
           roomCode,
           playerId,
-          subType: 'downsize',
+          subType: 'downsized',
           amount,
         }).unwrap()
       } else if (selectedType === 'lend_money') {
+        // Lending is a lend_collect event with a NEGATIVE amount (money out).
         await submitMarketEvent({
           roomCode,
           playerId,
-          subType: 'lend',
-          amount,
+          subType: 'lend_collect',
+          amount: -Math.abs(amount),
         }).unwrap()
       } else if (selectedType === 'pay_money') {
+        // Money out to another player. The backend has no transfer event that
+        // credits the recipient — they collect it via Collect → Collect Money
+        // (which requests the payer's approval). This leg only debits us.
         await submitMarketEvent({
           roomCode,
           playerId,
-          subType: 'doodad',
-          amount,
+          subType: 'lend_collect',
+          amount: -Math.abs(amount),
         }).unwrap()
       } else if (selectedType === 'payoff_loan') {
         if (!selectedLiability) return

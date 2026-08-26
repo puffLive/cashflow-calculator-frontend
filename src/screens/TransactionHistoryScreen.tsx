@@ -116,11 +116,14 @@ const TransactionHistoryScreen = () => {
   }
 
   const getTransactionDescription = (tx: Transaction) => {
+    // The backend authors a human description ("Bought 10 shares of OK4U");
+    // prefer it and only fall back to a generic label.
+    if (tx.description) return tx.description
     switch (tx.type) {
       case 'buy':
-        return `Bought ${tx.details.assetType || 'asset'}`
+        return `Bought ${tx.details?.assetType || 'asset'}`
       case 'sell':
-        return `Sold ${tx.details.assetType || 'asset'}`
+        return `Sold ${tx.details?.assetType || 'asset'}`
       case 'payday':
         return 'Collected PAYDAY'
       case 'loan':

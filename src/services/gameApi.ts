@@ -2,6 +2,42 @@ import { apiSlice } from './api'
 import type { GameSession, Player } from '@/types'
 import { devLog } from '@/utils/devLog'
 import { mapBackendAssets, mapBackendLiabilities } from '@/utils/assetMapping'
+import { setPendingTransaction } from '@/store/slices/transactionSlice'
+
+/**
+ * Record a successful audit-pending submission as THE pending transaction.
+ * Shared by the mutations that create pending transactions outside
+ * transactionApi.submitTransaction (loan, payoff, market events). Powers
+ * the dashboard action lockout, the pending banner + re-notify flow, and
+ * the rejection modal's context. No-op when the backend auto-applied the
+ * event (status !== 'pending') or the call failed.
+ */
+async function recordPendingTransaction(
+  arg: { roomCode: string; playerId: string },
+  meta: { type: string; subType?: string; details?: Record<string, unknown> },
+  dispatch: (action: unknown) => unknown,
+  queryFulfilled: Promise<{ data: any }>,
+): Promise<void> {
+  try {
+    const { data } = await queryFulfilled
+    if (data?.status === 'pending' && data?.transactionId) {
+      dispatch(
+        setPendingTransaction({
+          id: String(data.transactionId),
+          roomCode: arg.roomCode,
+          playerId: arg.playerId,
+          type: meta.type as any,
+          subType: meta.subType,
+          details: meta.details ?? {},
+          status: 'pending',
+          timestamp: new Date().toISOString(),
+        }),
+      )
+    }
+  } catch {
+    // Submission failed — nothing pending to record.
+  }
+}
 
 interface CreateGameResponse {
   roomCode: string
@@ -260,12 +296,14 @@ export const gameApi = apiSlice.injectEndpoints({
         player: any
         gameState: any
       },
-      { roomCode: string; playerId: string; socketId: string }
+      { roomCode: string; playerId: string; socketId: string; socketAuthToken: string }
     >({
-      query: ({ roomCode, playerId, socketId }) => ({
+      query: ({ roomCode, playerId, socketId, socketAuthToken }) => ({
         url: `/games/${roomCode}/players/${playerId}/reconnect`,
         method: 'POST',
-        body: { socketId },
+        // The CURRENT token proves ownership; the server verifies it before
+        // rotating and returning a fresh one.
+        body: { socketId, socketAuthToken },
       }),
       invalidatesTags: ['Player', 'GameSession'],
     }),
@@ -311,12 +349,15 @@ export const gameApi = apiSlice.injectEndpoints({
         },
       }),
       invalidatesTags: ['Player', 'AllPlayers'],
-      async onQueryStarted({}, { dispatch, queryFulfilled }) {
-        try {
-          await queryFulfilled
-          // Force refetch player data immediately
-          dispatch(gameApi.util.invalidateTags(['Player']))
-        } catch {}
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        await recordPendingTransaction(
+          arg,
+          { type: 'market_event', subType: arg.subType, details: { amount: arg.amount, fromPlayerId: arg.fromPlayerId } },
+          dispatch,
+          queryFulfilled,
+        )
+        // Force refetch player data (audit-free events apply immediately)
+        dispatch(gameApi.util.invalidateTags(['Player']))
       },
     }),
 
@@ -334,6 +375,14 @@ export const gameApi = apiSlice.injectEndpoints({
         },
       }),
       invalidatesTags: ['Player', 'AllPlayers'],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        await recordPendingTransaction(
+          arg,
+          { type: 'loan', subType: 'take', details: { amountIn1000s: arg.amountIn1000s } },
+          dispatch,
+          queryFulfilled,
+        )
+      },
     }),
 
     // Payoff Loan endpoint
@@ -347,6 +396,14 @@ export const gameApi = apiSlice.injectEndpoints({
         body: { type: 'loan_payoff', liabilityId, payoffAmount },
       }),
       invalidatesTags: ['Player', 'AllPlayers'],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        await recordPendingTransaction(
+          arg,
+          { type: 'loan', subType: 'payoff', details: { liabilityId: arg.liabilityId, payoffAmount: arg.payoffAmount } },
+          dispatch,
+          queryFulfilled,
+        )
+      },
     }),
   }),
 })

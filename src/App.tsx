@@ -42,6 +42,7 @@ import {
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation'
 import { AccessibilityProvider } from '@/components/AccessibilityProvider'
 import { MobileOptimizations } from '@/components/MobileOptimizations'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 // Placeholder components for features not yet implemented
 
@@ -309,9 +310,11 @@ const AppContent = () => {
 
 function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <AppContent />
+      </Router>
+    </ErrorBoundary>
   )
 }
 

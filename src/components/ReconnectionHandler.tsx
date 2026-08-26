@@ -55,7 +55,15 @@ const ReconnectionHandler = () => {
         // `player.socketId` with the real id as soon as the next socket
         // connection joins the room.
         const socketId = socketService.getSocketId() || 'pending-reconnect'
-        const response = await reconnectPlayer({ roomCode, playerId, socketId }).unwrap()
+        // Prove ownership with the CURRENT token; the server rejects the
+        // call without it (and rotates it on success).
+        const currentToken = sessionStorage.getItem('socketAuthToken') || ''
+        const response = await reconnectPlayer({
+          roomCode,
+          playerId,
+          socketId,
+          socketAuthToken: currentToken,
+        }).unwrap()
 
         // Persist the rotated socket auth token (16.2.3) — the backend
         // generates a fresh one on every /reconnect call so a leaked old

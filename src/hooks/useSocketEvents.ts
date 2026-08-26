@@ -162,7 +162,13 @@ export const useSocketEvents = (roomCode: string | null) => {
 
   const handleTransactionFinalized = useCallback(
     (data: SocketEvents['transaction:finalized']) => {
-      if (data.approved) {
+      // Room-wide broadcast: only the SUBMITTER should clear their pending
+      // transaction and see the "your finances updated" toast. Identity
+      // comes from sessionStorage (authoritative per tab, survives refresh).
+      const myPlayerId = sessionStorage.getItem('playerId')
+      const isMine = !data.playerId || data.playerId === myPlayerId
+
+      if (data.approved && isMine) {
         dispatch(clearPendingTransaction())
         // The actual financial deltas land via the companion `player:updated`
         // event the backend emits immediately after this one — see
@@ -195,23 +201,31 @@ export const useSocketEvents = (roomCode: string | null) => {
 
   const handleTransactionRejected = useCallback(
     (data: SocketEvents['transaction:rejected']) => {
-      dispatch(
-        updateTransaction({
-          id: data.transactionId,
-          status: 'rejected',
-          auditorNote: data.note,
-        })
-      )
-      // Open rejection modal via UI slice
-      dispatch(openModal('transaction_rejected'))
-      dispatch(
-        addNotification({
-          id: generateId(),
-          type: 'error',
-          message: `❌ Transaction rejected. See details to correct.`,
-          duration: 5000,
-        })
-      )
+      // Room-wide broadcast: only the SUBMITTER gets the rejection modal
+      // and toast. Everyone still drops the entry from their audit queue.
+      const myPlayerId = sessionStorage.getItem('playerId')
+      const isMine = !(data as any).playerId || (data as any).playerId === myPlayerId
+
+      if (isMine) {
+        // Stamp the auditor's note onto the pending transaction so the
+        // rejection modal can show it and offer "Edit Transaction".
+        dispatch(
+          updateTransaction({
+            id: data.transactionId,
+            status: 'rejected',
+            auditorNote: data.note,
+          })
+        )
+        dispatch(openModal('transaction_rejected'))
+        dispatch(
+          addNotification({
+            id: generateId(),
+            type: 'error',
+            message: `❌ Transaction rejected. See details to correct.`,
+            duration: 5000,
+          })
+        )
+      }
       dispatch(removePendingReview(data.transactionId))
     },
     [dispatch]
@@ -369,7 +383,9 @@ export const useSocketEvents = (roomCode: string | null) => {
   )
 
   const handleSessionExpired = useCallback(() => {
-    dispatch(openModal('session-expired'))
+    // Must match the id App.tsx renders on ('session_expired', underscore —
+    // the hyphenated id silently showed no modal on socket-driven expiry)
+    dispatch(openModal('session_expired'))
     dispatch(setGameStatus('expired'))
   }, [dispatch])
 

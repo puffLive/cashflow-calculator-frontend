@@ -541,12 +541,11 @@ const MarketEventScreen = () => {
                           <div className="flex justify-between">
                             <span className="text-gray-600">Cost/Share:</span>
                             <span className="font-medium">
-                              ${(selectedAsset.costBasis / selectedAsset.quantity).toFixed(2)} → $
+                              {/* Asset.costBasis is already per-share */}
+                              ${selectedAsset.costBasis.toFixed(2)} → $
                               {selectedEvent === 'stock_split'
-                                ? (selectedAsset.costBasis / selectedAsset.quantity / 2).toFixed(2)
-                                : ((selectedAsset.costBasis / selectedAsset.quantity) * 2).toFixed(
-                                    2
-                                  )}
+                                ? (selectedAsset.costBasis / 2).toFixed(2)
+                                : (selectedAsset.costBasis * 2).toFixed(2)}
                             </span>
                           </div>
                         </div>
