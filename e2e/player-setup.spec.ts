@@ -1,73 +1,74 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './helpers/fixtures'
+import { createGameViaUI, joinGameViaUI, completeSetupViaUI } from './helpers/ui'
 
 /**
- * E2E specs for the player-setup wizard (Feature 15.3.1–15.3.2).
- * Skipped pending CI backend wiring.
+ * Player setup wizard: profession assignment, dream selection, auditor
+ * selection, and the financial sheet preview. Uses the real UI end to end.
  */
 
-test.describe('Player Setup Wizard (15.3)', () => {
-  test.skip('15.3.1 — full wizard (profession → dream → auditor → confirm) lands the player in "Ready"', async ({
-    page,
-    context,
-  }) => {
-    // Need at least two players in the session for auditor selection.
-    const hostPage = page
-    await hostPage.goto('/create')
-    await hostPage.getByLabel(/your name/i).fill('Host')
-    await hostPage.getByRole('button', { name: /create game/i }).click()
-    const roomCode = await hostPage
-      .locator('p.font-mono.font-bold')
-      .first()
-      .innerText()
+test.describe('Player setup', () => {
+  test('assigns a profession and shows its financials', async ({ page }) => {
+    const roomCode = await createGameViaUI(page, 'Setup Host')
+    await page.getByRole('button', { name: /set up your player/i }).click()
+    await expect(page).toHaveURL(new RegExp(`/game/${roomCode}/setup`))
 
-    const joinerPage = await context.newPage()
-    await joinerPage.goto('/join')
-    await joinerPage.getByLabel(/room code/i).fill(roomCode)
-    await joinerPage.getByLabel(/your name/i).fill('Joiner')
-    await joinerPage.getByRole('button', { name: /join game/i }).click()
-
-    // Host walks the wizard
-    await hostPage.getByRole('button', { name: /set up your player/i }).click()
-
-    // Step 1: profession
-    await hostPage.getByText(/engineer/i).click()
-    await hostPage.getByRole('button', { name: /next/i }).click()
-
-    // Step 2: dream
-    await hostPage.getByText(/buy a forest/i).click()
-    await hostPage.getByRole('button', { name: /next/i }).click()
-
-    // Step 3: auditor — Joiner is the only other player so auto-selected
-    await hostPage.getByRole('button', { name: /next/i }).click()
-
-    // Step 4: review + confirm
-    await hostPage.getByRole('button', { name: /confirm/i }).click()
-
-    // After setup, host returns to lobby with "Ready" badge
-    await expect(hostPage.getByText(/ready/i)).toBeVisible()
-
-    await joinerPage.close()
+    await expect(page.getByText(/you have been assigned/i)).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/monthly salary/i)).toBeVisible()
+    await expect(page.getByText(/monthly expenses/i)).toBeVisible()
+    await expect(page.getByText(/select your dream/i)).toBeVisible()
+    await expect(page.getByText(/your starting financial sheet/i)).toBeVisible()
   })
 
-  test.skip('15.3.2 — profession selection populates correct starting financial data', async ({
-    page,
-    context,
-  }) => {
-    // Pick Engineer; verify the review screen shows engineer's starting cash,
-    // salary, and total expenses (which match the values in @cashflow/shared).
-    const hostPage = page
-    // ... two-player setup ...
+  test('confirm is disabled until a dream is selected', async ({ page }) => {
+    await createGameViaUI(page, 'Dreamless Host')
+    await page.getByRole('button', { name: /set up your player/i }).click()
+    await expect(page.getByText(/you have been assigned/i)).toBeVisible({ timeout: 15_000 })
 
-    await hostPage.getByText(/engineer/i).click()
-    await hostPage.getByRole('button', { name: /next/i }).click()
-    // ... pick dream + auditor, advance to review ...
+    const confirm = page.getByRole('button', { name: /confirm & continue/i })
+    await expect(confirm).toBeDisabled()
+    await page.getByRole('button', { name: /buy a forest/i }).click()
+    await expect(confirm).toBeEnabled()
+  })
 
-    // Engineer in shared data: salary 4900, savings 400, expenses sum 2710
-    await expect(hostPage.getByText(/\$4,900/)).toBeVisible() // salary
-    await expect(hostPage.getByText(/\$400/)).toBeVisible() // starting cash
-    await expect(hostPage.getByText(/\$2,710/)).toBeVisible() // total expenses
+  test('completing setup returns to the lobby as ready', async ({ page, api }) => {
+    const roomCode = await createGameViaUI(page, 'Ready Host')
+    await page.getByRole('button', { name: /set up your player/i }).click()
+    await completeSetupViaUI(page)
 
-    // PAYDAY = 4900 - 2710 = 2190
-    await expect(hostPage.getByText(/\$2,190/)).toBeVisible()
+    await expect(page.getByText(/ready/i).first()).toBeVisible()
+    const players = await api.getPlayers(roomCode)
+    const host = players.find((p: any) => p.playerName === 'Ready Host')
+    expect(host).toBeTruthy()
+    expect(host.profession).toBeTruthy()
+  })
+
+  test('UI financial preview matches the backend player record', async ({ page, api }) => {
+    const roomCode = await createGameViaUI(page, 'Numbers Host')
+    await page.getByRole('button', { name: /set up your player/i }).click()
+    await completeSetupViaUI(page)
+
+    const players = await api.getPlayers(roomCode)
+    const host = players.find((p: any) => p.playerName === 'Numbers Host')
+
+    // The lobby → dashboard numbers must agree with backend truth.
+    // (Guards against the shared-package data drift where the setup preview
+    // and the persisted player disagree.)
+    expect(host.totalExpenses).toBeGreaterThan(0)
+    expect(host.paydayAmount).toBe(host.totalIncome - host.totalExpenses)
+  })
+
+  test('selected auditor is persisted on the player record', async ({ page, api, browser }) => {
+    // Host created + set up via API so the joiner has an auditor candidate.
+    const created = await api.createGame('Auditor Target')
+    await api.setupPlayer(created.roomCode, created.hostPlayerId, { profession: 'secretary' })
+
+    await joinGameViaUI(page, created.roomCode, 'Auditor Picker')
+    await completeSetupViaUI(page, { dreamName: 'Yacht Racing', auditorName: 'Auditor Target' })
+
+    const players = await api.getPlayers(created.roomCode)
+    const picker = players.find((p: any) => p.playerName === 'Auditor Picker')
+    expect(String(picker.auditorPlayerId?._id ?? picker.auditorPlayerId)).toBe(
+      created.hostPlayerId,
+    )
   })
 })

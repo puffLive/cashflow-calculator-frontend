@@ -1,75 +1,97 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './helpers/fixtures'
+import { readMetric } from './helpers/ui'
 
 /**
- * E2E specs for the dashboard + PAYDAY collection (Feature 15.4.1–15.4.3).
- * Skipped pending CI backend wiring.
+ * Dashboard metrics and the PAYDAY collection flow.
+ * Uses the API-arranged 2-player game fixture (host = Secretary, p2 = Teacher).
  */
 
-test.describe('Dashboard + PAYDAY (15.4)', () => {
-  test.skip('15.4.1 — dashboard renders all 6 metric cards with correct values after setup', async ({
-    page,
-  }) => {
-    // ... full create + setup + start flow ...
+test.describe('Dashboard', () => {
+  test('financial overview matches the backend player record @mobile', async ({ game, api }) => {
+    const backend = await api.getPlayer(game.roomCode, game.host.playerId)
+    const { page } = game.host
 
-    await expect(page).toHaveURL(/\/dashboard$/)
-
-    // The six metric cards: Cash on Hand, Cashflow, Total Income, Total
-    // Expenses, PAYDAY Amount, Passive Income.
-    await expect(page.getByText(/cash on hand/i)).toBeVisible()
-    await expect(page.getByText(/cashflow/i)).toBeVisible()
-    await expect(page.getByText(/total income/i)).toBeVisible()
-    await expect(page.getByText(/total expenses/i)).toBeVisible()
-    await expect(page.getByText(/payday/i)).toBeVisible()
-    await expect(page.getByText(/passive income/i)).toBeVisible()
-
-    // For Engineer profession, totalExpenses should be $2,710
-    await expect(page.getByText(/\$2,710/)).toBeVisible()
+    expect(await readMetric(page, 'Cash on Hand')).toBe(backend.cashOnHand)
+    expect(await readMetric(page, 'Passive Income')).toBe(backend.passiveIncome)
+    expect(await readMetric(page, 'Expenses')).toBe(backend.totalExpenses)
+    expect(await readMetric(page, 'Total Income')).toBe(backend.totalIncome)
+    expect(await readMetric(page, 'PAYDAY')).toBe(backend.paydayAmount)
   })
 
-  test.skip('15.4.2 — Collect PAYDAY adds the amount to cash; success toast shown', async ({
-    page,
-  }) => {
-    // ... setup + start flow ...
-    await page.waitForURL(/\/dashboard$/)
-
-    // Capture the cash before
-    const cashBefore = await readMetricValue(page, /cash on hand/i)
-
-    // Click PAYDAY (button label includes the amount, e.g. "Collect PAYDAY: $2,190")
-    await page.getByRole('button', { name: /collect payday/i }).click()
-
-    // Toast appears
-    await expect(page.getByText(/payday collected/i)).toBeVisible({ timeout: 5000 })
-
-    // Cash should have increased by the PAYDAY amount (Engineer: $2,190)
-    const cashAfter = await readMetricValue(page, /cash on hand/i)
-    expect(cashAfter).toBe(cashBefore + 2190)
+  test('shows all six transaction actions', async ({ game }) => {
+    const { page } = game.host
+    for (const action of ['Buy Asset', 'Sell Asset', 'Take Loan', 'Market', 'Pay', 'Collect']) {
+      await expect(page.getByRole('button', { name: action, exact: true })).toBeVisible()
+    }
   })
 
-  test.skip('15.4.3 — PAYDAY does NOT trigger an auditor notification', async ({
-    page,
-    context,
-  }) => {
-    // Two players. Player1 collects PAYDAY. Player2 (their auditor) should
-    // see the activity-feed entry but NO pending audit notification — PAYDAY
-    // is auditStatus=NOT_REQUIRED on the backend.
-    const player1 = page
-    const player2 = await context.newPage()
-    // ... setup + start ...
-
-    await player1.getByRole('button', { name: /collect payday/i }).click()
-    await player1.waitForTimeout(500) // settle the socket event
-
-    // Player 2 should not have a pending-audit badge
-    const badge = player2.locator('[data-test=pending-audit-badge]')
-    await expect(badge).not.toBeVisible()
-
-    await player2.close()
+  test('fast track progress reflects passive income vs expenses', async ({ game, api }) => {
+    const backend = await api.getPlayer(game.roomCode, game.host.playerId)
+    const { page } = game.host
+    await expect(page.getByText('Progress to Fast Track')).toBeVisible()
+    await expect(
+      page.getByText(
+        `$${backend.passiveIncome.toLocaleString()} / $${backend.totalExpenses.toLocaleString()}`,
+      ),
+    ).toBeVisible()
   })
 })
 
-async function readMetricValue(page: import('@playwright/test').Page, label: RegExp): Promise<number> {
-  const card = page.locator('[data-metric-card]', { hasText: label })
-  const text = await card.locator('[data-metric-value]').innerText()
-  return Number(text.replace(/[$,]/g, ''))
-}
+test.describe('PAYDAY collection', () => {
+  test('collecting PAYDAY adds the payday amount to cash, no audit needed', async ({
+    game,
+    api,
+  }) => {
+    const { page } = game.host
+    const before = await api.getPlayer(game.roomCode, game.host.playerId)
+
+    await page.getByRole('button', { name: 'Collect', exact: true }).click()
+    await expect(page).toHaveURL(/\/transaction\/collect$/)
+
+    // Type cards are clickable divs; the confirm button on step 3 shares the
+    // same label, so scope to the card first.
+    await page.getByText('Collect your monthly PAYDAY').click()
+    await page.getByRole('button', { name: /^next$/i }).click()
+
+    await page.getByRole('button', { name: /^collect payday$/i }).click()
+    await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15_000 })
+
+    // Backend truth: cash increased by exactly the payday amount
+    await expect
+      .poll(async () => (await api.getPlayer(game.roomCode, game.host.playerId)).cashOnHand, {
+        timeout: 10_000,
+      })
+      .toBe(before.cashOnHand + before.paydayAmount)
+
+    // And the dashboard shows it
+    await expect
+      .poll(() => readMetric(page, 'Cash on Hand'), { timeout: 10_000 })
+      .toBe(before.cashOnHand + before.paydayAmount)
+
+    // PAYDAY must not enter the audit queue
+    const paydays = await api.getTransactions(game.roomCode, {
+      playerId: game.host.playerId,
+      type: 'payday',
+    })
+    expect(paydays.length).toBeGreaterThan(0)
+    expect(paydays[0].auditStatus).not.toBe('pending')
+  })
+
+  test('other players see the payday reflected in the players overview', async ({ game, api }) => {
+    const before = await api.getPlayer(game.roomCode, game.host.playerId)
+
+    // Host collects payday (via API to keep this test focused on the sync)
+    const { page: hostPage } = game.host
+    await hostPage.getByRole('button', { name: 'Collect', exact: true }).click()
+    await hostPage.getByText('Collect your monthly PAYDAY').click()
+    await hostPage.getByRole('button', { name: /^next$/i }).click()
+    await hostPage.getByRole('button', { name: /^collect payday$/i }).click()
+
+    // P2 opens the players overview and sees host's updated cash
+    const { page: p2Page } = game.p2
+    await p2Page.getByRole('button', { name: 'Players', exact: true }).click()
+    await expect(p2Page).toHaveURL(/\/players$/)
+    const expected = (before.cashOnHand + before.paydayAmount).toLocaleString('en-US')
+    await expect(p2Page.getByText(`$${expected}`).first()).toBeVisible({ timeout: 15_000 })
+  })
+})
