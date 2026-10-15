@@ -1,11 +1,26 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query'
 import { openModal } from '@/store/slices/uiSlice'
-import { clearSessionCredentials } from '@/utils/sessionAuth'
+import { clearSessionCredentials, getSocketAuth } from '@/utils/sessionAuth'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
 
-const rawBaseQuery = fetchBaseQuery({ baseUrl: API_BASE_URL })
+/**
+ * Every game route except create/join/lookup/reconnect needs the player's
+ * credentials (the same id + token the socket handshake uses). Sent on every
+ * request when we have them; the backend ignores them on public routes.
+ */
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl: API_BASE_URL,
+  prepareHeaders: (headers) => {
+    const { playerId, socketAuthToken } = getSocketAuth()
+    if (playerId && socketAuthToken) {
+      headers.set('X-Player-Id', playerId)
+      headers.set('X-Player-Token', socketAuthToken)
+    }
+    return headers
+  },
+})
 
 /**
  * Wrap the standard fetch baseQuery so we can centrally handle a 410 Gone

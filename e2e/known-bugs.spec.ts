@@ -53,6 +53,7 @@ test.describe('Regression locks (2026-08 review)', () => {
           pricePerShare: 10,
           numShares: 1,
         },
+        headers: api.authHeaders(created.hostPlayerId),
       },
     )
     expect(res.ok()).toBeTruthy()
@@ -151,6 +152,7 @@ test.describe('Regression locks (2026-08 review)', () => {
           monthlyMortgage: 400,
           monthlyRent: 560,
         },
+        headers: api.authHeaders(game.host.playerId),
       },
     )
     expect(res.ok(), await res.text()).toBeTruthy()
@@ -170,7 +172,7 @@ test.describe('Regression locks (2026-08 review)', () => {
     const assetId = String(afterBuy.assets[0]._id)
     const sellRes = await request.post(
       `http://localhost:3100/api/games/${game.roomCode}/players/${game.host.playerId}/transactions/sell`,
-      { data: { type: 'sell', assetId, salePrice: 52000 } },
+      { data: { type: 'sell', assetId, salePrice: 52000 }, headers: api.authHeaders(game.host.playerId) },
     )
     expect(sellRes.ok(), await sellRes.text()).toBeTruthy()
 

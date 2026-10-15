@@ -265,7 +265,8 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
 
     const ui = store.getState().ui
     const game = store.getState().gameSession
-    expect(ui.modalOpen).toBe('session-expired')
+    // Must match the id App.tsx renders SessionExpiredModal on
+    expect(ui.modalOpen).toBe('session_expired')
     expect(game.status).toBe('expired')
   })
 

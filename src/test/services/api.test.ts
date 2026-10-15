@@ -430,6 +430,32 @@ describe('apiSlice + endpoints — request shapes', () => {
   // 410 baseQuery wrapper (16.6.4)
   // ────────────────────────────────────────────────────────────────────
 
+  describe('player credentials', () => {
+    it('sends X-Player-Id and X-Player-Token from the stored session on every request', async () => {
+      sessionStorage.setItem('playerId', 'p1')
+      sessionStorage.setItem('socketAuthToken', 'token-abc')
+      installFetchStub()
+
+      await store.dispatch(
+        transactionApi.endpoints.undoTransaction.initiate({ roomCode: 'ABCDEF', playerId: 'p1' }),
+      )
+
+      expect(captures[0].headers['x-player-id']).toBe('p1')
+      expect(captures[0].headers['x-player-token']).toBe('token-abc')
+    })
+
+    it('sends no credential headers before the player has any', async () => {
+      installFetchStub()
+
+      await store.dispatch(
+        gameApi.endpoints.joinGame.initiate({ roomCode: 'ABCDEF', playerName: 'Bob' }),
+      )
+
+      expect(captures[0].headers['x-player-id']).toBeUndefined()
+      expect(captures[0].headers['x-player-token']).toBeUndefined()
+    })
+  })
+
   describe('apiSlice baseQuery 410 handler', () => {
     it('clears session creds + opens session_expired modal on any 410 response', async () => {
       // Pre-load creds so we can verify they get wiped

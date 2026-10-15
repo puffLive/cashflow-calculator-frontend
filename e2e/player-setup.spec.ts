@@ -36,6 +36,7 @@ test.describe('Player setup', () => {
     await completeSetupViaUI(page)
 
     await expect(page.getByText(/ready/i).first()).toBeVisible()
+    await api.rememberFromPage(page)
     const players = await api.getPlayers(roomCode)
     const host = players.find((p: any) => p.playerName === 'Ready Host')
     expect(host).toBeTruthy()
@@ -47,6 +48,7 @@ test.describe('Player setup', () => {
     await page.getByRole('button', { name: /set up your player/i }).click()
     await completeSetupViaUI(page)
 
+    await api.rememberFromPage(page)
     const players = await api.getPlayers(roomCode)
     const host = players.find((p: any) => p.playerName === 'Numbers Host')
 
