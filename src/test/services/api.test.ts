@@ -51,7 +51,7 @@ function installFetchStub(
   responder: (req: Capture) => { status: number; body: any } = () => ({
     status: 200,
     body: {},
-  }),
+  })
 ) {
   vi.stubGlobal(
     'fetch',
@@ -78,8 +78,7 @@ function installFetchStub(
         } else if (rawHeaders && typeof rawHeaders === 'object') {
           Object.assign(headers, rawHeaders as Record<string, string>)
         }
-        body =
-          typeof init?.body === 'string' ? safeParseJson(init.body) : init?.body
+        body = typeof init?.body === 'string' ? safeParseJson(init.body) : init?.body
       }
 
       const cap: Capture = { url, method, body, headers }
@@ -89,7 +88,7 @@ function installFetchStub(
         status,
         headers: { 'content-type': 'application/json' },
       })
-    }),
+    })
   )
 }
 
@@ -134,7 +133,7 @@ describe('apiSlice + endpoints — request shapes', () => {
         gameApi.endpoints.createGame.initiate({
           gameVersion: 'cashflow_101',
           hostName: 'Alice',
-        }),
+        })
       )
 
       expect(result.data).toMatchObject({
@@ -166,7 +165,7 @@ describe('apiSlice + endpoints — request shapes', () => {
         gameApi.endpoints.joinGame.initiate({
           roomCode: 'ABCDEF',
           playerName: 'Bob',
-        }),
+        })
       )
 
       expect(captures[0].method).toBe('POST')
@@ -181,7 +180,7 @@ describe('apiSlice + endpoints — request shapes', () => {
         gameApi.endpoints.startGame.initiate({
           roomCode: 'ABCDEF',
           playerId: 'p1',
-        }),
+        })
       )
 
       expect(captures[0].method).toBe('PATCH')
@@ -205,7 +204,7 @@ describe('apiSlice + endpoints — request shapes', () => {
           roomCode: 'ABCDEF',
           playerId: 'p1',
           socketId: 'fresh-socket',
-        }),
+        })
       )
 
       expect(captures[0].method).toBe('POST')
@@ -222,7 +221,7 @@ describe('apiSlice + endpoints — request shapes', () => {
           roomCode: 'ABCDEF',
           playerId: 'p1',
           newAuditorPlayerId: 'p3',
-        }),
+        })
       )
 
       expect(captures[0].method).toBe('PATCH')
@@ -242,7 +241,7 @@ describe('apiSlice + endpoints — request shapes', () => {
           playerId: 'p1',
           subType: 'doodad',
           amount: 200,
-        }),
+        })
       )
 
       expect(captures[0].method).toBe('POST')
@@ -273,7 +272,7 @@ describe('apiSlice + endpoints — request shapes', () => {
           type: 'buy',
           subType: 'stock',
           details: { stockName: 'TEST', pricePerShare: 10, numShares: 100 },
-        }),
+        })
       )
 
       expect(captures[0].method).toBe('POST')
@@ -297,13 +296,11 @@ describe('apiSlice + endpoints — request shapes', () => {
           auditorId: 'p2',
           action: 'reject',
           note: 'looks wrong',
-        }),
+        })
       )
 
       expect(captures[0].method).toBe('PATCH')
-      expect(captures[0].url).toMatch(
-        /\/transactions\/t1\/audit\?auditorId=p2$/,
-      )
+      expect(captures[0].url).toMatch(/\/transactions\/t1\/audit\?auditorId=p2$/)
       expect(captures[0].body).toEqual({ action: 'reject', note: 'looks wrong' })
     })
 
@@ -316,7 +313,7 @@ describe('apiSlice + endpoints — request shapes', () => {
           transactionId: 't1',
           auditorId: 'p2',
           action: 'approve',
-        }),
+        })
       )
 
       expect(captures[0].body).toEqual({ action: 'approve' })
@@ -338,7 +335,7 @@ describe('apiSlice + endpoints — request shapes', () => {
           roomCode: 'ABCDEF',
           transactionId: 't1',
           playerId: 'p1',
-        }),
+        })
       )
 
       expect(captures[0].method).toBe('POST')
@@ -353,7 +350,7 @@ describe('apiSlice + endpoints — request shapes', () => {
         transactionApi.endpoints.undoTransaction.initiate({
           roomCode: 'ABCDEF',
           playerId: 'p1',
-        }),
+        })
       )
 
       expect(captures[0].method).toBe('POST')
@@ -373,7 +370,7 @@ describe('apiSlice + endpoints — request shapes', () => {
           type: 'buy',
           limit: 10,
           offset: 0,
-        }),
+        })
       )
 
       expect(captures[0].method).toBe('GET')
@@ -406,7 +403,7 @@ describe('apiSlice + endpoints — request shapes', () => {
       }))
 
       const result = await store.dispatch(
-        transactionApi.endpoints.getTransactions.initiate({ roomCode: 'ABCDEF' }),
+        transactionApi.endpoints.getTransactions.initiate({ roomCode: 'ABCDEF' })
       )
 
       expect(result.data).toHaveLength(2)
@@ -437,7 +434,7 @@ describe('apiSlice + endpoints — request shapes', () => {
       installFetchStub()
 
       await store.dispatch(
-        transactionApi.endpoints.undoTransaction.initiate({ roomCode: 'ABCDEF', playerId: 'p1' }),
+        transactionApi.endpoints.undoTransaction.initiate({ roomCode: 'ABCDEF', playerId: 'p1' })
       )
 
       expect(captures[0].headers['x-player-id']).toBe('p1')
@@ -448,7 +445,7 @@ describe('apiSlice + endpoints — request shapes', () => {
       installFetchStub()
 
       await store.dispatch(
-        gameApi.endpoints.joinGame.initiate({ roomCode: 'ABCDEF', playerName: 'Bob' }),
+        gameApi.endpoints.joinGame.initiate({ roomCode: 'ABCDEF', playerName: 'Bob' })
       )
 
       expect(captures[0].headers['x-player-id']).toBeUndefined()
@@ -474,7 +471,7 @@ describe('apiSlice + endpoints — request shapes', () => {
         gameApi.endpoints.createGame.initiate({
           gameVersion: 'cashflow_101',
           hostName: 'Alice',
-        }),
+        })
       )
 
       expect(sessionStorage.getItem('roomCode')).toBeNull()
@@ -494,7 +491,7 @@ describe('apiSlice + endpoints — request shapes', () => {
         gameApi.endpoints.createGame.initiate({
           gameVersion: 'cashflow_101',
           hostName: '',
-        }),
+        })
       )
 
       expect(store.getState().ui.modalOpen).toBeNull()

@@ -159,9 +159,7 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
       newCashOnHand: 7400, // post-credit total — must land in cashOnHand
     })
 
-    const player = store
-      .getState()
-      .allPlayers.players.find((p: any) => p.id === 'p1')
+    const player = store.getState().allPlayers.players.find((p: any) => p.id === 'p1')
     expect(player?.cashOnHand).toBe(7400)
   })
 
@@ -178,9 +176,7 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
       cashflow: 200,
     })
 
-    const player = store
-      .getState()
-      .allPlayers.players.find((p: any) => p.id === 'p1')
+    const player = store.getState().allPlayers.players.find((p: any) => p.id === 'p1')
     expect(player?.cashOnHand).toBe(9999)
     expect(player?.cashflow).toBe(200)
   })
@@ -195,9 +191,7 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
       assetCount: 3,
     })
 
-    const player = store
-      .getState()
-      .allPlayers.players.find((p: any) => p.id === 'p1')
+    const player = store.getState().allPlayers.players.find((p: any) => p.id === 'p1')
     expect(player?.assetCount).toBe(3)
     expect(player?.cashOnHand).toBe(4500)
   })
@@ -208,9 +202,7 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
   it('player:disconnected flips connectionStatus to "disconnected"', () => {
     handlers.get('player:disconnected')!({ playerId: 'p1' })
 
-    const player = store
-      .getState()
-      .allPlayers.players.find((p: any) => p.id === 'p1')
+    const player = store.getState().allPlayers.players.find((p: any) => p.id === 'p1')
     expect(player?.connectionStatus).toBe('disconnected')
   })
 
@@ -220,9 +212,7 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
     // Then reconnect
     handlers.get('player:reconnected')!({ playerId: 'p1' })
 
-    const player = store
-      .getState()
-      .allPlayers.players.find((p: any) => p.id === 'p1')
+    const player = store.getState().allPlayers.players.find((p: any) => p.id === 'p1')
     expect(player?.connectionStatus).toBe('connected')
   })
 
@@ -251,9 +241,7 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
       playerName: 'Alice',
     })
 
-    const player = store
-      .getState()
-      .allPlayers.players.find((p: any) => p.id === 'p1')
+    const player = store.getState().allPlayers.players.find((p: any) => p.id === 'p1')
     expect(player?.isOnFastTrack).toBe(true)
   })
 
@@ -333,9 +321,7 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
       expect(player.cashflow).toBe(0 - 3010) // passive - expenses
 
       // And the all-players overview also reflects it
-      const overview = store
-        .getState()
-        .allPlayers.players.find((p: any) => p.id === 'p1')
+      const overview = store.getState().allPlayers.players.find((p: any) => p.id === 'p1')
       expect(overview?.cashOnHand).toBe(8000)
     })
 
@@ -403,9 +389,7 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
       const player = store.getState().player
       expect(player.cashOnHand).toBe(before) // unchanged
       // But the all-players overview for Bob does reflect it
-      const overview = store
-        .getState()
-        .allPlayers.players.find((p: any) => p.id === 'p2')
+      const overview = store.getState().allPlayers.players.find((p: any) => p.id === 'p2')
       expect(overview?.cashOnHand).toBe(9999)
     })
 
@@ -429,9 +413,7 @@ describe('useSocketEvents — Socket.io → Redux dispatch mapping', () => {
 
       expect(store.getState().player.cashOnHand).toBe(before)
       // But Bob's overview does update
-      const bob = store
-        .getState()
-        .allPlayers.players.find((p: any) => p.id === 'p2')
+      const bob = store.getState().allPlayers.players.find((p: any) => p.id === 'p2')
       expect(bob?.cashOnHand).toBe(7190)
     })
 

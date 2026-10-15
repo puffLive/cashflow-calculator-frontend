@@ -92,7 +92,10 @@ export class GameApi {
   }
 
   async createGame(hostName: string): Promise<CreatedGame> {
-    const created = await this.post<CreatedGame>('/games', { hostName, gameVersion: 'cashflow_101' })
+    const created = await this.post<CreatedGame>('/games', {
+      hostName,
+      gameVersion: 'cashflow_101',
+    })
     this.remember(created.roomCode, created.hostPlayerId, created.socketAuthToken)
     return created
   }
@@ -112,7 +115,7 @@ export class GameApi {
         ...(opts.auditorPlayerId ? { auditorPlayerId: opts.auditorPlayerId } : {}),
       },
       200,
-      playerId,
+      playerId
     )
   }
 
@@ -133,19 +136,24 @@ export class GameApi {
     return body.players
   }
 
-  async getTransactions(
-    roomCode: string,
-    params: Record<string, string> = {},
-  ): Promise<any[]> {
+  async getTransactions(roomCode: string, params: Record<string, string> = {}): Promise<any[]> {
     const qs = new URLSearchParams(params).toString()
     const body = await this.get<{ transactions: any[] }>(
-      `/games/${roomCode}/transactions${qs ? `?${qs}` : ''}`,
+      `/games/${roomCode}/transactions${qs ? `?${qs}` : ''}`
     )
     return body.transactions
   }
 
-  reassignAuditor(roomCode: string, playerId: string, newAuditorPlayerId: string): Promise<unknown> {
-    return this.patch(`/games/${roomCode}/players/${playerId}/auditor`, { newAuditorPlayerId }, playerId)
+  reassignAuditor(
+    roomCode: string,
+    playerId: string,
+    newAuditorPlayerId: string
+  ): Promise<unknown> {
+    return this.patch(
+      `/games/${roomCode}/players/${playerId}/auditor`,
+      { newAuditorPlayerId },
+      playerId
+    )
   }
 
   /** Approve or reject a pending transaction as the given auditor. */
@@ -154,35 +162,45 @@ export class GameApi {
     txId: string,
     auditorId: string,
     action: 'approve' | 'reject',
-    note?: string,
+    note?: string
   ): Promise<unknown> {
     return this.patch(
       `/games/${roomCode}/transactions/${txId}/audit?auditorId=${auditorId}`,
       { action, ...(note ? { note } : {}) },
-      auditorId,
+      auditorId
     )
   }
 
   submitBuyStock(
     roomCode: string,
     playerId: string,
-    details: { symbol: string; pricePerShare: number; shares: number; dividendPerShare?: number },
+    details: { symbol: string; pricePerShare: number; shares: number; dividendPerShare?: number }
   ): Promise<any> {
-    return this.post(`/games/${roomCode}/players/${playerId}/transactions`, {
-      type: 'buy',
-      subType: 'stock',
-      stockName: details.symbol,
-      pricePerShare: details.pricePerShare,
-      numShares: details.shares,
-      dividendPerShare: details.dividendPerShare ?? 0,
-    }, 201, playerId)
+    return this.post(
+      `/games/${roomCode}/players/${playerId}/transactions`,
+      {
+        type: 'buy',
+        subType: 'stock',
+        stockName: details.symbol,
+        pricePerShare: details.pricePerShare,
+        numShares: details.shares,
+        dividendPerShare: details.dividendPerShare ?? 0,
+      },
+      201,
+      playerId
+    )
   }
 
   /** amountIn1000s: e.g. 2 borrows $2,000. */
   takeLoan(roomCode: string, playerId: string, amountIn1000s: number): Promise<any> {
-    return this.post(`/games/${roomCode}/players/${playerId}/transactions/loan`, {
-      type: 'loan_take',
-      amountIn1000s,
-    }, 201, playerId)
+    return this.post(
+      `/games/${roomCode}/players/${playerId}/transactions/loan`,
+      {
+        type: 'loan_take',
+        amountIn1000s,
+      },
+      201,
+      playerId
+    )
   }
 }

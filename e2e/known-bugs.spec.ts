@@ -54,7 +54,7 @@ test.describe('Regression locks (2026-08 review)', () => {
           numShares: 1,
         },
         headers: api.authHeaders(created.hostPlayerId),
-      },
+      }
     )
     expect(res.ok()).toBeTruthy()
 
@@ -137,7 +137,11 @@ test.describe('Regression locks (2026-08 review)', () => {
     expect(player.expenses.retailPayment).toBe(50)
   })
 
-  test('selling a mortgaged property nets out the mortgage balance', async ({ game, api, request }) => {
+  test('selling a mortgaged property nets out the mortgage balance', async ({
+    game,
+    api,
+    request,
+  }) => {
     // Buy real estate: $50,000 property, $500 down, $49,500 mortgage
     const res = await request.post(
       `http://localhost:3100/api/games/${game.roomCode}/players/${game.host.playerId}/transactions`,
@@ -153,7 +157,7 @@ test.describe('Regression locks (2026-08 review)', () => {
           monthlyRent: 560,
         },
         headers: api.authHeaders(game.host.playerId),
-      },
+      }
     )
     expect(res.ok(), await res.text()).toBeTruthy()
 
@@ -172,7 +176,10 @@ test.describe('Regression locks (2026-08 review)', () => {
     const assetId = String(afterBuy.assets[0]._id)
     const sellRes = await request.post(
       `http://localhost:3100/api/games/${game.roomCode}/players/${game.host.playerId}/transactions/sell`,
-      { data: { type: 'sell', assetId, salePrice: 52000 }, headers: api.authHeaders(game.host.playerId) },
+      {
+        data: { type: 'sell', assetId, salePrice: 52000 },
+        headers: api.authHeaders(game.host.playerId),
+      }
     )
     expect(sellRes.ok(), await sellRes.text()).toBeTruthy()
 

@@ -69,8 +69,6 @@ test.describe('Player setup', () => {
 
     const players = await api.getPlayers(created.roomCode)
     const picker = players.find((p: any) => p.playerName === 'Auditor Picker')
-    expect(String(picker.auditorPlayerId?._id ?? picker.auditorPlayerId)).toBe(
-      created.hostPlayerId,
-    )
+    expect(String(picker.auditorPlayerId?._id ?? picker.auditorPlayerId)).toBe(created.hostPlayerId)
   })
 })
