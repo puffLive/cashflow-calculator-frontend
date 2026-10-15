@@ -36,6 +36,7 @@ test.describe('Player setup', () => {
     await completeSetupViaUI(page)
 
     await expect(page.getByText(/ready/i).first()).toBeVisible()
+    await api.rememberFromPage(page)
     const players = await api.getPlayers(roomCode)
     const host = players.find((p: any) => p.playerName === 'Ready Host')
     expect(host).toBeTruthy()
@@ -47,6 +48,7 @@ test.describe('Player setup', () => {
     await page.getByRole('button', { name: /set up your player/i }).click()
     await completeSetupViaUI(page)
 
+    await api.rememberFromPage(page)
     const players = await api.getPlayers(roomCode)
     const host = players.find((p: any) => p.playerName === 'Numbers Host')
 
@@ -67,8 +69,6 @@ test.describe('Player setup', () => {
 
     const players = await api.getPlayers(created.roomCode)
     const picker = players.find((p: any) => p.playerName === 'Auditor Picker')
-    expect(String(picker.auditorPlayerId?._id ?? picker.auditorPlayerId)).toBe(
-      created.hostPlayerId,
-    )
+    expect(String(picker.auditorPlayerId?._id ?? picker.auditorPlayerId)).toBe(created.hostPlayerId)
   })
 })
