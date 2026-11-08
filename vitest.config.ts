@@ -31,7 +31,7 @@ export default defineConfig({
       // exports. Without this, vitest would load the CJS dist and break.
       '@cashflow/shared': path.resolve(
         __dirname,
-        '../cash-flow-backend/shared/src',
+        './vendor/cashflow-shared/src',
       ),
       '@': path.resolve(__dirname, './src'),
     },

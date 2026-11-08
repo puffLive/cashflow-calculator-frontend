@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # Fails on any lint error not already listed in eslint-suppressions.json
+      - name: Lint (no new errors)
+        run: npm run lint
+      - name: Unit tests
+        run: npx vitest run
+      - name: Build
+        run: npm run build
+        env:
+          # Placeholder URLs: the build refuses to run without them
+          VITE_API_BASE_URL: https://backend.example.com/api
+          VITE_SOCKET_URL: https://backend.example.com
