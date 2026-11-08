@@ -1,4 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
+import fs from 'node:fs'
+import path from 'node:path'
 
 /**
  * Playwright E2E Test Configuration
@@ -15,6 +17,15 @@ import { defineConfig, devices } from '@playwright/test'
  */
 
 export const BACKEND_URL = 'http://localhost:3100'
+
+// The backend repo checked out next to this one. Set CASHFLOW_BACKEND_DIR
+// to point elsewhere; otherwise either folder name works.
+const BACKEND_DIR =
+  process.env.CASHFLOW_BACKEND_DIR ??
+  (['../cash-flow-backend', '../cashflow-backend'].find((dir) =>
+    fs.existsSync(path.resolve(import.meta.dirname, dir, 'package.json'))
+  ) ||
+    '../cash-flow-backend')
 
 export default defineConfig({
   testDir: './e2e',
@@ -48,7 +59,7 @@ export default defineConfig({
   webServer: [
     {
       command: 'npm run e2e:server',
-      cwd: '../cash-flow-backend',
+      cwd: BACKEND_DIR,
       url: `${BACKEND_URL}/api/health`,
       reuseExistingServer: !process.env.CI,
       timeout: 180_000, // first run may download the mongodb-memory-server binary

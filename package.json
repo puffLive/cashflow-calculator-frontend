@@ -14,10 +14,11 @@
     "test:coverage": "vitest --coverage",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "sync:shared": "node scripts/sync-shared.mjs"
   },
   "dependencies": {
-    "@cashflow/shared": "file:../cash-flow-backend/shared",
+    "@cashflow/shared": "file:./vendor/cashflow-shared",
     "@reduxjs/toolkit": "^2.11.2",
     "clsx": "^2.1.1",
     "lucide-react": "^0.563.0",

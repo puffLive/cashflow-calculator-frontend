@@ -1,0 +1,8 @@
+{
+  "name": "@cashflow/shared",
+  "version": "1.0.0",
+  "description": "Shared types and calculation engine for Cashflow Calculator (vendored copy: run npm run sync:shared to refresh)",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts"
+}

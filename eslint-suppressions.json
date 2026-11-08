@@ -1,0 +1,449 @@
+{
+  "e2e/buy-audit-flow.spec.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "prettier/prettier": {
+      "count": 21
+    }
+  },
+  "e2e/dashboard-payday.spec.ts": {
+    "prettier/prettier": {
+      "count": 2
+    }
+  },
+  "e2e/detail-screens.spec.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "e2e/helpers/api.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "e2e/helpers/fixtures.ts": {
+    "prettier/prettier": {
+      "count": 4
+    },
+    "react-hooks/rules-of-hooks": {
+      "count": 2
+    }
+  },
+  "e2e/helpers/ui.ts": {
+    "prettier/prettier": {
+      "count": 2
+    }
+  },
+  "e2e/known-bugs.spec.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "e2e/lobby.spec.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "e2e/multiplayer-sync.spec.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "prettier/prettier": {
+      "count": 16
+    }
+  },
+  "e2e/player-setup.spec.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "e2e/sell-and-market.spec.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    },
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "e2e/session-expiry.spec.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "e2e/take-loan.spec.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/App.tsx": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/components/AccessibilityProvider.tsx": {
+    "prettier/prettier": {
+      "count": 8
+    }
+  },
+  "src/components/ActivityFeed.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    },
+    "prettier/prettier": {
+      "count": 13
+    }
+  },
+  "src/components/FinancialSheetPreview.tsx": {
+    "prettier/prettier": {
+      "count": 2
+    }
+  },
+  "src/components/KeyboardNavigationProvider.tsx": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/components/MetricCard.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/components/MobileOptimizations.tsx": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/components/OwnedAssetCard.tsx": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/components/PendingTransactionBanner.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "prettier/prettier": {
+      "count": 3
+    }
+  },
+  "src/components/ReconnectionHandler.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/components/SessionExpiryWarning.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/constants/professions.ts": {
+    "prettier/prettier": {
+      "count": 29
+    }
+  },
+  "src/hooks/useKeyboardNavigation.ts": {
+    "no-case-declarations": {
+      "count": 1
+    },
+    "prettier/prettier": {
+      "count": 3
+    }
+  },
+  "src/hooks/useSocketEvents.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    },
+    "prettier/prettier": {
+      "count": 7
+    }
+  },
+  "src/screens/AuditReviewScreen.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/screens/BuyTransactionScreen.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    },
+    "prettier/prettier": {
+      "count": 9
+    }
+  },
+  "src/screens/CollectScreen.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/screens/CreateGameScreen.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/screens/GameLobbyScreen.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/screens/HandoffAuditScreen.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/screens/JoinGameScreen.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/screens/MarketEventScreen.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 3
+    },
+    "prettier/prettier": {
+      "count": 3
+    }
+  },
+  "src/screens/PayOffLoanScreen.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/screens/PayTransactionScreen.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "prefer-const": {
+      "count": 3
+    }
+  },
+  "src/screens/PendingAuditsScreen.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/screens/PlayerSetupScreen.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "prettier/prettier": {
+      "count": 7
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/screens/SellTransactionScreen.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/screens/TakeLoanScreen.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "prettier/prettier": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/services/gameApi.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 35
+    },
+    "prettier/prettier": {
+      "count": 7
+    }
+  },
+  "src/services/socketService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "src/services/transactionApi.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    },
+    "prettier/prettier": {
+      "count": 3
+    }
+  },
+  "src/store/slices/auditSlice.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/test/components/PendingTransactionBanner.test.tsx": {
+    "prettier/prettier": {
+      "count": 15
+    }
+  },
+  "src/test/components/ProtectedRoute.test.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    },
+    "prettier/prettier": {
+      "count": 15
+    }
+  },
+  "src/test/components/TransactionFAB.test.tsx": {
+    "prettier/prettier": {
+      "count": 3
+    }
+  },
+  "src/test/components/TransactionRejectedModal.test.tsx": {
+    "prettier/prettier": {
+      "count": 8
+    },
+    "react-hooks/immutability": {
+      "count": 2
+    }
+  },
+  "src/test/hooks/useSocketEvents.test.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 11
+    }
+  },
+  "src/test/screens/TakeLoanScreen-suggested.test.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "prettier/prettier": {
+      "count": 2
+    }
+  },
+  "src/test/services/api.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/test/services/socketService.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "src/test/slices/allPlayersSlice.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/test/slices/auditSlice.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/test/slices/gameSessionSlice.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "prettier/prettier": {
+      "count": 3
+    }
+  },
+  "src/test/slices/playerSlice.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "prettier/prettier": {
+      "count": 8
+    }
+  },
+  "src/test/slices/transactionSlice.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/test/slices/uiSlice.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/test/utils/buyTransactionPayload.test.ts": {
+    "prettier/prettier": {
+      "count": 3
+    }
+  },
+  "src/test/utils/impactPreview.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    },
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/types/index.ts": {
+    "prettier/prettier": {
+      "count": 2
+    }
+  },
+  "src/types/profession.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/utils/accessibility.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "prettier/prettier": {
+      "count": 3
+    }
+  },
+  "src/utils/assetMapping.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/utils/buyTransactionPayload.ts": {
+    "prettier/prettier": {
+      "count": 2
+    }
+  },
+  "src/utils/impactPreview.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/utils/sessionAuth.ts": {
+    "prettier/prettier": {
+      "count": 15
+    }
+  },
+  "vitest.config.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  }
+}

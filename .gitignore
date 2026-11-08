@@ -30,3 +30,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Vendored @cashflow/shared ships its built dist/ (see scripts/sync-shared.mjs)
+!vendor/cashflow-shared/dist
